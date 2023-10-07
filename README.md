@@ -17,6 +17,7 @@
 | Kevin Ng | Full-Stack |
 
 ## Authentication
+Authentication feature allows users to sign up for an account if they are a new user. If they are a returning user, they have the option to log in with their credientials, which will be used to autehnticate against our database for safe login.
 - Returning User
   - Log in: User will provide username and password (encrypted) to authenicate against database
   - Log out: User will access 'Log Out' button, removing session ID to log out
