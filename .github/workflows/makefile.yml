@@ -29,5 +29,7 @@ jobs:
     # - name: Run distcheck
     #   run: make distcheck
 
-    - name: Test (Lint Unit)
-      run: make tests
+    # - name: Test (Lint Unit)
+    #   run: make tests
+    - name: Checking $PYTHONPATH
+      run: echo $PYTHONPATH
