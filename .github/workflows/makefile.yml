@@ -20,6 +20,12 @@ jobs:
     # - name: configure
     #   run: ./configure
 
+    - name: Checking pwd
+      run: echo $(pwd)
+
+    - name: Testing PATH
+      run: echo "::set-env name=PYTHONPATH::home/runner/work/BEKK"
+
     - name: Set $PYTHONPATH
       run: export PYTHONPATH=$PYTHONPATH:$(pwd)
 
