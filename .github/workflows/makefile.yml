@@ -6,8 +6,8 @@ on:
   pull_request:
     branches: [ "master" ]
 
-# env:
-#   PYTHONPATH: /home/runner/work/BEKK/
+env:
+  PYTHONPATH: /home/runner/work/BEKK/BEKK
 
 jobs:
   build:
@@ -23,8 +23,8 @@ jobs:
     - name: Checking pwd
       run: echo $(pwd)
 
-    - name: Testing PATH
-      run: echo "::set-env name=PYTHONPATH::home/runner/work/BEKK"
+    # - name: Testing PATH
+    #   run: echo "::set-env name=PYTHONPATH::home/runner/work/BEKK"
 
     - name: Set $PYTHONPATH
       run: export PYTHONPATH=$PYTHONPATH:$(pwd)
