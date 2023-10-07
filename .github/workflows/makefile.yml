@@ -5,6 +5,9 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+    
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 env:
   PYTHONPATH: /home/runner/work/BEKK/BEKK
@@ -17,29 +20,25 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    # - name: configure
-    #   run: ./configure
-
-    - name: Checking pwd
+    - name: Checking $(pwd)
       run: echo $(pwd)
 
-    # - name: Testing PATH
-    #   run: echo "::set-env name=PYTHONPATH::home/runner/work/BEKK"
-
-    - name: Set $PYTHONPATH
-      run: export PYTHONPATH=$PYTHONPATH:$(pwd)
+    - name: Checking $PYTHONPATH
+      run: echo $PYTHONPATH
 
     - name: Install dependencies (dev_env)
       run: make dev_env
 
-    - name: Checking $PYTHONPATH
-      run: echo $PYTHONPATH
+    - name: Test (Lint Unit)
+      run: make tests
+
+    # DEFAULT ACTIONS FROM GITHUB ACTIONS
+
+    # - name: configure
+    #   run: ./configure
 
     # - name: Run check
     #   run: make check
 
     # - name: Run distcheck
     #   run: make distcheck
-
-    - name: Test (Lint Unit)
-      run: make tests
