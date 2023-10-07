@@ -16,7 +16,19 @@
 | Kaitlyn Chau | Front-End |
 | Kevin Ng | Full-Stack |
 
-
+## Authentication
+- Returning User
+  - Log in: User will provide username and password (encrypted) to authenicate against database
+  - Log out: User will access 'Log Out' button, removing session ID to log out
+- New User
+  - Create Account Neccessary Credentials
+    - First Name
+    - Last Name
+    - Date of Birth
+    - Username 
+    - Email Address 
+    - Password
+    - Reconfirm Password
 ## Follow Feature 
 - As a user, I want to follow other users to view and interact with their blogs 
 - As a user, I want to manage my followers to restrict who can view & interact w/ my blogs 
