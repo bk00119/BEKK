@@ -20,6 +20,9 @@ jobs:
     # - name: configure
     #   run: ./configure
 
+    - name: Set $PYTHONPATH
+      run: export PYTHONPATH=$PYTHONPATH:$(pwd)
+
     - name: Install dependencies (dev_env)
       run: make dev_env
 
