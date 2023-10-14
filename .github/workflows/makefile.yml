@@ -18,27 +18,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+     - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          # Semantic version range syntax or exact version of a Python version
+          python-version: '3.9'
+          # Optional - x64 or x86 architecture, defaults to x64
+          architecture: 'x64'
+      # You can test your matrix by printing the current Python version
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
 
-    - name: Checking $(pwd)
-      run: echo $(pwd)
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
 
-    - name: Checking $PYTHONPATH
-      run: echo $PYTHONPATH
+      # - uses: actions/checkout@v3
 
-    - name: Install dependencies (dev_env)
-      run: make dev_env
+      - name: Checking $(pwd)
+        run: echo $(pwd)
 
-    - name: Test (Lint Unit)
-      run: make tests
+      - name: Checking $PYTHONPATH
+        run: echo $PYTHONPATH
 
-    # DEFAULT ACTIONS FROM GITHUB ACTIONS
+      - name: Install dependencies (dev_env)
+        run: make dev_env
 
-    # - name: configure
-    #   run: ./configure
+      - name: Test (Lint Unit)
+        run: make tests
 
-    # - name: Run check
-    #   run: make check
+      # DEFAULT ACTIONS FROM GITHUB ACTIONS
 
-    # - name: Run distcheck
-    #   run: make distcheck
+      # - name: configure
+      #   run: ./configure
+
+      # - name: Run check
+      #   run: make check
+
+      # - name: Run distcheck
+      #   run: make distcheck
