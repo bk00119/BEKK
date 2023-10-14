@@ -1,5 +1,27 @@
 # Project Overview
-## Potential Features
+## Team Members & Roles
+| NAME | ROLE |
+| --- | --- |
+| Brian Kim | Full-Stack |
+| Esther Wang | Back-End |
+| Kaitlyn Chau | Front-End |
+| Kevin Ng | Full-Stack |
+
+## Tech Stack / Tools
+- Front-end: React
+- API server: flask and flask-restx
+- OS: UNIX-like (MacOS, Linux, Windows Subsystem for Linux, etc.)
+- Testing: pytest
+- Database: MongoDB
+- Build: make
+- Lint: flake8
+- CI/CD: GitHub Actions
+- Cloud deployment: Heroku
+- Project management: Notion & Kanban board on GitHub
+
+
+# Potential Features
+## Tasks
 - Post Tasks
   - Tasks look like a blog which isn't simply like todos
   - Users can customize font size/weight/color
@@ -7,14 +29,6 @@
   - Can include an image
 - Modify Task Attributes
   - Including update and delete
-
-# Team Members & Roles
-| NAME | ROLE |
-| --- | --- |
-| Brian Kim | Full-Stack |
-| Esther Wang | Back-End |
-| Kaitlyn Chau | Front-End |
-| Kevin Ng | Full-Stack |
 
 ## Authentication
 Authentication feature allows users to sign up for an account if they are a new user. If they are a returning user, they have the option to log in with their credientials, which will be used to autehnticate against our database for safe login.
@@ -52,3 +66,7 @@ Streaks motivates users to maintain consistent engagement with the application, 
 - Streak is displayed publically on profile
 - Notifications will be sent out to maintain streak
 - Streaks completed by completing at least one task a week.
+
+## Sketches
+![Home Login Feed Wireframe](documentation/images/home_login_feed_wireframe_sketch.jpg)
+![Group Fellow Schema](documentation/images/group_follow_schema.jpg)
