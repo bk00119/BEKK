@@ -1,63 +1,3 @@
-# name: Makefile CI
-
-# on:
-#   push:
-#     branches: [ "master" ]
-#   pull_request:
-#     branches: [ "master" ]
-    
-#   # Allows you to run this workflow manually from the Actions tab
-#   workflow_dispatch:
-
-# env:
-#   PYTHONPATH: /home/runner/work/BEKK/BEKK
-
-# jobs:
-#   build:
-
-#     runs-on: ubuntu-latest
-#     environment: pa_deploy
-
-#     steps:
-#      - name: Set up Python 3.9
-#         uses: actions/setup-python@v4
-#         with:
-#           # Semantic version range syntax or exact version of a Python version
-#           python-version: '3.9'
-#           # Optional - x64 or x86 architecture, defaults to x64
-#           architecture: 'x64'
-#       # You can test your matrix by printing the current Python version
-#       - name: Display Python version
-#         run: python -c "import sys; print(sys.version)"
-
-#       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-#       - uses: actions/checkout@v2
-
-#       # - uses: actions/checkout@v3
-
-#       - name: Checking $(pwd)
-#         run: echo $(pwd)
-
-#       - name: Checking $PYTHONPATH
-#         run: echo $PYTHONPATH
-
-#       - name: Install dependencies (dev_env)
-#         run: make dev_env
-
-#       - name: Test (Lint Unit)
-#         run: make tests
-
-#       # DEFAULT ACTIONS FROM GITHUB ACTIONS
-
-#       # - name: configure
-#       #   run: ./configure
-
-#       # - name: Run check
-#       #   run: make check
-
-#       # - name: Run distcheck
-#       #   run: make distcheck
-
 name: Demo CI/CD
 
 # Controls when the workflow will run
@@ -104,7 +44,7 @@ jobs:
       - name: Install Python packages.
         run: make dev_env
 
-      - name: Run Python tests.
+      - name: Run Python tests. (Lint Unit)
         run: make tests
         
           # - name: Deploy to PythonAnywhere
