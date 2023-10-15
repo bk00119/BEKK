@@ -50,7 +50,16 @@ Authentication feature allows users to sign up for an account if they are a new 
 - As a user, I want to manage my followees to restrict whos blogs I want to view & interact 
 ## Group Feature 
 - As a user, I want to form a group to view & edit blogs for a specific category 
-- As a user, I want to add and remove group members to form the group 
+- As a user, I want to add and remove group members to form the group
+
+## Profile Summary
+Detailed summary of profile and all things related to account
+- Create custom profile (bio, introductions, public presence)
+- Ability to modify profile information (i.e., username, name, channels)
+- Overview of followers, following, and channels
+- View past posts
+- Create new posts
+
 
 ## Summary / Profile Statistics
 Summary feature offers users a visualization of their activity and achievements within the application. This will provide summarized insights into their performance and progress. 
@@ -65,8 +74,9 @@ Summary feature offers users a visualization of their activity and achievements 
 Streaks motivates users to maintain consistent engagement with the application, rewarding users for completing tasks on consecutive days.
 - Streak is displayed publically on profile
 - Notifications will be sent out to maintain streak
-- Streaks completed by completing at least one task a week.
+- Streaks completed by completing at least one task a day.
 
 ## Sketches
 ![Home Login Feed Wireframe](documentation/images/home_login_feed_wireframe_sketch.jpg)
+![Profile Wireframe](documentation/images/profile_wireframe_sketch.jpg)
 ![Group Fellow Schema](documentation/images/group_follow_schema.jpg)
