@@ -34,6 +34,9 @@
 Authentication feature allows users to sign up for an account if they are a new user. If they are a returning user, they have the option to log in with their credientials, which will be used to autehnticate against our database for safe login.
 - Returning User
   - Log in: User will provide username and password (encrypted) to authenicate against database
+    - Required fields
+    - Database: one to one relationship
+    - password will be stored using SHA encryption salted
   - Log out: User will access 'Log Out' button, removing session ID to log out
 - New User
   - Create Account Neccessary Credentials
@@ -44,6 +47,7 @@ Authentication feature allows users to sign up for an account if they are a new 
     - Email Address 
     - Password
     - Reconfirm Password
+
 ## Follow Feature 
 - As a user, I want to follow other users to view and interact with their blogs 
 - As a user, I want to manage my followers to restrict who can view & interact w/ my blogs 
