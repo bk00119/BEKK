@@ -80,3 +80,5 @@ Streaks motivates users to maintain consistent engagement with the application, 
 ![Home Login Feed Wireframe](documentation/images/home_login_feed_wireframe_sketch.jpg)
 ![Profile Wireframe](documentation/images/profile_wireframe_sketch.jpg)
 ![Group Fellow Schema](documentation/images/group_follow_schema.jpg)
+![Group Wireframe](documentation/pdf/group_wireframe_v1.pdf)
+![Friend Wireframe](documentation/pdf/friend_wireframe_v1.pdf)
