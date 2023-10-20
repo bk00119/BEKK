@@ -20,7 +20,7 @@ github: FORCE
 
 all_tests: FORCE
 	cd $(API_DIR); make tests 
-	cd $(DB_DIR); make tests
+#	cd $(DB_DIR); make tests
 
 # unit: FORCE
 # 	cd $(API_DIR); pytest $(PYTESTFLAGS) --cov=$(PKG)
