@@ -19,7 +19,7 @@ github: FORCE
 # tests: lint unit
 
 all_tests: FORCE
-	cd $(API_DIR); make tests 
+	cd $(API_DIR); make tests
 #	cd $(DB_DIR); make tests
 
 # unit: FORCE
