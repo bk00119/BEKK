@@ -49,6 +49,10 @@ Authentication feature allows users to sign up for an account if they are a new 
     - Reconfirm Password
   - New users will be checked against existing users database before proceeding to ensure there are no duplicates
 
+## Post Feature
+- Users can post to their walls with no restriction to text, img, video, audio, etc
+- posts can be public or private based on setting
+
 ## Follow Feature 
 - As a user, I want to follow other users to view and interact with their blogs 
 - As a user, I want to manage my followers to restrict who can view & interact w/ my blogs 
