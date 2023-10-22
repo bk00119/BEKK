@@ -1,4 +1,4 @@
-# Project Overview
+x Project Overview
 ## Team Members & Roles
 | NAME | ROLE |
 | --- | --- |
@@ -54,12 +54,20 @@ Authentication feature allows users to sign up for an account if they are a new 
 - posts can be public or private based on setting
 
 ## Follow Feature 
-- As a user, I want to follow other users to view and interact with their blogs 
+- As a user, I want to follow other users to view and interact with followee's blogs.  
 - As a user, I want to manage my followers to restrict who can view & interact w/ my blogs 
-- As a user, I want to manage my followees to restrict whos blogs I want to view & interact 
+- As a user, I want to manage my followees to restrict whos blogs I want to view & interact
+- As a user, I want to cancel my follow request to prevent follow mistakes. 
+- As a user, I want search for users by username to view and follow others. 
+- As a user, I want to see a follow button upon search to easily follow other users. 
+- As a user, I want a confirmation message upon follow/unfollow to know my request has went through. 
+- As a user, I want my profile to be default set to private to avoid interactions with malicious parties.  
 ## Group Feature 
 - As a user, I want to form a group to view & edit blogs for a specific category 
-- As a user, I want to add and remove group members to form the group
+- As a admin, I want to add and remove group members to form the group
+- As a user, I want to search for groups via group name to avoid burdening the user from adding large quantities of users. 
+- As a admin, I want to approve/deny join requests to manage group membership 
+- As a user, I want to post blogs into the group to have others hold me accountable/reward me for completing the task 
 
 ## Profile Summary
 Detailed summary of profile and all things related to account
