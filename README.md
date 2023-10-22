@@ -94,6 +94,7 @@ Summary feature offers users a visualization of their activity and achievements 
   - Time Spent: Cumulative time spent on activities
 - Goal Setting
   - Opportunity to set goals to track based on statistics.
+  - Include tabs on past/completed goals, current goals, and ability to add goals
 
 ## Streaks
 Streaks motivates users to maintain consistent engagement with the application, rewarding users for completing tasks on consecutive days.
@@ -107,3 +108,4 @@ Streaks motivates users to maintain consistent engagement with the application, 
 ![Group Fellow Schema](documentation/images/group_follow_schema.jpg)
 ![Group Wireframe](documentation/images/group_wireframe_v1.jpg)
 ![Friend Wireframe](documentation/images/friend_wireframe_v1.jpg)
+![Insight Wireframe](documentation/images/performance_analyzer_sketch.jpg)
