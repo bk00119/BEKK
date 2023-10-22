@@ -67,7 +67,15 @@ Authentication feature allows users to sign up for an account if they are a new 
 - As a admin, I want to add and remove group members to form the group
 - As a user, I want to search for groups via group name to avoid burdening the user from adding large quantities of users. 
 - As a admin, I want to approve/deny join requests to manage group membership 
-- As a user, I want to post blogs into the group to have others hold me accountable/reward me for completing the task 
+- As a user, I want to post blogs into the group to have others hold me accountable/reward me for completing the task
+- As a admin, I want to take down blogs to remove innappropriate/irrelevant/malicious content. 
+- As a user, I want to chat with group members to discuss about work progress/work help. 
+- As a user, I want to see group members productivity progress as a number/graph/color to get feedback. 
+- As a user, I want to view and interact with group member blogs to hold group members accountable. 
+- As a user, I want to leave the group to remove irrelevant groups. 
+- As a admin, I want to close a group to remove irrelevant groups. 
+- As a user, I want to view all the groups I am part of in my profile to track groups. 
+- As a admin, I want to  view all the groups I manage in my profile to track the groups I manage.  
 
 ## Profile Summary
 Detailed summary of profile and all things related to account
