@@ -13,10 +13,15 @@ api = Api(app)
 # Endpoints
 LOGIN_EP = '/login'
 SIGNUP_EP = '/signup'
+PROFILE_EP = '/profile'
 
 # Responses
 TOKEN_RESP = 'token'
 USERNAME_RESP = 'username'
+
+NAME = 'Name'
+GOALS = 'Goals'
+GROUPS = 'Groups'
 
 
 @api.route(f'{LOGIN_EP}', methods=['POST'])
@@ -42,3 +47,16 @@ class Signup(Resource):
             TOKEN_RESP: 'ABC123',
             USERNAME_RESP: data[USERNAME_RESP]
         }
+
+
+@api.route(f'{PROFILE_EP}', methods=['GET'])
+class Profile(Resource):
+    """
+    This class will deliver contents for user profile.
+    """
+    def get(self):
+        return {
+                NAME: 'John Smith',
+                GOALS: ['cs hw2', 'fin hw3'],
+                GROUPS: ['cs', 'fin']
+            }
