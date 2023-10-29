@@ -1,4 +1,4 @@
-
+ 
 import db.users as usrs
 
 def test_get_users():
@@ -12,3 +12,8 @@ def test_get_users():
         assert isinstance(user, dict)
         assert usrs.LEVEL in user
         assert isinstance(user[usrs.LEVEL], int)
+
+
+def test_get_profile():
+    users = usrs.get_profile()
+    assert isinstance(users, dict)
