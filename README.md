@@ -18,6 +18,7 @@ x Project Overview
 - CI/CD: GitHub Actions
 - Cloud deployment: Heroku
 - Project management: Notion & Kanban board on GitHub
+- Design: Figma
 
 
 # Potential Features
@@ -109,3 +110,6 @@ Streaks motivates users to maintain consistent engagement with the application, 
 ![Group Wireframe](documentation/images/group_wireframe_v1.jpg)
 ![Friend Wireframe](documentation/images/friend_wireframe_v1.jpg)
 ![Insight Wireframe](documentation/images/performance_analyzer_sketch.jpg)
+
+## Wireframe Designs
+
