@@ -31,10 +31,11 @@ TASKS = 'Tasks'
 
 # User Example Data
 TEST_PROFILE = {
-        NAME: 'John Smith', 
-        GOALS: ['cs hw2', 'fin hw3'], 
-        GROUPS: ['cs', 'fin'] 
-    }
+    NAME: 'John Smith',
+    GOALS: ['cs hw2', 'fin hw3'],
+    GROUPS: ['cs', 'fin']
+}
+
 
 @api.route(f'{LOGIN_EP}', methods=['POST'])
 class Login(Resource):

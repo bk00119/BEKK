@@ -15,7 +15,7 @@ def test_login():
     print(f'{resp_json=}')
     assert ep.TOKEN_RESP in resp_json
 
-def test_login():
+def test_signup():
     resp = TEST_CLIENT.post(ep.SIGNUP_EP, json=SAMPLE_USER)
     print(f'{resp=}')
     resp_json = resp.get_json()
