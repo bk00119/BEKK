@@ -40,3 +40,12 @@ def test_profile():
     for goal_title in goals:
         assert isinstance(goal_title, str) 
 
+def test_viewTasks():
+    resp = TEST_CLIENT.get(ep.VIEWTASKS_EP)
+    resp_json = resp.get_json()
+    assert isinstance(resp_json, dict)
+    assert ep.TASKS in resp_json
+    tasks = resp_json[ep.TASKS]
+    assert isinstance(tasks, list)
+    for task in tasks:
+        assert isinstance(task, str)

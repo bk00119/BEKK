@@ -14,6 +14,7 @@ api = Api(app)
 LOGIN_EP = '/login'
 SIGNUP_EP = '/signup'
 PROFILE_EP = '/profile'
+VIEWTASKS_EP = '/viewTasks'
 
 # Responses
 TOKEN_RESP = 'token'
@@ -22,6 +23,8 @@ USERNAME_RESP = 'username'
 NAME = 'Name'
 GOALS = 'Goals'
 GROUPS = 'Groups'
+
+TASKS = 'Tasks'
 
 
 # User Example Data
@@ -64,3 +67,13 @@ class Profile(Resource):
     def get(self):
         return TEST_PROFILE
 
+
+@api.route(f'{VIEWTASKS_EP}', methods=['GET'])
+class ViewTasks(Resource):
+    """
+    This class will show tasks for the user profile
+    """
+    def get(self):
+        return {
+            TASKS: ['task1', 'task2', 'task3', 'task4']
+        }
