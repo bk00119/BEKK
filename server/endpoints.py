@@ -15,10 +15,12 @@ LOGIN_EP = '/login'
 SIGNUP_EP = '/signup'
 PROFILE_EP = '/profile'
 VIEWTASKS_EP = '/viewTasks'
+POSTTASK_EP = '/postTask'
 
 # Responses
 TOKEN_RESP = 'token'
 USERNAME_RESP = 'username'
+TASK_RESP = 'task'
 
 NAME = 'Name'
 GOALS = 'Goals'
@@ -73,4 +75,17 @@ class ViewTasks(Resource):
     def get(self):
         return {
             TASKS: ['task1', 'task2', 'task3', 'task4']
+        }
+
+
+@api.route(f'{POSTTASK_EP}', methods=['POST'])
+class PostTask(Resource):
+    """
+    This class post task to user profile
+    """
+    def post(self):
+        data = request.get_json()
+        print(data['task'])
+        return {
+            TASK_RESP: data[TASK_RESP]
         }
