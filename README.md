@@ -74,7 +74,7 @@ Authentication feature allows users to sign up for an account if they are a new 
 - As a user, I want to see group members productivity progress as a number/graph/color to get feedback. 
 - As a user, I want to view and interact with group member blogs to hold group members accountable. 
 - As a user, I want to leave the group to remove irrelevant groups. 
-- As a admin, I want to close a group to remove irrelevant groups. 
+- As a admin, I want to close a group to remove irrelevant groups 
 - As a user, I want to view all the groups I am part of in my profile to track groups. 
 - As a admin, I want to  view all the groups I manage in my profile to track the groups I manage.  
 
