@@ -29,6 +29,13 @@ GROUPS = 'Groups'
 TASKS = 'Tasks'
 
 
+# User Example Data
+TEST_PROFILE = {
+        NAME: 'John Smith', 
+        GOALS: ['cs hw2', 'fin hw3'], 
+        GROUPS: ['cs', 'fin'] 
+    }
+
 @api.route(f'{LOGIN_EP}', methods=['POST'])
 class Login(Resource):
     """
@@ -60,11 +67,7 @@ class Profile(Resource):
     This class will deliver contents for user profile.
     """
     def get(self):
-        return {
-                NAME: 'John Smith',
-                GOALS: ['cs hw2', 'fin hw3'],
-                GROUPS: ['cs', 'fin']
-            }
+        return TEST_PROFILE
 
 
 @api.route(f'{VIEWTASKS_EP}', methods=['GET'])

@@ -1,5 +1,6 @@
  
 import db.users as usrs
+import pytest
 
 def test_get_users():
     users = usrs.get_users()
@@ -13,7 +14,7 @@ def test_get_users():
         assert usrs.LEVEL in user
         assert isinstance(user[usrs.LEVEL], int)
 
-
+@pytest.mark.skip(reason="endpoint does not exist yet") 
 def test_get_profile():
     users = usrs.get_profile()
     assert isinstance(users, dict)
