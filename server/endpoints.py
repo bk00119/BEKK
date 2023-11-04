@@ -12,6 +12,7 @@ api = Api(app)
 
 # Endpoints
 LOGIN_EP = '/login'
+LOGOUT_EP = '/logout'
 SIGNUP_EP = '/signup'
 PROFILE_EP = '/profile'
 VIEWTASKS_EP = '/viewTasks'
@@ -21,6 +22,7 @@ POSTTASK_EP = '/postTask'
 TOKEN_RESP = 'token'
 USERNAME_RESP = 'username'
 TASK_RESP = 'task'
+MESSAGE_RESP = 'message'
 
 NAME = 'Name'
 GOALS = 'Goals'
@@ -30,6 +32,7 @@ TASKS = 'Tasks'
 
 
 # User Example Data
+TEST_USER_TOKEN = 'ABC123'
 TEST_PROFILE = {
     NAME: 'John Smith',
     GOALS: ['cs hw2', 'fin hw3'],
@@ -44,7 +47,18 @@ class Login(Resource):
     """
     def post(self):
         return {
-            TOKEN_RESP: 'ABC123'
+            TOKEN_RESP: TEST_USER_TOKEN
+        }
+
+
+@api.route(f'{LOGOUT_EP}', methods=['POST'])
+class Logout(Resource):
+    """
+    This class supports fetching a user data for logout
+    """
+    def post(self):
+        return {
+            MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY LOGGED OUT'
         }
 
 
@@ -57,7 +71,7 @@ class Signup(Resource):
         data = request.get_json()
         print(data['username'])
         return {
-            TOKEN_RESP: 'ABC123',
+            TOKEN_RESP: TEST_USER_TOKEN,
             USERNAME_RESP: data[USERNAME_RESP]
         }
 

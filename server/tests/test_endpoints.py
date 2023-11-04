@@ -1,5 +1,6 @@
 
 import server.endpoints as ep
+import pytest
 
 TEST_CLIENT = ep.app.test_client()
 
@@ -14,6 +15,13 @@ def test_login():
     resp_json = resp.get_json()
     print(f'{resp_json=}')
     assert ep.TOKEN_RESP in resp_json
+    
+def test_logout():
+    resp = TEST_CLIENT.post(ep.LOGOUT_EP, json=SAMPLE_USER)
+    print(f'{resp=}')
+    resp_json = resp.get_json()
+    print(f'{resp_json=}')
+    assert ep.MESSAGE_RESP in resp_json
 
 def test_signup():
     resp = TEST_CLIENT.post(ep.SIGNUP_EP, json=SAMPLE_USER)
