@@ -59,7 +59,7 @@ def test_viewTasks():
         assert isinstance(task, str)
 
 def test_postTask():
-    resp = TEST_CLIENT.post(ep.POSTTASK_EP, json=SAMPLE_USER)
+    resp = TEST_CLIENT.post(ep.POSTTASK_EP)
     print(f'{resp=}')
     resp_json = resp.get_json()
     print(f'{resp_json=}')
