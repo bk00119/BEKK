@@ -48,6 +48,7 @@ TEST_TASK = {
     TASK_DESCRIPTION: "BEKK final project"
 }
 
+
 @api.route(f'{LOGIN_EP}', methods=['POST'])
 class Login(Resource):
     """
@@ -111,7 +112,7 @@ class PostTask(Resource):
     """
     def post(self):
         data = request.get_json()
-        print(data['username']) 
+        print(data['username'])
         return {
             TASK_RESP: TEST_TASK,
             USERNAME_RESP: data[USERNAME_RESP]
