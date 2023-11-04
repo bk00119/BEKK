@@ -30,6 +30,9 @@ GROUPS = 'Groups'
 
 TASKS = 'Tasks'
 
+TASK_NAME = 'task name'
+TASK_DESCRIPTION = 'task description'
+
 
 # User Example Data
 TEST_USER_TOKEN = 'ABC123'
@@ -39,6 +42,11 @@ TEST_PROFILE = {
     GROUPS: ['cs', 'fin']
 }
 
+# Task Example Data
+TEST_TASK = {
+    TASK_NAME: "SWE",
+    TASK_DESCRIPTION: "BEKK final project"
+}
 
 @api.route(f'{LOGIN_EP}', methods=['POST'])
 class Login(Resource):
@@ -92,7 +100,7 @@ class ViewTasks(Resource):
     """
     def get(self):
         return {
-            TASKS: ['task1', 'task2', 'task3', 'task4']
+            TASKS: ['task', 'task1', 'task2', 'task3', 'task4']
         }
 
 
@@ -103,7 +111,8 @@ class PostTask(Resource):
     """
     def post(self):
         data = request.get_json()
-        print(data['task'])
+        print(data['username']) 
         return {
-            TASK_RESP: data[TASK_RESP]
+            TASK_RESP: TEST_TASK,
+            USERNAME_RESP: data[USERNAME_RESP]
         }
