@@ -190,6 +190,6 @@ class LikeTask(Resource):
         data = request.get_json()
         print(data['username'])
         return {
-            LIKE_RESP: TEST_TASK.LIKE,
+            LIKE_RESP: TEST_TASK,
             USERNAME_RESP: data[USERNAME_RESP]
         }
