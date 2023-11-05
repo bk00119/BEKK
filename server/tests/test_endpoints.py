@@ -105,5 +105,10 @@ def test_postGroup():
     assert ep.GROUP_RESP in resp_json
     assert ep.USERNAME_RESP in resp_json
 
-
-
+def test_likeTask():
+    resp = TEST_CLIENT.post(ep.LIKETASK_EP, json=SAMPLE_USER)
+    print(f'{resp=}')
+    resp_json = resp.get_json()
+    print(f'{resp_json=}') 
+    assert ep.LIKE_RESP in resp.json
+    assert ep.USERNAME_RESP in resp_json
