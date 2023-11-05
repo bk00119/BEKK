@@ -65,3 +65,23 @@ def test_postTask():
     print(f'{resp_json=}')
     assert ep.TASK_RESP in resp_json
     assert ep.USERNAME_RESP in resp_json
+
+def test_viewGoals():
+    resp = TEST_CLIENT.get(ep.VIEWGOALS_EP)
+    resp_json = resp.get_json()
+    assert isinstance(resp_json, dict)
+    assert ep.GOALS in resp_json
+    goals = resp_json[ep.GOALS]
+    assert isinstance(goals, list)
+    for goal in goals:
+        assert isinstance(goal, str)
+
+def test_postGoal():
+    resp = TEST_CLIENT.post(ep.POSTGOAL_EP, json=SAMPLE_USER)
+    print(f'{resp=}')
+    resp_json = resp.get_json()
+    print(f'{resp_json=}')
+    assert ep.GOAL_RESP in resp_json
+    assert ep.USERNAME_RESP in resp_json
+
+
