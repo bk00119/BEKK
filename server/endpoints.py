@@ -125,3 +125,53 @@ class PostTask(Resource):
             TASK_RESP: TEST_TASK,
             USERNAME_RESP: data[USERNAME_RESP]
         }
+
+
+@api.route(f'{VIEWGOALS_EP}', methods=['GET'])
+class ViewGoals(Resource):
+    """
+    This class shows goals on the user profile.
+    """
+    def get(self):
+        return {
+            GOALS: ['goal', 'goal1', 'goal2', 'goal3', 'goal4']
+        }
+
+
+@api.route(f'{POSTGOAL_EP}', methods=['POST'])
+class PostGoal(Resource):
+    """
+    This class posts goals to user profile.
+    """
+    def post(self):
+        data = request.get_json()
+        print(data['username'])
+        return {
+            GOAL_RESP: TEST_TASK,
+            USERNAME_RESP: data[USERNAME_RESP]
+        }
+
+
+@api.route(f'{VIEWGROUPS_EP}', methods=['GET'])
+class ViewGroup(Resource):
+    """
+    This class shows the groups for each user.
+    """
+    def get(self):
+        return {
+            GROUPS: ['group', 'group1', 'group2', 'group3', 'group4']
+        }
+
+
+@api.route(f'{POSTGROUP_EP}', methods=['POST'])
+class PostGroup(Resource):
+    """
+    This class posts group to the user profile.
+    """
+    def post(self):
+        data = request.get_json()
+        print(data['username'])
+        return {
+            GROUP_RESP: TEST_TASK,
+            USERNAME_RESP: data[USERNAME_RESP]
+        }

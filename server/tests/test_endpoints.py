@@ -1,5 +1,8 @@
+#import server.endpoints as ep
+import sys
+sys.path.append("..")
+from server import endpoints as ep
 
-import server.endpoints as ep
 import pytest
 
 TEST_CLIENT = ep.app.test_client()
