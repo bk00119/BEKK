@@ -84,4 +84,23 @@ def test_postGoal():
     assert ep.GOAL_RESP in resp_json
     assert ep.USERNAME_RESP in resp_json
 
+def test_viewGroups():
+    resp = TEST_CLIENT.get(ep.VIEWGROUPS_EP)
+    resp_json = resp.get_json()
+    assert isinstance(resp_json, dict)
+    assert ep.GROUPS in resp_json
+    groups = resp_json[ep.GROUPS]
+    assert isinstance(groups, list)
+    for group in groups:
+        assert isinstance(group, str)
+
+def test_postGroup():
+    resp = TEST_CLIENT.post(ep.POSTGROUP_EP, json=SAMPLE_USER)
+    print(f'{resp=}')
+    resp_json = resp.get_json()
+    print(f'{resp_json=}')
+    assert ep.GROUP_RESP in resp_json
+    assert ep.USERNAME_RESP in resp_json
+
+
 

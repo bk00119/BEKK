@@ -17,12 +17,20 @@ SIGNUP_EP = '/signup'
 PROFILE_EP = '/profile'
 VIEWTASKS_EP = '/viewTasks'
 POSTTASK_EP = '/postTask'
+VIEWGOALS_EP = '/viewGoals'
+POSTGOAL_EP = '/postGoal'
+VIEWGROUPS_EP = '/viewGroups'
+POSTGROUP_EP = '/postGroup'
+
 
 # Responses
 TOKEN_RESP = 'token'
 USERNAME_RESP = 'username'
 TASK_RESP = 'task'
 MESSAGE_RESP = 'message'
+GOAL_RESP = 'goal'
+GROUP_RESP = 'group'
+
 
 NAME = 'Name'
 GOALS = 'Goals'
