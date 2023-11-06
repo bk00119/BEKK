@@ -21,6 +21,7 @@ VIEWGOALS_EP = '/viewGoals'
 POSTGOAL_EP = '/postGoal'
 VIEWGROUPS_EP = '/viewGroups'
 POSTGROUP_EP = '/postGroup'
+LIKETASK_EP = '/likeTask'
 
 
 # Responses
@@ -30,6 +31,7 @@ TASK_RESP = 'task'
 MESSAGE_RESP = 'message'
 GOAL_RESP = 'goal'
 GROUP_RESP = 'group'
+LIKE_RESP = 'liked'
 
 
 NAME = 'Name'
@@ -40,6 +42,7 @@ TASKS = 'Tasks'
 
 TASK_NAME = 'task name'
 TASK_DESCRIPTION = 'task description'
+LIKE = False
 
 
 # User Example Data
@@ -53,7 +56,8 @@ TEST_PROFILE = {
 # Task Example Data
 TEST_TASK = {
     TASK_NAME: "SWE",
-    TASK_DESCRIPTION: "BEKK final project"
+    TASK_DESCRIPTION: "BEKK final project",
+    LIKE: True
 }
 
 
@@ -173,5 +177,19 @@ class PostGroup(Resource):
         print(data['username'])
         return {
             GROUP_RESP: TEST_TASK,
+            USERNAME_RESP: data[USERNAME_RESP]
+        }
+
+
+@api.route(f'{LIKETASK_EP}', methods=['POST'])
+class LikeTask(Resource):
+    """
+    This class likes the taks under user's task lists
+    """
+    def post(self):
+        data = request.get_json()
+        print(data['username'])
+        return {
+            LIKE_RESP: TEST_TASK,
             USERNAME_RESP: data[USERNAME_RESP]
         }
