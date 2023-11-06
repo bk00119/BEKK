@@ -12,6 +12,13 @@ SAMPLE_USER = {
     'password': 'pw1234'
 }
 
+SAMPLE_PROFILE = {
+    ep.NAME: 'John Smith',
+    ep.GOALS: ['cs hw2', 'fin hw3'],
+    ep.GROUPS: ['cs', 'fin'],
+    ep.PRIVATE: False
+}
+
 def test_login():
     resp = TEST_CLIENT.post(ep.LOGIN_EP, json=SAMPLE_USER)
     print(f'{resp=}')
@@ -34,7 +41,6 @@ def test_signup():
     assert ep.TOKEN_RESP in resp_json
     assert ep.USERNAME_RESP in resp_json
 
-# check if data exists
 def test_profile():
     resp = TEST_CLIENT.get(ep.PROFILE_EP) 
     resp_json = resp.get_json() 
@@ -42,14 +48,28 @@ def test_profile():
     assert ep.NAME in resp_json 
     assert ep.GROUPS in resp_json 
     assert ep.GOALS in resp_json
+    assert ep.PRIVATE in resp_json
     groups = resp_json[ep.GROUPS] 
     goals = resp_json[ep.GOALS] 
+    assert isinstance(resp_json[ep.NAME], str)
+    assert isinstance(resp_json[ep.PRIVATE], bool)
     assert isinstance(groups, list) 
     assert isinstance(goals, list)
     for group_name in groups:
         assert isinstance(group_name, str) 
     for goal_title in goals:
-        assert isinstance(goal_title, str) 
+        assert isinstance(goal_title, str)
+
+def test_create_profile():
+    resp = TEST_CLIENT.post(ep.CREATEPROFILE_EP, json=SAMPLE_PROFILE) 
+    print(f'{resp=}')
+    resp_json = resp.get_json()
+    assert ep.PROFILE_VALID_RESP in resp_json
+    assert resp_json[ep.PROFILE_VALID_RESP] == 200
+    
+@pytest.mark.skip("modify profile endpoint does not exist yet")
+def test_modify_profile():
+    pass
 
 def test_viewTasks():
     resp = TEST_CLIENT.get(ep.VIEWTASKS_EP)

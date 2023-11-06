@@ -15,6 +15,7 @@ LOGIN_EP = '/login'
 LOGOUT_EP = '/logout'
 SIGNUP_EP = '/signup'
 PROFILE_EP = '/profile'
+CREATEPROFILE_EP = '/createProfile'
 VIEWTASKS_EP = '/viewTasks'
 POSTTASK_EP = '/postTask'
 VIEWGOALS_EP = '/viewGoals'
@@ -27,6 +28,7 @@ LIKETASK_EP = '/likeTask'
 # Responses
 TOKEN_RESP = 'token'
 USERNAME_RESP = 'username'
+PROFILE_VALID_RESP = "profilevalidation"
 TASK_RESP = 'task'
 MESSAGE_RESP = 'message'
 GOAL_RESP = 'goal'
@@ -37,6 +39,7 @@ LIKE_RESP = 'liked'
 NAME = 'Name'
 GOALS = 'Goals'
 GROUPS = 'Groups'
+PRIVATE = "Private"
 
 TASKS = 'Tasks'
 
@@ -50,7 +53,8 @@ TEST_USER_TOKEN = 'ABC123'
 TEST_PROFILE = {
     NAME: 'John Smith',
     GOALS: ['cs hw2', 'fin hw3'],
-    GROUPS: ['cs', 'fin']
+    GROUPS: ['cs', 'fin'],
+    PRIVATE: False
 }
 
 # Task Example Data
@@ -104,6 +108,19 @@ class Profile(Resource):
     """
     def get(self):
         return TEST_PROFILE
+
+
+@api.route(f'{CREATEPROFILE_EP}', methods=['POST'])
+class CreateProfile(Resource):
+    """
+    This class will save user profile and return save status
+    """
+    def post(self):
+        data = request.get_json()
+        print(data[NAME])
+        return {
+            PROFILE_VALID_RESP: 200
+        }
 
 
 @api.route(f'{VIEWTASKS_EP}', methods=['GET'])
