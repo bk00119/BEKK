@@ -3,6 +3,9 @@ import sys
 sys.path.append("..")
 from server import endpoints as ep
 
+from unittest.mock import patch
+
+import db.users  as usrs
 import pytest
 
 TEST_CLIENT = ep.app.test_client()

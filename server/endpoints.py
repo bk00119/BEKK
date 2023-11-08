@@ -2,7 +2,7 @@
 This is the file containing all of the endpoints for our flask app.
 The endpoint called `endpoints` will return all available endpoints.
 """
-
+from http import HTTPStatus
 from flask import Flask, request
 from flask_restx import Resource, Api
 # import db.db as db
@@ -92,6 +92,8 @@ class Signup(Resource):
     """
     This class supports fetching a user data for signup
     """
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
     def post(self):
         data = request.get_json()
         print(data['username'])
