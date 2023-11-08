@@ -43,6 +43,8 @@ def test_signup():
     print(f'{resp_json=}')
     assert ep.TOKEN_RESP in resp_json
     assert ep.USERNAME_RESP in resp_json
+    
+    
 
 def test_profile():
     resp = TEST_CLIENT.get(ep.PROFILE_EP) 

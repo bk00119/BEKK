@@ -1,5 +1,5 @@
  
-import users as usrs
+import db.users as usrs
 import pytest
 
 @pytest.fixture(scope='function')
