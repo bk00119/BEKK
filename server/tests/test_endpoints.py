@@ -1,4 +1,12 @@
 #import server.endpoints as ep
+from http.client import (
+    OK,
+    NOT_FOUND,
+    SERVICE_UNAVAILABLE, 
+    NOT_ACCEPTABLE, 
+    FORBIDDEN, 
+    BAD_REQUEST
+    )
 import sys
 sys.path.append("..")
 from server import endpoints as ep
@@ -6,6 +14,7 @@ from server import endpoints as ep
 from unittest.mock import patch
 
 import db.users  as usrs
+import db.profiles as pf
 import pytest
 
 TEST_CLIENT = ep.app.test_client()
@@ -42,12 +51,17 @@ def test_signup():
     resp_json = resp.get_json()
     print(f'{resp_json=}')
     assert ep.TOKEN_RESP in resp_json
-    assert ep.USERNAME_RESP in resp_json
-    
-    
+    assert ep.USERNAME_RESP in resp_json    
 
-def test_profile():
-    resp = TEST_CLIENT.get(ep.PROFILE_EP) 
+@pytest.fixture(scope="function")
+def test_generate_valid_profile_id():
+    """
+    this profile id has to always be part of the profiles database
+    """
+    return "123" 
+
+def test_get_profile(test_generate_valid_profile_id):
+    resp = TEST_CLIENT.get(ep.PROFILE_EP, query_string={ep.PROFILE_ID:f'{test_generate_valid_profile_id}'}) 
     resp_json = resp.get_json() 
     assert isinstance(resp_json, dict)
     assert ep.NAME in resp_json 
@@ -65,12 +79,10 @@ def test_profile():
     for goal_title in goals:
         assert isinstance(goal_title, str)
 
-def test_create_profile():
-    resp = TEST_CLIENT.post(ep.CREATEPROFILE_EP, json=SAMPLE_PROFILE) 
-    print(f'{resp=}')
-    resp_json = resp.get_json()
-    assert ep.PROFILE_VALID_RESP in resp_json
-    assert resp_json[ep.PROFILE_VALID_RESP] == 200
+@patch('db.profiles.add_profile', return_value=pf.MOCK_ID, autospec=True)
+def test_create_profile(mock_add):
+    resp = TEST_CLIENT.post(ep.CREATEPROFILE_EP, json=pf.get_test_profile()) 
+    assert resp.status_code == OK
     
 @pytest.mark.skip("modify profile endpoint does not exist yet")
 def test_modify_profile():
