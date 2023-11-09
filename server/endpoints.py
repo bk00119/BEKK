@@ -30,6 +30,7 @@ LIKETASK_EP = '/likeTask'
 # Responses
 TOKEN_RESP = 'token'
 USERNAME_RESP = 'username'
+PASSWORD_RESP = 'password'
 PROFILE_VALID_RESP = "profilevalidation"
 TASK_RESP = 'task'
 MESSAGE_RESP = 'message'

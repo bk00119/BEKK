@@ -13,8 +13,10 @@ from server import endpoints as ep
 
 from unittest.mock import patch
 
+
 import db.users  as usrs
 import db.profiles as pf
+
 import pytest
 
 TEST_CLIENT = ep.app.test_client()
@@ -87,6 +89,16 @@ def test_create_profile(mock_add):
 @pytest.mark.skip("modify profile endpoint does not exist yet")
 def test_modify_profile():
     pass
+ 
+
+@patch('db.users.get_users')
+def test_get_users(mock_get_users):
+    mock_get_users.return_value = SAMPLE_USER
+    users = usrs.get_users()
+    assert isinstance(users, dict)
+    assert len(users) > 0
+ 
+
 
 def test_viewTasks():
     resp = TEST_CLIENT.get(ep.VIEWTASKS_EP)
@@ -124,6 +136,12 @@ def test_postGoal():
     assert ep.GOAL_RESP in resp_json
     assert ep.USERNAME_RESP in resp_json
 
+@pytest.fixture()
+def setup_viewGroups():
+    usrs.create_user(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_USER[ep.PASSWORD_RESP])
+    usrs.create_profile(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS], SAMPLE_PROFILE[ep.GROUPS], SAMPLE_PROFILE[ep.PRIVATE])  
+
+
 def test_viewGroups():
     resp = TEST_CLIENT.get(ep.VIEWGROUPS_EP)
     resp_json = resp.get_json()
@@ -133,6 +151,8 @@ def test_viewGroups():
     assert isinstance(groups, list)
     for group in groups:
         assert isinstance(group, str)
+
+
 
 def test_postGroup():
     resp = TEST_CLIENT.post(ep.POSTGROUP_EP, json=SAMPLE_USER)
