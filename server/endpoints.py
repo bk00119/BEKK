@@ -5,6 +5,8 @@ The endpoint called `endpoints` will return all available endpoints.
 from http import HTTPStatus
 from flask import Flask, request
 from flask_restx import Resource, Api
+from db import profiles as pf
+import werkzeug.exceptions as wz
 # import db.db as db
 
 app = Flask(__name__)
@@ -43,7 +45,7 @@ GROUPS = 'Groups'
 PRIVATE = "Private"
 
 TASKS = 'Tasks'
-
+PROFILE_ID = "Profile ID"
 TASK_NAME = 'task name'
 TASK_DESCRIPTION = 'task description'
 LIKE = False
@@ -110,7 +112,9 @@ class Profile(Resource):
     This class will deliver contents for user profile.
     """
     def get(self):
-        return TEST_PROFILE
+        user_id = request.args[PROFILE_ID]
+        profile = pf.get_profile(user_id)
+        return profile
 
 
 @api.route(f'{CREATEPROFILE_EP}', methods=['POST'])
@@ -119,11 +123,17 @@ class CreateProfile(Resource):
     This class will save user profile and return save status
     """
     def post(self):
-        data = request.get_json()
-        print(data[NAME])
-        return {
-            PROFILE_VALID_RESP: 200
-        }
+        name = request.json[pf.NAME]
+        goals = request.json[pf.GOALS]
+        private = request.json[pf.PRIVATE]
+        groups = request.json[pf.GROUPS]
+        try:
+            new_id = pf.add_profile(name, goals, private, groups)
+            if new_id is None:
+                raise wz.ServiceUnavailable('We have a technical problem.')
+            return {PROFILE_ID: new_id}
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
 
 
 @api.route(f'{VIEWTASKS_EP}', methods=['GET'])
