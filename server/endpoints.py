@@ -6,6 +6,7 @@ from http import HTTPStatus
 from flask import Flask, request
 from flask_restx import Resource, Api
 from db import profiles as pf
+import werkzeug.exceptions as wz
 # import db.db as db
 
 app = Flask(__name__)
@@ -43,11 +44,10 @@ GROUPS = 'Groups'
 PRIVATE = "Private"
 
 TASKS = 'Tasks'
-PROFILE_ID = "Profile ID" 
-TASK_NAME = 'task name' 
+PROFILE_ID = "Profile ID"
+TASK_NAME = 'task name'
 TASK_DESCRIPTION = 'task description'
 LIKE = False
-
 
 
 # User Example Data
@@ -122,12 +122,12 @@ class CreateProfile(Resource):
     This class will save user profile and return save status
     """
     def post(self):
-        name = request.json[pf.NAME] 
-        goals = request.json[pf.GOALS] 
+        name = request.json[pf.NAME]
+        goals = request.json[pf.GOALS]
         private = request.json[pf.PRIVATE]
-        groups = request.json[pf.GROUPS] 
+        groups = request.json[pf.GROUPS]
         try:
-            new_id = pf.add_profile(name, goals, private, groups) 
+            new_id = pf.add_profile(name, goals, private, groups)
             if new_id is None:
                 raise wz.ServiceUnavailable('We have a technical problem.')
             return {PROFILE_ID: new_id}
