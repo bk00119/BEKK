@@ -13,7 +13,7 @@ from server import endpoints as ep
 
 from unittest.mock import patch
 
-
+import db.tasks as tsks
 import db.users  as usrs
 import db.profiles as pf
 
@@ -31,6 +31,16 @@ SAMPLE_PROFILE = {
     ep.GOALS: ['cs hw2', 'fin hw3'],
     ep.GROUPS: ['cs', 'fin'],
     ep.PRIVATE: False
+}
+
+SAMPLE_TASKS = {
+    ep.TASKS: ['task1', 'task2', 'task3']
+}
+
+SAMPLE_TASK = {
+    ep.TASK_NAME: "SWE",
+    ep.TASK_DESCRIPTION: "design project commits",
+    ep.LIKE: False
 }
 
 def test_login():
@@ -98,7 +108,17 @@ def test_get_users(mock_get_users):
     assert isinstance(users, dict)
     assert len(users) > 0
  
+@patch('db.tasks.get_tasks')
+def test_get_tasks(mock_get_tasks):
+    mock_get_tasks.return_value = SAMPLE_TASKS
+    tasks = tsks.get_tasks()
+    assert isinstance(tasks, dict)
+    assert len(tasks) > 0
 
+@pytest.fixture()
+def setup_tasks():
+    tsks.create_task(SAMPLE_TASK[ep.TASK_NAME], SAMPLE_TASK[ep.TASK_DESCRIPTION], SAMPLE_TASK[ep.LIKE])
+    tsks.add_tasks(SAMPLE_TASKS[ep.TASKS])
 
 def test_viewTasks():
     resp = TEST_CLIENT.get(ep.VIEWTASKS_EP)
