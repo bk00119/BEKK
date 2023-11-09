@@ -75,6 +75,16 @@ def test_create_profile():
 @pytest.mark.skip("modify profile endpoint does not exist yet")
 def test_modify_profile():
     pass
+ 
+
+@patch('db.users.get_users')
+def test_get_users(mock_get_users):
+    mock_get_users.return_value = SAMPLE_USER
+    users = usrs.get_users()
+    assert isinstance(users, dict)
+    assert len(users) > 0
+ 
+
 
 def test_viewTasks():
     resp = TEST_CLIENT.get(ep.VIEWTASKS_EP)
@@ -118,7 +128,6 @@ def setup_viewGroups():
     usrs.create_profile(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS], SAMPLE_PROFILE[ep.GROUPS], SAMPLE_PROFILE[ep.PRIVATE])  
 
 
-
 def test_viewGroups():
     resp = TEST_CLIENT.get(ep.VIEWGROUPS_EP)
     resp_json = resp.get_json()
@@ -128,6 +137,8 @@ def test_viewGroups():
     assert isinstance(groups, list)
     for group in groups:
         assert isinstance(group, str)
+
+
 
 def test_postGroup():
     resp = TEST_CLIENT.post(ep.POSTGROUP_EP, json=SAMPLE_USER)
