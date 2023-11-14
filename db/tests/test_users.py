@@ -31,3 +31,10 @@ def test_duplicate_username_signup(temp_user):
     # check signing up with the exisitng username
     with pytest.raises(ValueError):
         usrs.signup(temp_user)
+
+def test_signup(temp_user):
+    # check signing up with a new username
+    temp_user['username'] = 'user12345'
+    usrs.signup(temp_user)
+    assert usrs.retrieve_user(temp_user['username']) == temp_user['password']
+
