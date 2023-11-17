@@ -27,11 +27,16 @@ def _gen_id() -> str:
 
 
 def get_users():
-    return {
-        "Name": 'John Smith',
-        "Goals": ['goal1', 'goal2'],
-        "Groups": ['group1', 'group2']
-    }
+    # return {
+    #     "Name": 'John Smith',
+    #     "Goals": ['goal1', 'goal2'],
+    #     "Groups": ['group1', 'group2']
+    # }
+    return test_users
+
+
+def retrieve_user(username):
+    return test_users[username]
 
 
 def get_test_user():

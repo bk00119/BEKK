@@ -138,6 +138,12 @@ def test_postTask():
     assert ep.TASK_RESP in resp_json
     assert ep.USERNAME_RESP in resp_json
 
+@pytest.fixture()
+def setup_viewGoals():
+    usrs.create_user(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_USER[ep.PASSWORD_RESP])
+    usrs.create_profile(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS], SAMPLE_PROFILE[ep.GROUPS], SAMPLE_PROFILE[ep.PRIVATE])
+
+
 def test_viewGoals():
     resp = TEST_CLIENT.get(ep.VIEWGOALS_EP)
     resp_json = resp.get_json()
