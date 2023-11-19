@@ -195,3 +195,15 @@ def test_likeTask():
     print(f'{resp_json=}') 
     assert ep.LIKE_RESP in resp.json
     assert ep.USERNAME_RESP in resp_json
+
+def test_unlikeTask():
+    resp = TEST_CLIENT.post(ep.UNLIKETASK_EP, json=SAMPLE_USER)
+    print(f'{resp=}')
+    resp_json = resp.get_json()
+    print(f'{resp_json=}') 
+    assert ep.UNLIKE_RESP in resp.json
+    assert ep.USERNAME_RESP in resp_json
+
+@pytest.fixture()
+def setup_likeTask():
+    tsks.like_task(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_TASK[ep.TASK_NAME], SAMPLE_TASK[ep.TASK_DESCRIPTION], SAMPLE_TASK[ep.LIKE])  

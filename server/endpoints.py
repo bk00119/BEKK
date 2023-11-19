@@ -25,6 +25,7 @@ POSTGOAL_EP = '/postGoal'
 VIEWGROUPS_EP = '/viewGroups'
 POSTGROUP_EP = '/postGroup'
 LIKETASK_EP = '/likeTask'
+UNLIKETASK_EP = '/unlikeTask'
 
 
 # Responses
@@ -37,6 +38,7 @@ MESSAGE_RESP = 'message'
 GOAL_RESP = 'goal'
 GROUP_RESP = 'group'
 LIKE_RESP = 'liked'
+UNLIKE_RESP = 'unliked'
 
 
 NAME = 'Name'
@@ -221,5 +223,19 @@ class LikeTask(Resource):
         print(data['username'])
         return {
             LIKE_RESP: TEST_TASK,
+            USERNAME_RESP: data[USERNAME_RESP]
+        }
+
+
+@api.route(f'{UNLIKETASK_EP}', methods=['POST'])
+class UnlikeTask(Resource):
+    """
+    This class likes the taks under user's task lists
+    """
+    def post(self):
+        data = request.get_json()
+        print(data['username'])
+        return {
+            UNLIKE_RESP: TEST_TASK[LIKE],
             USERNAME_RESP: data[USERNAME_RESP]
         }
