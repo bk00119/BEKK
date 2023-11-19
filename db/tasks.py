@@ -2,7 +2,8 @@
 This module interfaces to our tasks data.
 """
 
-from pymongo import MongoClient
+# from pymongo import MongoClient
+import db.db_connect as dbc
 
 test_tasks = {
     "task1": "SWE",
@@ -10,21 +11,13 @@ test_tasks = {
     "task3": "study"
 }
 
+DB = 'BEKK_DB'
+TASKS_COLLECT = 'tasks'
+
 
 def get_tasks():
-    client = MongoClient()
-    db = client.BEKK_DB
-    tasks = db.tasks
-    data = {}
-    # data = []
-    for task in tasks.find():
-        # Convert ObjectId to String so it is JSON serializable
-        # task['_id'] = str(task['_id'])
-        key = str(task['_id'])
-        del task['_id']
-        data[key] = task
-        # data.append(task)
-    return data
+    dbc.connect_db()
+    return dbc.fetch_all_as_dict(DB, TASKS_COLLECT)
 
 
 def get_test_tasks():
