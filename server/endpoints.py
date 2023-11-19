@@ -6,6 +6,7 @@ from http import HTTPStatus
 from flask import Flask, request
 from flask_restx import Resource, Api
 from db import profiles as pf
+from db import tasks as tasks
 import werkzeug.exceptions as wz
 # import db.db as db
 
@@ -144,8 +145,9 @@ class ViewTasks(Resource):
     This class will show tasks for the user profile
     """
     def get(self):
+        # return jsonify(tasks.get_tasks())
         return {
-            TASKS: ['task', 'task1', 'task2', 'task3', 'task4']
+            TASKS: tasks.get_tasks()
         }
 
 
