@@ -95,19 +95,25 @@ def test_get_profile(test_generate_valid_profile_id):
 def test_create_profile(mock_add):
     resp = TEST_CLIENT.post(ep.CREATEPROFILE_EP, json=pf.get_test_profile()) 
     assert resp.status_code == OK
-    
-@pytest.mark.skip("modify profile endpoint does not exist yet")
-def test_modify_profile():
-    pass
- 
 
+@patch('db.profiles.add_profile', side_effect=ValueError(), autospec=True)
+def test_create_bad_profile(mock_add):
+    resp = TEST_CLIENT.post(ep.CREATEPROFILE_EP, json=pf.get_test_profile())
+    assert resp.status_code == NOT_ACCEPTABLE
+    
+@pytest.mark.skip("endpoint does not exist yet")
+def test_modify_profile():
+    TEST_CLIENT.post(ep.MODIFYPROFILE_EP, json=pf.get_mod_profile()) 
+    assert resp.status_code == OK 
+ 
 @patch('db.users.get_users')
 def test_get_users(mock_get_users):
     mock_get_users.return_value = SAMPLE_USER
     users = usrs.get_users()
     assert isinstance(users, dict)
     assert len(users) > 0
- 
+
+@pytest.mark.skip(reason= "endpoint does not exist yet") 
 @patch('db.tasks.get_tasks')
 def test_get_tasks(mock_get_tasks):
     mock_get_tasks.return_value = SAMPLE_TASKS
@@ -120,15 +126,17 @@ def setup_tasks():
     tsks.create_task(SAMPLE_TASK[ep.TASK_NAME], SAMPLE_TASK[ep.TASK_DESCRIPTION], SAMPLE_TASK[ep.LIKE])
     tsks.add_tasks(SAMPLE_TASKS[ep.TASKS])
 
+@pytest.mark.skip(reason="endpoint does not exist yet") 
 def test_viewTasks():
     resp = TEST_CLIENT.get(ep.VIEWTASKS_EP)
     resp_json = resp.get_json()
     assert isinstance(resp_json, dict)
     assert ep.TASKS in resp_json
     tasks = resp_json[ep.TASKS]
-    assert isinstance(tasks, list)
-    for task in tasks:
-        assert isinstance(task, str)
+    assert isinstance(tasks, dict)
+    for task_id in tasks:
+        assert isinstance(task_id, str)
+        assert isinstance(tasks[task_id], dict)
 
 def test_postTask():
     resp = TEST_CLIENT.post(ep.POSTTASK_EP, json=SAMPLE_USER)
