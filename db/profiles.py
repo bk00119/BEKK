@@ -23,4 +23,4 @@ def get_profile(user_id: str):
 
 
 def add_profile(name: str, goals: list, private: bool, groups: list):
-    pass
+    return MOCK_ID
