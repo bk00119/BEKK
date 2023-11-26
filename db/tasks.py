@@ -11,13 +11,20 @@ test_tasks = {
     "task3": "study"
 }
 
-DB = 'BEKK_DB'
+# TASK COLLECTION:
+# _id: ObjectID
+# user_id: str(ObjectID)
+# title: str
+# content: str
+# status: int
+# likes: [str(ObjectID)]
+
 TASKS_COLLECT = 'tasks'
 
 
 def get_tasks():
     dbc.connect_db()
-    return dbc.fetch_all_as_dict(DB, TASKS_COLLECT)
+    return dbc.fetch_all_as_dict(dbc.DB, TASKS_COLLECT)
 
 
 def get_test_tasks():

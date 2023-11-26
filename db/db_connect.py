@@ -5,7 +5,7 @@ import pymongo as pm
 LOCAL = "0"
 CLOUD = "1"
 
-DB = "BEKK_DB"
+DB = "BEKK"
 
 client = None
 
@@ -24,13 +24,18 @@ def connect_db():
     if client is None:  # not connected yet!
         print("Setting client because it is None.")
         if os.environ.get("CLOUD_MONGO", LOCAL) == CLOUD:
-            password = os.environ.get("GAME_MONGO_PW")
+            username = os.environ.get("CLOUD_MONGO_USER")
+            password = os.environ.get("CLOUD_MONGO_PW")
+            print(username, password)
             if not password:
                 raise ValueError('You must set your password '
                                  + 'to use Mongo in the cloud.')
             print("Connecting to Mongo in the cloud.")
-            client = pm.MongoClient(f'mongodb+srv://gcallah:{password}'
-                                    + '@cluster0.eqxbbqd.mongodb.net/'
+            # client = pm.MongoClient(f'mongodb+srv://gcallah:{password}'
+            #                         + '@cluster0.eqxbbqd.mongodb.net/'
+            #                         + '?retryWrites=true&w=majority')
+            client = pm.MongoClient(f'mongodb+srv://{username}:{password}'
+                                    + '@bekk.ugoqoaw.mongodb.net/'
                                     + '?retryWrites=true&w=majority')
             # PA recommends these settings:
             # + 'connectTimeoutMS=30000&'
@@ -48,7 +53,7 @@ def fetch_all_as_dict(db_name, collection):
     tasks = db[collection]
     data = {}
     for task in tasks.find():
-        # ObjectId is not JSON serializable
+        # _id: ObjectID; ObjectId is not JSON serializable
         key = str(task['_id'])
         del task['_id']
         data[key] = task

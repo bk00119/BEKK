@@ -1,7 +1,7 @@
 import pytest
 import db.tasks as tsks
 
-@pytest.mark.skip(reason="using local MongoDB") 
+# @pytest.mark.skip(reason="using local MongoDB") 
 def test_get_all_tasks():
   tasks = tsks.get_tasks()
   assert isinstance(tasks, dict)
