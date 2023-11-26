@@ -11,6 +11,7 @@ on:
   workflow_dispatch:
 
 env:
+  env_var: ${{ vars.ENV_CONTEXT_VAR }}
   DEMO_HOME: /home/runner/work/BEKK/BEKK/
   PYTHONPATH: /home/runner/work/BEKK/BEKK/
   CLOUD_MONGO: ${{ vars.CLOUD_MONGO }}
@@ -27,6 +28,13 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - name: Test variables
+        run: |
+          echo "repository variable : $REPOSITORY_VAR"
+          # echo "organization variable : $ORGANIZATION_VAR"
+          # echo "overridden variable : $OVERRIDE_VAR"
+          echo "variable from shell environment : $env_var"
+          
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
