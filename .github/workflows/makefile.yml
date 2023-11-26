@@ -11,8 +11,12 @@ on:
   workflow_dispatch:
 
 env:
+  env_var: ${{ vars.ENV_CONTEXT_VAR }}
   DEMO_HOME: /home/runner/work/BEKK/BEKK/
   PYTHONPATH: /home/runner/work/BEKK/BEKK/
+  CLOUD_MONGO: ${{ vars.CLOUD_MONGO }}
+  CLOUD_MONGO_USER: ${{ vars.CLOUD_MONGO_USER }}
+  CLOUD_MONGO_PW: ${{ vars.CLOUD_MONGO_PW }}
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
