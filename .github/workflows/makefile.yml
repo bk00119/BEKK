@@ -15,6 +15,7 @@ env:
   DEMO_HOME: /home/runner/work/BEKK/BEKK/
   PYTHONPATH: /home/runner/work/BEKK/BEKK/
   CLOUD_MONGO: ${{ vars.CLOUD_MONGO }}
+  CLOUD_MONGO_URL: ${{ vars.CLOUD_MONGO_URL }}
   CLOUD_MONGO_USER: ${{ vars.CLOUD_MONGO_USER }}
   CLOUD_MONGO_PW: ${{ vars.CLOUD_MONGO_PW }}
 

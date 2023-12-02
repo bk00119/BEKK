@@ -26,16 +26,13 @@ def connect_db():
         if os.environ.get("CLOUD_MONGO", LOCAL) == CLOUD:
             username = os.environ.get("CLOUD_MONGO_USER")
             password = os.environ.get("CLOUD_MONGO_PW")
+            db_url = os.environ.get("CLOUD_MONGO_URL")
             if not password:
                 raise ValueError('You must set your password '
                                  + 'to use Mongo in the cloud.')
             print("Connecting to Mongo in the cloud.")
-            # client = pm.MongoClient(f'mongodb+srv://gcallah:{password}'
-            #                         + '@cluster0.eqxbbqd.mongodb.net/'
-            #                         + '?retryWrites=true&w=majority')
             client = pm.MongoClient(f'mongodb+srv://{username}:{password}'
-                                    + '@bekk.ugoqoaw.mongodb.net/'
-                                    + '?retryWrites=true&w=majority')
+                                    + f'@{db_url}')
             # PA recommends these settings:
             # + 'connectTimeoutMS=30000&'
             # + 'socketTimeoutMS=None
