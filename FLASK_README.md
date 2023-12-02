@@ -7,11 +7,13 @@ To create the env for a new developer, run `make dev_env`.
 
 # Instructions for runnign the app locally
 ### 1. Set environment variables
-- `export PYTHONPATH=$PYTHONPATH:$(pwd)`
+- `export PYTHONPATH=$(pwd)`
 - For using MongoDB Atlas: 
   - `export CLOUD_MONGO=1`
   - `export  CLOUD_MONGO_USER=`
   - `export  CLOUD_MONGO_PW=`
+  - `export CLOUD_MONGO_URL=`
+  - `export CLOUD_MONGO_CONN=`
 ### 2. To run the app
 - `. ./local.sh`
 
