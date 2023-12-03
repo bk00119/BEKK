@@ -1,6 +1,7 @@
 import os
-
+import random
 import pymongo as pm
+from bson.objectid import ObjectId
 
 LOCAL = "0"
 CLOUD = "1"
@@ -10,6 +11,9 @@ DB = "BEKK"
 client = None
 
 MONGO_ID = '_id'
+
+ID_LEN = 24
+BIG_NUM = 100_000_000_000_000_000_000
 
 
 def connect_db():
@@ -44,7 +48,28 @@ def connect_db():
             client = pm.MongoClient()
 
 
+def gen_object_id():
+    _id = random.randint(0, BIG_NUM)
+    _id = str(_id)
+    _id = _id.rjust(ID_LEN, '0')
+    return ObjectId(_id)
+
+
+def fetch_one(collection, filt, db=DB):
+    """
+    fetch the first doc with filter in the collection
+    """
+    for doc in client[db][collection].find(filt):
+        if MONGO_ID in doc:
+            # Convert mongo ID to a string so it works as JSON
+            doc[MONGO_ID] = str(doc[MONGO_ID])
+        return doc
+
+
 def fetch_all_as_dict(db_name, collection):
+    """
+    fetching all data of a collection as dict type
+    """
     db = client[db_name]
     tasks = db[collection]
     data = {}
@@ -54,3 +79,19 @@ def fetch_all_as_dict(db_name, collection):
         del task['_id']
         data[key] = task
     return data
+
+
+def insert_one(collection, doc, db=DB):
+    """
+    inserting one document to the collection
+    """
+    res = client[db][collection].insert_one(doc)
+    # return res
+    return str(res.inserted_id)
+
+
+def del_one(collection, filt, db=DB):
+    """
+    deleting one document of the collection
+    """
+    client[db][collection].delete_one(filt)

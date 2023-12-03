@@ -4,7 +4,7 @@ The endpoint called `endpoints` will return all available endpoints.
 """
 from http import HTTPStatus
 from flask import Flask, request
-from flask_restx import Resource, Api
+from flask_restx import Resource, Api, fields
 from db import profiles as pf
 from db import tasks as tasks
 import werkzeug.exceptions as wz
@@ -48,6 +48,7 @@ GROUPS = 'Groups'
 PRIVATE = "Private"
 
 TASKS = 'Tasks'
+TASK_ID = 'Task ID'
 PROFILE_ID = "Profile ID"
 TASK_NAME = 'task name'
 TASK_DESCRIPTION = 'task description'
@@ -151,18 +152,39 @@ class ViewTasks(Resource):
         }
 
 
+new_task_field = api.model('NewTask', {
+    tasks.USER_ID: fields.String,
+    tasks.TITLE: fields.String,
+    tasks.CONTENT: fields.String
+})
+
+
 @api.route(f'{POSTTASK_EP}', methods=['POST'])
+@api.expect(new_task_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
 class PostTask(Resource):
     """
-    This class post task to user profile
+    This class is for posting task
     """
+    # def post(self):
+    #     data = request.get_json()
+    #     print(data['username'])
+    #     return {
+    #         TASK_RESP: TEST_TASK,
+    #         USERNAME_RESP: data[USERNAME_RESP]
+    #     }
     def post(self):
-        data = request.get_json()
-        print(data['username'])
-        return {
-            TASK_RESP: TEST_TASK,
-            USERNAME_RESP: data[USERNAME_RESP]
-        }
+        user_id = request.json[tasks.USER_ID]
+        title = request.json[tasks.TITLE]
+        content = request.json[tasks.CONTENT]
+        try:
+            new_id = tasks.add_task(user_id, title, content)
+            if new_id is None:
+                raise wz.ServiceUnavailable('We have a techniacl problem.')
+            return {TASK_ID: new_id}
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
 
 
 @api.route(f'{VIEWGOALS_EP}', methods=['GET'])
