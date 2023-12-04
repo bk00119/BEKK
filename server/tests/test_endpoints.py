@@ -113,7 +113,7 @@ def test_get_users(mock_get_users):
     assert isinstance(users, dict)
     assert len(users) > 0
 
-@pytest.mark.skip(reason= "endpoint does not exist yet") 
+# @pytest.mark.skip(reason= "endpoint does not exist yet") 
 @patch('db.tasks.get_tasks')
 def test_get_tasks(mock_get_tasks):
     mock_get_tasks.return_value = SAMPLE_TASKS
@@ -126,7 +126,7 @@ def setup_tasks():
     tsks.create_task(SAMPLE_TASK[ep.TASK_NAME], SAMPLE_TASK[ep.TASK_DESCRIPTION], SAMPLE_TASK[ep.LIKE])
     tsks.add_tasks(SAMPLE_TASKS[ep.TASKS])
 
-@pytest.mark.skip(reason="endpoint does not exist yet") 
+# @pytest.mark.skip(reason="endpoint does not exist yet") 
 def test_viewTasks():
     resp = TEST_CLIENT.get(ep.VIEWTASKS_EP)
     resp_json = resp.get_json()
@@ -138,13 +138,29 @@ def test_viewTasks():
         assert isinstance(task_id, str)
         assert isinstance(tasks[task_id], dict)
 
-def test_postTask():
-    resp = TEST_CLIENT.post(ep.POSTTASK_EP, json=SAMPLE_USER)
-    print(f'{resp=}')
-    resp_json = resp.get_json()
-    print(f'{resp_json=}')
-    assert ep.TASK_RESP in resp_json
-    assert ep.USERNAME_RESP in resp_json
+@patch('db.tasks.add_task', return_value=tsks.MOCK_ID, autospec=True)
+def test_postTask(mock_add):
+    """
+    Testing for posting a new task successfully: PostTask.post()
+    """
+    resp = TEST_CLIENT.post(ep.POSTTASK_EP, json=tsks.get_new_test_task())
+    assert resp.status_code == OK
+    
+@patch('db.tasks.add_task', side_effect=ValueError(), autospec=True)
+def test_bad_postTask(mock_add):
+    """
+    Testing for posting a task with ValueError: PostTask.post()
+    """
+    resp = TEST_CLIENT.post(ep.POSTTASK_EP, json=tsks.get_new_test_task())
+    assert resp.status_code == NOT_ACCEPTABLE
+    
+@patch('db.tasks.add_task', return_value=None)
+def test_postTask_failure(mock_add):
+    """
+    Testing for posting a task with ValueError: PostTask.post()
+    """
+    resp = TEST_CLIENT.post(ep.POSTTASK_EP, json=tsks.get_new_test_task())
+    assert resp.status_code == SERVICE_UNAVAILABLE
 
 @pytest.fixture()
 def setup_viewGoals():
