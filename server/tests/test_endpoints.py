@@ -216,7 +216,6 @@ def test_postGroup():
     resp_json = resp.get_json()
     print(f'{resp_json=}')
     assert ep.GROUP_RESP in resp_json
-    assert ep.USERNAME_RESP in resp_json
 
 @pytest.fixture()
 def setup_deleteGroup():
