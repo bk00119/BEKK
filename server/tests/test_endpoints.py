@@ -218,6 +218,10 @@ def test_postGroup():
     assert ep.GROUP_RESP in resp_json
     assert ep.USERNAME_RESP in resp_json
 
+@pytest.fixture()
+def setup_deleteGroup():
+    usrs.delete_group(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS])
+
 def test_likeTask():
     resp = TEST_CLIENT.post(ep.LIKETASK_EP, json=SAMPLE_USER)
     print(f'{resp=}')
