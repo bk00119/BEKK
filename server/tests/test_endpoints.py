@@ -136,7 +136,7 @@ def test_viewTasks():
     assert isinstance(tasks, dict)
     for task_id in tasks:
         assert isinstance(task_id, str)
-        assert isinstance(tasks[task_id], dict)
+        assert isinstance(tasks[task_id], str)
 
 @patch('db.tasks.add_task', return_value=tsks.MOCK_ID, autospec=True)
 def test_postTask(mock_add):
