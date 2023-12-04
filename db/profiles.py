@@ -25,5 +25,12 @@ def get_profile(user_id: str):
 
 def add_profile(name: str, goals: list, private: bool, groups: list):
     dbc.connect_db()
-    _id = dbc.insert_one(PROFILES_COLLECT, {NAME: name, GROUPS: groups, PRIVATE: private, GOALS: goals})
+    _id = dbc.insert_one(
+                        PROFILES_COLLECT,
+                        {
+                            NAME: name,
+                            GROUPS: groups,
+                            PRIVATE: private,
+                            GOALS: goals,
+                        })
     return _id
