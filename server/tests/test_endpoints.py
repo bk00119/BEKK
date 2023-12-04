@@ -131,7 +131,7 @@ def test_viewTasks():
     resp = TEST_CLIENT.get(ep.VIEWTASKS_EP)
     resp_json = resp.get_json()
     assert isinstance(resp_json, dict)
-    assert ep.TASKS in resp_json
+    assert ep.TASK_RESP in resp_json
     tasks = resp_json[ep.TASKS]
     assert isinstance(tasks, dict)
     for task_id in tasks:
@@ -208,7 +208,6 @@ def test_deleteGroup():
     resp_json = resp.get_json()
     print(f'{resp_json=}')
     assert ep.GROUP_RESP not in resp_json
-    assert ep.USERNAME_RESP in resp_json 
 
 def test_postGroup():
     resp = TEST_CLIENT.post(ep.POSTGROUP_EP, json=SAMPLE_USER)
@@ -216,6 +215,7 @@ def test_postGroup():
     resp_json = resp.get_json()
     print(f'{resp_json=}')
     assert ep.GROUP_RESP in resp_json
+    assert ep.USERNAME_RESP in resp_json
 
 @pytest.fixture()
 def setup_deleteGroup():
