@@ -27,6 +27,7 @@ VIEWGROUPS_EP = '/viewGroups'
 POSTGROUP_EP = '/postGroup'
 LIKETASK_EP = '/likeTask'
 UNLIKETASK_EP = '/unlikeTask'
+PROFILEVALIDATION_EP = '/profilevalidation'
 
 
 # Responses
@@ -149,6 +150,17 @@ class ViewTasks(Resource):
         # return jsonify(tasks.get_tasks())
         return {
             TASKS: tasks.get_tasks()
+        }
+
+
+@api.route(f'{PROFILEVALIDATION_EP}', methods=['GET'])
+class ProfileValidation(Resource):
+    """
+    This class validates the user profile
+    """
+    def get(self):
+        return {
+            PROFILE_VALID_RESP: True
         }
 
 
