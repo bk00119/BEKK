@@ -73,7 +73,6 @@ def fetch_all_as_dict(db_name, collection):
     db = client[db_name]
     tasks = db[collection]
     data = {}
-    print(db, tasks)
     for task in tasks.find():
         # _id: ObjectID; ObjectId is not JSON serializable
         key = str(task['_id'])
