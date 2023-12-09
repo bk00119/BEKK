@@ -25,6 +25,7 @@ VIEWGOALS_EP = '/viewGoals'
 POSTGOAL_EP = '/postGoal'
 VIEWGROUPS_EP = '/viewGroups'
 POSTGROUP_EP = '/postGroup'
+DELETEGROUP_EP = '/deleteGroup'
 LIKETASK_EP = '/likeTask'
 UNLIKETASK_EP = '/unlikeTask'
 PROFILEVALIDATION_EP = '/profilevalidation'
@@ -239,6 +240,20 @@ class ViewGroup(Resource):
 class PostGroup(Resource):
     """
     This class posts group to the user profile.
+    """
+    def post(self):
+        data = request.get_json()
+        print(data['username'])
+        return {
+            GROUP_RESP: TEST_TASK,
+            USERNAME_RESP: data[USERNAME_RESP]
+        }
+
+
+@api.route(f'{DELETEGROUP_EP}', methods=['POST'])
+class DeleteGroup(Resource):
+    """
+    This class deletes group of the user profile.
     """
     def post(self):
         data = request.get_json()
