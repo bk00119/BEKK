@@ -48,12 +48,7 @@ GOALS = 'Goals'
 GROUPS = 'Groups'
 PRIVATE = "Private"
 
-TASKS = {
-    "task1": {"description": "Description of Task 1", "status": "pending"},
-    "task2": {"description": "Description of Task 2", "status": "completed"},
-    "task3": {"description": "Description of Task 3", "status": "in progress"},
-}
-
+TASKS = 'Tasks'
 TASK_ID = 'Task ID'
 PROFILE_ID = "Profile ID"
 TASK_NAME = 'task name'

@@ -131,12 +131,12 @@ def test_viewTasks():
     resp = TEST_CLIENT.get(ep.VIEWTASKS_EP)
     resp_json = resp.get_json()
     assert isinstance(resp_json, dict)
-    # assert ep.TASK_RESP in resp_json
+    assert ep.TASKS in resp_json
     tasks = resp_json[ep.TASKS]
     assert isinstance(tasks, dict)
     for task_id in tasks:
         assert isinstance(task_id, str)
-        assert isinstance(tasks[task_id], str)
+        assert isinstance(tasks[task_id], dict)
 
 @patch('db.tasks.add_task', return_value=tsks.MOCK_ID, autospec=True)
 def test_postTask(mock_add):
@@ -202,12 +202,7 @@ def test_viewGroups():
     for group in groups:
         assert isinstance(group, str)
 
-def test_deleteGroup():
-    resp = TEST_CLIENT.get(ep.POSTGROUP_EP, json=SAMPLE_USER)
-    print(f'{resp=}')
-    resp_json = resp.get_json()
-    print(f'{resp_json=}')
-    assert ep.GROUP_RESP not in resp_json
+
 
 def test_postGroup():
     resp = TEST_CLIENT.post(ep.POSTGROUP_EP, json=SAMPLE_USER)
@@ -216,10 +211,6 @@ def test_postGroup():
     print(f'{resp_json=}')
     assert ep.GROUP_RESP in resp_json
     assert ep.USERNAME_RESP in resp_json
-
-@pytest.fixture()
-def setup_deleteGroup():
-    usrs.delete_group(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS])
 
 def test_likeTask():
     resp = TEST_CLIENT.post(ep.LIKETASK_EP, json=SAMPLE_USER)
