@@ -207,11 +207,11 @@ def setup_deleteGroup():
     usrs.delete_group(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS])
 
 def test_deleteGroup():
-    resp = TEST_CLIENT.get(ep.POSTGROUP_EP, json=SAMPLE_USER)
+    resp = TEST_CLIENT.post(ep.DELETEGROUP_EP, json=SAMPLE_USER)
     print(f'{resp=}')
     resp_json = resp.get_json()
     print(f'{resp_json=}')
-    assert ep.GROUP_RESP not in resp_json
+    assert ep.GROUP_RESP in resp_json
     assert ep.USERNAME_RESP in resp_json
 
 def test_postGroup():
