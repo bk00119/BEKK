@@ -23,6 +23,7 @@ VIEWTASKS_EP = '/viewTasks'
 POSTTASK_EP = '/postTask'
 VIEWGOALS_EP = '/viewGoals'
 POSTGOAL_EP = '/postGoal'
+DELETEGOAL_EP = '/deleteGoal'
 VIEWGROUPS_EP = '/viewGroups'
 POSTGROUP_EP = '/postGroup'
 DELETEGROUP_EP = '/deleteGroup'
@@ -207,7 +208,7 @@ class ViewGoals(Resource):
     """
     def get(self):
         return {
-            GOALS: ['goal', 'goal1', 'goal2', 'goal3', 'goal4']
+            GOALS: pf.get_goals()
         }
 
 
@@ -215,6 +216,20 @@ class ViewGoals(Resource):
 class PostGoal(Resource):
     """
     This class posts goals to user profile.
+    """
+    def post(self):
+        data = request.get_json()
+        print(data['username'])
+        return {
+            GOAL_RESP: TEST_TASK,
+            USERNAME_RESP: data[USERNAME_RESP]
+        }
+
+
+@api.route(f'{DELETEGOAL_EP}', methods=['POST'])
+class DeleteGoal(Resource):
+    """
+    This class deletes goals from user profile.
     """
     def post(self):
         data = request.get_json()

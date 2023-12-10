@@ -23,6 +23,10 @@ def get_profile(user_id: str):
     return TEST_PROFILE
 
 
+def get_goals():
+    return TEST_PROFILE[GOALS]
+
+
 def add_profile(name: str, goals: list, private: bool, groups: list):
     dbc.connect_db()
     _id = dbc.insert_one(

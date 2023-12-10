@@ -186,6 +186,16 @@ def test_postGoal():
     assert ep.GOAL_RESP in resp_json
     assert ep.USERNAME_RESP in resp_json
 
+
+def test_deleteGoal():
+    resp = TEST_CLIENT.post(ep.DELETEGOAL_EP, json=SAMPLE_USER)
+    print(f'{resp=}')
+    resp_json = resp.get_json()
+    print(f'{resp_json=}')
+    assert ep.GOAL_RESP in resp_json
+    assert ep.USERNAME_RESP in resp_json
+
+
 @pytest.fixture()
 def setup_viewGroups():
     usrs.create_user(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_USER[ep.PASSWORD_RESP])
@@ -246,6 +256,7 @@ def test_unlikeTask():
     resp = TEST_CLIENT.post(ep.UNLIKETASK_EP, json={tsks.ID: test_task_id, tsks.USER_ID: test_user_id})
     assert resp.status_code == OK
     tsks.del_task(test_task_id)
+
 
 # @pytest.fixture()
 # def setup_likeTask():
