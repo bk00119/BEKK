@@ -91,6 +91,13 @@ def del_task(task_id: str):
         raise ValueError(f'Delete failure: {task_id} not in database.')
 
 
+def get_task(task_id: str):
+    if id_exists(task_id):
+        return dbc.fetch_one(TASKS_COLLECT, {ID: ObjectId(task_id)})
+    else:
+        raise ValueError(f'Get failure: {task_id} not in database.')
+
+
 def is_task_liked(task_id: str, user_id: str):
     if id_exists(task_id):
         task = dbc.fetch_one(

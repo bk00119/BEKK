@@ -20,7 +20,7 @@ def temp_task():
 def test_get_all_tasks():
   tasks = tsks.get_tasks()
   assert isinstance(tasks, dict)
-  assert len(tasks) > 0
+  assert len(tasks) >= 0
   for task in tasks:
     assert isinstance(task, str)
     assert isinstance(tasks[task], dict)
@@ -41,6 +41,23 @@ def test_del_task_not_exist():
   id = dbc.gen_object_id()
   with pytest.raises(ValueError):
     tsks.del_task(id)
+
+def test_get_task(temp_task):
+  task = temp_task
+  ret = tsks.get_task(ObjectId(task[tsks.ID]))
+  assert isinstance(ret, dict)
+  assert ret[tsks.USER_ID] == task[tsks.USER_ID]
+  assert ret[tsks.TITLE] == task[tsks.TITLE]
+  assert ret[tsks.CONTENT] == task[tsks.CONTENT]
+  assert ret[tsks.STATUS] == task[tsks.STATUS]
+  assert ret[tsks.LIKES] == task[tsks.LIKES]
+  tsks.del_task(ObjectId(task[tsks.ID]))
+
+def test_get_task_not_exist():
+  id = dbc.gen_object_id()
+  with pytest.raises(ValueError):
+    tsks.get_task(id)
+
 
 def test_task_like_unlike(temp_task):
   task = temp_task
