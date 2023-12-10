@@ -166,7 +166,7 @@ def test_postTask_failure(mock_add):
 @pytest.fixture()
 def setup_viewGoals():
     usrs.create_user(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_USER[ep.PASSWORD_RESP])
-    usrs.create_profile(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS], SAMPLE_PROFILE[ep.GROUPS], SAMPLE_PROFILE[ep.PRIVATE])
+#     usrs.create_profile(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS], SAMPLE_PROFILE[ep.GROUPS], SAMPLE_PROFILE[ep.PRIVATE])
 
 def test_viewGoals():
     resp = TEST_CLIENT.get(ep.VIEWGOALS_EP)
@@ -174,17 +174,18 @@ def test_viewGoals():
     assert isinstance(resp_json, dict)
     assert ep.GOALS in resp_json
     goals = resp_json[ep.GOALS]
-    assert isinstance(goals, list)
-    for goal in goals:
-        assert isinstance(goal, str)
-
-def test_postGoal():
-    resp = TEST_CLIENT.post(ep.POSTGOAL_EP, json=SAMPLE_USER)
-    print(f'{resp=}')
-    resp_json = resp.get_json()
-    print(f'{resp_json=}')
-    assert ep.GOAL_RESP in resp_json
-    assert ep.USERNAME_RESP in resp_json
+    assert isinstance(goals, dict)
+    for goal_id in goals:
+        assert isinstance(goal_id, str)
+        assert isinstance(goals[goal_id], dict)
+    
+# def test_postGoal():
+#     resp = TEST_CLIENT.post(ep.POSTGOAL_EP, json=SAMPLE_USER)
+#     print(f'{resp=}')
+#     resp_json = resp.get_json()
+#     print(f'{resp_json=}')
+#     assert ep.GOAL_RESP in resp_json
+#     assert ep.USERNAME_RESP in resp_json
 
 
 def test_deleteGoal():
