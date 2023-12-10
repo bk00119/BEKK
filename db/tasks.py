@@ -6,6 +6,7 @@ This module interfaces to our tasks data.
 import random
 from bson.objectid import ObjectId
 import db.db_connect as dbc
+# import db.users as usrs
 
 test_tasks = {
     "task1": "SWE",
@@ -88,3 +89,47 @@ def del_task(task_id: str):
         return dbc.del_one(TASKS_COLLECT, {ID: ObjectId(task_id)})
     else:
         raise ValueError(f'Delete failure: {task_id} not in database.')
+
+
+def is_task_liked(task_id: str, user_id: str):
+    if id_exists(task_id):
+        task = dbc.fetch_one(
+            TASKS_COLLECT,
+            {ID: ObjectId(task_id), LIKES: {"$in": [user_id]}}
+        )
+        if task:
+            return True
+        return False
+    else:
+        raise ValueError(f'Task like failure: task {task_id} not in database.')
+
+
+def like_task(task_id: str, user_id: str):
+    if id_exists(task_id):
+        if is_task_liked(task_id, user_id):
+            raise ValueError('Task like failure: ' +
+                             f'user {user_id} already liked ' +
+                             f'task {task_id}')
+        dbc.update_one(
+            TASKS_COLLECT,
+            {ID: ObjectId(task_id)},
+            {"$addToSet": {"likes": user_id}}
+        )
+    else:
+        raise ValueError(f'Task like failure: task {task_id} not in database.')
+
+
+def unlike_task(task_id: str, user_id: str):
+    if id_exists(task_id):
+        if not is_task_liked(task_id, user_id):
+            raise ValueError('Task unlike failure: ' +
+                             f'user {user_id} not liked ' +
+                             f'task {task_id}')
+        dbc.update_one(
+            TASKS_COLLECT,
+            {ID: ObjectId(task_id)},
+            {"$pull": {"likes": user_id}}
+        )
+    else:
+        raise ValueError('Task unlike failure: ' +
+                         f'task {task_id} not in database.')

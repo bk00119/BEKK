@@ -237,29 +237,47 @@ class PostGroup(Resource):
         }
 
 
+like_task_field = api.model('LikeTask', {
+    tasks.ID: fields.String,
+    tasks.USER_ID: fields.String,
+})
+
+
 @api.route(f'{LIKETASK_EP}', methods=['POST'])
+@api.expect(like_task_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
 class LikeTask(Resource):
     """
     This class likes the taks under user's task lists
     """
     def post(self):
-        data = request.get_json()
-        print(data['username'])
-        return {
-            LIKE_RESP: TEST_TASK,
-            USERNAME_RESP: data[USERNAME_RESP]
-        }
+        task_id = request.json[tasks.ID]
+        user_id = request.json[tasks.USER_ID]
+        try:
+            tasks.like_task(task_id, user_id)
+            return {
+                MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY LIKED THE TASK'
+            }
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
 
 
 @api.route(f'{UNLIKETASK_EP}', methods=['POST'])
+@api.expect(like_task_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
 class UnlikeTask(Resource):
     """
     This class likes the taks under user's task lists
     """
     def post(self):
-        data = request.get_json()
-        print(data['username'])
-        return {
-            UNLIKE_RESP: TEST_TASK[LIKE],
-            USERNAME_RESP: data[USERNAME_RESP]
-        }
+        task_id = request.json[tasks.ID]
+        user_id = request.json[tasks.USER_ID]
+        try:
+            tasks.unlike_task(task_id, user_id)
+            return {
+                MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY UNLIKED THE TASK'
+            }
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')

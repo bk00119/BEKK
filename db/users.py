@@ -3,6 +3,16 @@ This module interfaces to our user data.
 """
 
 import random
+from bson.objectid import ObjectId
+import db.db_connect as dbc
+
+USERS_COLLECT = 'users'
+
+ID = '_id'
+FIRST_NAME = 'first_name'
+LAST_NAME = 'last_name'
+USERNAME = 'username'
+EMAIL = 'email'
 
 ID_LEN = 24
 BIG_NUM = 100_000_000_000_000_000_000
@@ -17,6 +27,11 @@ test_users = {
     'user1234': 'pwpw123',
     'user456': 'pwpw456'
 }
+
+
+def id_exists(id: str) -> bool:
+    dbc.connect_db()
+    return dbc.fetch_one(USERS_COLLECT, {ID: ObjectId(id)})
 
 
 def _gen_id() -> str:

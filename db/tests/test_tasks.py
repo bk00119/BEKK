@@ -3,6 +3,7 @@ from bson.objectid import ObjectId
 import db.tasks as tsks
 import db.db_connect as dbc
 
+
 @pytest.fixture(scope='function')
 def temp_task():
   task = {}
@@ -40,3 +41,11 @@ def test_del_task_not_exist():
   id = dbc.gen_object_id()
   with pytest.raises(ValueError):
     tsks.del_task(id)
+
+def test_task_like_unlike(temp_task):
+  task = temp_task
+  user_id = dbc.gen_object_id()
+  tsks.like_task(task[tsks.ID], user_id)
+  assert tsks.is_task_liked(task[tsks.ID], user_id)
+  tsks.unlike_task(task[tsks.ID], user_id)
+  assert not tsks.is_task_liked(task[tsks.ID], user_id)
