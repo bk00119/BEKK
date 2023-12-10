@@ -17,8 +17,10 @@ env:
   CLOUD_MONGO: ${{ vars.CLOUD_MONGO }}
   CLOUD_MONGO_CONN: ${{ vars.CLOUD_MONGO_CONN }}
   CLOUD_MONGO_URL: ${{ vars.CLOUD_MONGO_URL }}
-  CLOUD_MONGO_USER: ${{ vars.CLOUD_MONGO_USER }}
-  CLOUD_MONGO_PW: ${{ vars.CLOUD_MONGO_PW }}
+  # CLOUD_MONGO_USER: ${{ vars.CLOUD_MONGO_USER }}
+  # CLOUD_MONGO_PW: ${{ vars.CLOUD_MONGO_PW }}
+  CLOUD_MONGO_USER: ${{ secrets.CLOUD_MONGO_USER }}
+  CLOUD_MONGO_PW: ${{ secrets.CLOUD_MONGO_PW }}
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
