@@ -23,6 +23,7 @@ VIEWTASKS_EP = '/viewTasks'
 POSTTASK_EP = '/postTask'
 VIEWGOALS_EP = '/viewGoals'
 POSTGOAL_EP = '/postGoal'
+DELETEGOAL_EP = '/deleteGoal'
 VIEWGROUPS_EP = '/viewGroups'
 POSTGROUP_EP = '/postGroup'
 DELETEGROUP_EP = '/deleteGroup'
@@ -194,7 +195,7 @@ class PostTask(Resource):
         try:
             new_id = tasks.add_task(user_id, title, content)
             if new_id is None:
-                raise wz.ServiceUnavailable('We have a techniacl problem.')
+                raise wz.ServiceUnavailable('Error')
             return {TASK_ID: new_id}
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
@@ -207,14 +208,31 @@ class ViewGoals(Resource):
     """
     def get(self):
         return {
-            GOALS: ['goal', 'goal1', 'goal2', 'goal3', 'goal4']
+            GOALS: pf.get_goals()
         }
 
 
-@api.route(f'{POSTGOAL_EP}', methods=['POST'])
-class PostGoal(Resource):
+# @api.route(f'{POSTGOAL_EP}', methods=['POST'])
+# class PostGoal(Resource):
+#     """
+#     This class posts goals to user profile.
+#     """
+#     def post(self):
+#         id = request.json[pf.MOCK_ID]
+#         goals = request.json[pf.GOALS]
+#         try:
+#             addGoal = pf.add_goal(id, goals)
+#             if addGoal is False:
+#                 raise wz.ServiceUnavailable('Error')
+#             return {GOALS: addGoal}
+#         except ValueError as e:
+#             raise wz.NotAcceptable(f'{str(e)}')
+
+
+@api.route(f'{DELETEGOAL_EP}', methods=['POST'])
+class DeleteGoal(Resource):
     """
-    This class posts goals to user profile.
+    This class deletes goals from user profile.
     """
     def post(self):
         data = request.get_json()
