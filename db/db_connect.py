@@ -95,3 +95,11 @@ def del_one(collection, filt, db=DB):
     deleting one document of the collection
     """
     client[db][collection].delete_one(filt)
+
+
+def update_one(collection, filt, update, db=DB):
+    """
+    updating one document of the collection
+    field: [{ key: value }]
+    """
+    client[db][collection].update_one(filt, update)

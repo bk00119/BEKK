@@ -6,6 +6,7 @@ TEST_DB = dbc.DB
 TEST_COLLECT = 'tasks'
 
 TEST_TITLE = 'title'
+TEST_USER = 'test_user'
 
 # @pytest.mark.skip(reason="using local MongoDB") 
 @pytest.fixture(scope='function')
@@ -31,3 +32,6 @@ def test_fetch_one(temp_rec):
 def test_fetch_one_not_exist(temp_rec):
     ret = dbc.fetch_one(TEST_COLLECT, {TEST_TITLE: 'not a field value in db!'})
     assert ret is None
+
+def test_update_one(temp_rec):
+    dbc.update_one(TEST_COLLECT, {TEST_TITLE: TEST_TITLE}, {"$addToSet": {"likes": TEST_USER}})

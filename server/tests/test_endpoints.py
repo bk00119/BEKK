@@ -16,6 +16,7 @@ from unittest.mock import patch
 import db.tasks as tsks
 import db.users  as usrs
 import db.profiles as pf
+import db.db_connect as dbc
 
 import pytest
 
@@ -165,8 +166,7 @@ def test_postTask_failure(mock_add):
 @pytest.fixture()
 def setup_viewGoals():
     usrs.create_user(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_USER[ep.PASSWORD_RESP])
-    usrs.create_profile(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS], SAMPLE_PROFILE[ep.GROUPS], SAMPLE_PROFILE[ep.PRIVATE])
-
+#     usrs.create_profile(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS], SAMPLE_PROFILE[ep.GROUPS], SAMPLE_PROFILE[ep.PRIVATE])
 
 def test_viewGoals():
     resp = TEST_CLIENT.get(ep.VIEWGOALS_EP)
@@ -174,23 +174,33 @@ def test_viewGoals():
     assert isinstance(resp_json, dict)
     assert ep.GOALS in resp_json
     goals = resp_json[ep.GOALS]
-    assert isinstance(goals, list)
-    for goal in goals:
-        assert isinstance(goal, str)
+    assert isinstance(goals, dict)
+    for goal_id in goals:
+        assert isinstance(goal_id, str)
+        assert isinstance(goals[goal_id], dict)
+    
+# def test_postGoal():
+#     resp = TEST_CLIENT.post(ep.POSTGOAL_EP, json=SAMPLE_USER)
+#     print(f'{resp=}')
+#     resp_json = resp.get_json()
+#     print(f'{resp_json=}')
+#     assert ep.GOAL_RESP in resp_json
+#     assert ep.USERNAME_RESP in resp_json
 
-def test_postGoal():
-    resp = TEST_CLIENT.post(ep.POSTGOAL_EP, json=SAMPLE_USER)
+
+def test_deleteGoal():
+    resp = TEST_CLIENT.post(ep.DELETEGOAL_EP, json=SAMPLE_USER)
     print(f'{resp=}')
     resp_json = resp.get_json()
     print(f'{resp_json=}')
     assert ep.GOAL_RESP in resp_json
     assert ep.USERNAME_RESP in resp_json
 
+
 @pytest.fixture()
 def setup_viewGroups():
     usrs.create_user(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_USER[ep.PASSWORD_RESP])
     usrs.create_profile(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS], SAMPLE_PROFILE[ep.GROUPS], SAMPLE_PROFILE[ep.PRIVATE])  
-
 
 def test_viewGroups():
     resp = TEST_CLIENT.get(ep.VIEWGROUPS_EP)
@@ -222,26 +232,37 @@ def test_postGroup():
     assert ep.GROUP_RESP in resp_json
     assert ep.USERNAME_RESP in resp_json
 
+# REMOVE THIS
+@patch('db.tasks.add_task', return_value=tsks.MOCK_ID, autospec=True)
+def test_postTask(mock_add):
+    """
+    Testing for posting a new task successfully: PostTask.post()
+    """
+    resp = TEST_CLIENT.post(ep.POSTTASK_EP, json=tsks.get_new_test_task())
+    assert resp.status_code == OK
+
 def test_likeTask():
-    resp = TEST_CLIENT.post(ep.LIKETASK_EP, json=SAMPLE_USER)
-    print(f'{resp=}')
-    resp_json = resp.get_json()
-    print(f'{resp_json=}') 
-    assert ep.LIKE_RESP in resp_json
-    assert ep.USERNAME_RESP in resp_json
+    new_task = tsks.get_new_test_task()
+    test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.TITLE], new_task[tsks.CONTENT]))
+    test_user_id = str(dbc.gen_object_id())
+    resp = TEST_CLIENT.post(ep.LIKETASK_EP, json={tsks.ID: test_task_id, tsks.USER_ID: test_user_id})
+    assert resp.status_code == OK
+    tsks.del_task(test_task_id)
 
 def test_unlikeTask():
-    resp = TEST_CLIENT.post(ep.UNLIKETASK_EP, json=SAMPLE_USER)
-    print(f'{resp=}')
-    resp_json = resp.get_json()
-    print(f'{resp_json=}') 
-    assert ep.UNLIKE_RESP in resp_json
-    assert ep.USERNAME_RESP in resp_json
+    new_task = tsks.get_new_test_task()
+    test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.TITLE], new_task[tsks.CONTENT]))
+    test_user_id = str(dbc.gen_object_id())
+    tsks.like_task(test_task_id, test_user_id)
+    resp = TEST_CLIENT.post(ep.UNLIKETASK_EP, json={tsks.ID: test_task_id, tsks.USER_ID: test_user_id})
+    assert resp.status_code == OK
+    tsks.del_task(test_task_id)
 
-@pytest.fixture()
-def setup_likeTask():
-    tsks.like_task(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_TASK[ep.TASK_NAME], SAMPLE_TASK[ep.TASK_DESCRIPTION], SAMPLE_TASK[ep.LIKE])  
 
-@pytest.fixture()
-def setup_unlikeTask():
-    tsks.unlike_task(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_TASK[ep.TASK_NAME], SAMPLE_TASK[ep.TASK_DESCRIPTION], SAMPLE_TASK[ep.LIKE])
+# @pytest.fixture()
+# def setup_likeTask():
+#     tsks.like_task(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_TASK[ep.TASK_NAME], SAMPLE_TASK[ep.TASK_DESCRIPTION], SAMPLE_TASK[ep.LIKE])  
+
+# @pytest.fixture()
+# def setup_unlikeTask():
+#     tsks.unlike_task(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_TASK[ep.TASK_NAME], SAMPLE_TASK[ep.TASK_DESCRIPTION], SAMPLE_TASK[ep.LIKE])
