@@ -206,11 +206,10 @@ def test_viewGroups():
     resp = TEST_CLIENT.get(ep.VIEWGROUPS_EP)
     resp_json = resp.get_json()
     assert isinstance(resp_json, dict)
-    assert ep.GROUPS in resp_json
     groups = resp_json[ep.GROUPS]
     assert isinstance(groups, list)
     for group in groups:
-        assert isinstance(group, str)
+        assert isinstance(group, list)
 
 @pytest.fixture()
 def setup_deleteGroup():

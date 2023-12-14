@@ -250,7 +250,7 @@ class ViewGroup(Resource):
     """
     def get(self):
         return {
-            GROUPS: ['group', 'group1', 'group2', 'group3', 'group4']
+            GROUPS: pf.get_groups()
         }
 
 

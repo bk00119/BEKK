@@ -29,6 +29,11 @@ def get_goals():
     dbc.connect_db()
     return dbc.fetch_all_as_dict(dbc.DB, PROFILES_COLLECT)
 
+def get_groups():
+    dbc.connect_db()
+    profiles = dbc.fetch_all_as_dict(dbc.DB, PROFILES_COLLECT)
+    groups_list = [profile.get('Groups', []) if isinstance(profile, dict) else [] for profile in profiles]
+    return groups_list
 
 def add_profile(name: str, goals: list, private: bool, groups: list):
     dbc.connect_db()
