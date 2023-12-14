@@ -179,13 +179,9 @@ def test_viewGoals():
         assert isinstance(goal_id, str)
         assert isinstance(goals[goal_id], dict)
     
-# def test_postGoal():
-#     resp = TEST_CLIENT.post(ep.POSTGOAL_EP, json=SAMPLE_USER)
-#     print(f'{resp=}')
-#     resp_json = resp.get_json()
-#     print(f'{resp_json=}')
-#     assert ep.GOAL_RESP in resp_json
-#     assert ep.USERNAME_RESP in resp_json
+def test_postGoal():
+    resp = TEST_CLIENT.post(ep.POSTGOAL_EP, json=pf.get_new_test_goal())
+    assert resp.status_code == OK
 
 
 def test_deleteGoal():
