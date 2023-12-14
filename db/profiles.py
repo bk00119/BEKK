@@ -49,6 +49,12 @@ def get_profile(user_id: str):
     return TEST_PROFILE
 
 
+def del_profile(user_id: str):
+    dbc.connect_db()
+    dbc.del_one(PROFILES_COLLECT, {MOCK_ID: ObjectId(user_id)})
+    return dbc.fetch_one(PROFILES_COLLECT, {MOCK_ID: ObjectId(user_id)})
+
+
 def get_goals():
     dbc.connect_db()
     return dbc.fetch_all_as_dict(dbc.DB, PROFILES_COLLECT)

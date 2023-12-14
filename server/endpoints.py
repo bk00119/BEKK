@@ -30,6 +30,7 @@ DELETEGROUP_EP = '/deleteGroup'
 LIKETASK_EP = '/likeTask'
 UNLIKETASK_EP = '/unlikeTask'
 PROFILEVALIDATION_EP = '/profilevalidation'
+REMOVEPROFILE_EP = '/removeProfile'
 
 
 # Responses
@@ -139,6 +140,20 @@ class CreateProfile(Resource):
             if new_id is None:
                 raise wz.ServiceUnavailable('We have a technical problem.')
             return {PROFILE_ID: new_id}
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
+
+
+@api.route(f'{REMOVEPROFILE_EP}', methods=['POST'])
+class RemoveProfile(Resource):
+    """
+    This class will remove user profile and return remove status
+    """
+    def post(self):
+        profile_id = request.json[pf.MOCK_ID]
+        try:
+            pf.del_profile(profile_id)
+            return {MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY REMOVED YOUR PROFILE'}
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 
