@@ -31,7 +31,8 @@ def connect_db():
             username = os.environ.get("CLOUD_MONGO_USER")
             if not username:
                 raise ValueError('You must set your username '
-                                 + 'to use Mongo in the cloud.')
+                                 + 'to use Mongo in the cloud. '
+                                 + f'got {username} instead')
             password = os.environ.get("CLOUD_MONGO_PW")
             db_url = os.environ.get("CLOUD_MONGO_URL")
             if not password:
