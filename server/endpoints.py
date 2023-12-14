@@ -259,13 +259,25 @@ class PostGroup(Resource):
     """
     This class posts group to the user profile.
     """
+    # def post(self):
+    #     data = request.get_json()
+    #     print(data['username'])
+    #     return {
+    #         GROUP_RESP: TEST_TASK,
+    #         USERNAME_RESP: data[USERNAME_RESP]
+    #     }
     def post(self):
-        data = request.get_json()
-        print(data['username'])
-        return {
-            GROUP_RESP: TEST_TASK,
-            USERNAME_RESP: data[USERNAME_RESP]
-        }
+        id = request.json.get(pf.MOCK_ID, None)
+        groups = request.json.get(pf.GROUPS, None)
+        try:
+            id = pf.add_group(id, groups)
+            if id is None:
+                raise wz.ServiceUnavailable('Error')
+            return {
+                MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY ADDED GROUP TO PROFILE'
+            }
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
 
 
 @api.route(f'{DELETEGROUP_EP}', methods=['POST'])
