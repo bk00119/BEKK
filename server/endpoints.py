@@ -30,6 +30,7 @@ DELETEGROUP_EP = '/deleteGroup'
 LIKETASK_EP = '/likeTask'
 UNLIKETASK_EP = '/unlikeTask'
 PROFILEVALIDATION_EP = '/profilevalidation'
+REMOVEPROFILE_EP = '/removeProfile'
 
 
 # Responses
@@ -124,11 +125,22 @@ class Profile(Resource):
         return profile
 
 
+new_profile_field = api.model('NewProfile', {
+    pf.NAME: fields.String,
+    pf.GOALS: fields.List(fields.String()),
+    pf.GROUPS: fields.List(fields.String()),
+    pf.PRIVATE: fields.Boolean
+})
+
+
 @api.route(f'{CREATEPROFILE_EP}', methods=['POST'])
+@api.expect(new_profile_field)
 class CreateProfile(Resource):
     """
     This class will save user profile and return save status
     """
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
     def post(self):
         name = request.json[pf.NAME]
         goals = request.json[pf.GOALS]
@@ -139,6 +151,20 @@ class CreateProfile(Resource):
             if new_id is None:
                 raise wz.ServiceUnavailable('We have a technical problem.')
             return {PROFILE_ID: new_id}
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
+
+
+@api.route(f'{REMOVEPROFILE_EP}', methods=['POST'])
+class RemoveProfile(Resource):
+    """
+    This class will remove user profile and return remove status
+    """
+    def post(self):
+        profile_id = request.json[pf.MOCK_ID]
+        try:
+            pf.del_profile(profile_id)
+            return {MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY REMOVED YOUR PROFILE'}
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 
@@ -212,21 +238,21 @@ class ViewGoals(Resource):
         }
 
 
-# @api.route(f'{POSTGOAL_EP}', methods=['POST'])
-# class PostGoal(Resource):
-#     """
-#     This class posts goals to user profile.
-#     """
-#     def post(self):
-#         id = request.json[pf.MOCK_ID]
-#         goals = request.json[pf.GOALS]
-#         try:
-#             addGoal = pf.add_goal(id, goals)
-#             if addGoal is False:
-#                 raise wz.ServiceUnavailable('Error')
-#             return {GOALS: addGoal}
-#         except ValueError as e:
-#             raise wz.NotAcceptable(f'{str(e)}')
+@api.route(f'{POSTGOAL_EP}', methods=['POST'])
+class PostGoal(Resource):
+    """
+    This class posts goals to user profile.
+    """
+    def post(self):
+        id = request.json[pf.MOCK_ID]
+        goals = request.json[pf.GOALS]
+        try:
+            addGoal = pf.add_goal(id, goals)
+            if addGoal is False:
+                raise wz.ServiceUnavailable('Error')
+            return {GOALS: addGoal}
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
 
 
 @api.route(f'{DELETEGOAL_EP}', methods=['POST'])
