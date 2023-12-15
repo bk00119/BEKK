@@ -31,6 +31,7 @@ LIKETASK_EP = '/likeTask'
 UNLIKETASK_EP = '/unlikeTask'
 PROFILEVALIDATION_EP = '/profilevalidation'
 REMOVEPROFILE_EP = '/removeProfile'
+VIEWPROFILE_EP = '/viewProfile'
 
 
 # Responses
@@ -53,6 +54,12 @@ PRIVATE = "Private"
 
 TASKS = 'Tasks'
 TASK_ID = 'Task ID'
+PROFILE = {
+    NAME: 'John Smith',
+    GOALS: ['cs hw2', 'fin hw3'],
+    GROUPS: ['cs', 'fin'],
+    PRIVATE: False
+}
 PROFILE_ID = "Profile ID"
 TASK_NAME = 'task name'
 TASK_DESCRIPTION = 'task description'

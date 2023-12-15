@@ -7,7 +7,7 @@ def test_test_profile():
     assert isinstance(test_profile, dict)
 
 def test_get_profile():
-    profile = pf.get_profile("123")
+    profile = pf.get_profile("656e29138f600af5c067f4de")
     assert isinstance(profile, dict)
 
 def test_add_profile():
