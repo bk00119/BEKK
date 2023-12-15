@@ -125,11 +125,22 @@ class Profile(Resource):
         return profile
 
 
+new_profile_field = api.model('NewProfile', {
+    pf.NAME: fields.String,
+    pf.GOALS: fields.List(fields.String()),
+    pf.GROUPS: fields.List(fields.String()),
+    pf.PRIVATE: fields.Boolean
+})
+
+
 @api.route(f'{CREATEPROFILE_EP}', methods=['POST'])
+@api.expect(new_profile_field)
 class CreateProfile(Resource):
     """
     This class will save user profile and return save status
     """
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
     def post(self):
         name = request.json[pf.NAME]
         goals = request.json[pf.GOALS]
@@ -265,7 +276,7 @@ class ViewGroup(Resource):
     """
     def get(self):
         return {
-            GROUPS: ['group', 'group1', 'group2', 'group3', 'group4']
+            GROUPS: pf.get_groups()
         }
 
 
@@ -274,13 +285,25 @@ class PostGroup(Resource):
     """
     This class posts group to the user profile.
     """
+    # def post(self):
+    #     data = request.get_json()
+    #     print(data['username'])
+    #     return {
+    #         GROUP_RESP: TEST_TASK,
+    #         USERNAME_RESP: data[USERNAME_RESP]
+    #     }
     def post(self):
-        data = request.get_json()
-        print(data['username'])
-        return {
-            GROUP_RESP: TEST_TASK,
-            USERNAME_RESP: data[USERNAME_RESP]
-        }
+        id = request.json.get(pf.MOCK_ID, None)
+        groups = request.json.get(pf.GROUPS, None)
+        try:
+            id = pf.add_group(id, groups)
+            if id is None:
+                raise wz.ServiceUnavailable('Error')
+            return {
+                MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY ADDED GROUP TO PROFILE'
+            }
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
 
 
 @api.route(f'{DELETEGROUP_EP}', methods=['POST'])

@@ -11,7 +11,7 @@ GOALS = "Goals"
 PROFILES_COLLECT = "profiles"
 
 TEST_PROFILE = {
-    NAME: "john smith",
+    NAME: "john adams",
     GROUPS: ["cs", "fin"],
     PRIVATE: True,
     GOALS: ["cs hw1", "fin hw2"]
@@ -60,6 +60,14 @@ def get_goals():
     return dbc.fetch_all_as_dict(dbc.DB, PROFILES_COLLECT)
 
 
+def get_groups():
+    dbc.connect_db()
+    profiles = dbc.fetch_all_as_dict(dbc.DB, PROFILES_COLLECT)
+    groups_list = [profile.get('Groups', []) if isinstance(profile, dict)
+                   else [] for profile in profiles]
+    return groups_list
+
+
 def add_profile(name: str, goals: list, private: bool, groups: list):
     dbc.connect_db()
     _id = dbc.insert_one(
@@ -82,3 +90,32 @@ def add_goal(id: str, goal: str):
         {'$push': {GOALS: goal}}
     )
     return dbc.fetch_one(PROFILES_COLLECT, {MOCK_ID: ObjectId(id)})
+
+
+def add_group(id: str, group: str):
+    dbc.connect_db()
+    added = dbc.DB[PROFILES_COLLECT].update_one(
+        {'_id': id},
+        {'$push': {'Groups': group}}
+    )
+    if added.modified_count > 0:
+        return id
+    else:
+        return False
+
+# def add_goal(user_id: str, goal: str):
+#     dbc.connect_db()
+#     if not user_id:
+#         raise ValueError('user_id may not be blank')
+#     if not goal:
+#         raise ValueError('goal may not be blank')
+#     goal = {}
+#     goal[USER_ID] = user_id
+#     task[TITLE] = title
+#     task[CONTENT] = content
+#     task[STATUS] = 1
+#     task[LIKES] = []
+#     dbc.connect_db()
+#     _id = dbc.insert_one(TASKS_COLLECT, task)
+#     return _id
+
