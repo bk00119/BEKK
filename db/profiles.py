@@ -8,6 +8,7 @@ NAME = "Name"
 GROUPS = "Groups"
 PRIVATE = "Private"
 GOALS = "Goals"
+GOAL = "Goal"
 PROFILES_COLLECT = "profiles"
 
 TEST_PROFILE = {
@@ -37,6 +38,7 @@ def get_new_test_goal():
     test_goal[NAME] = 'Test name'
     test_goal[GROUPS] = 'Test group'
     test_goal[GOALS] = ['goal1', 'goal2']
+    test_goal[GOAL] = 'goal1'
     test_goal[PRIVATE] = True
     return test_goal
 

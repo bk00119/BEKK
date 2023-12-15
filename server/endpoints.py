@@ -245,16 +245,25 @@ class ViewGoals(Resource):
         }
 
 
+new_goal_field = api.model('NewGoal', {
+    pf.MOCK_ID: fields.String,
+    pf.GOAL: fields.String()
+})
+
+
 @api.route(f'{POSTGOAL_EP}', methods=['POST'])
+@api.expect(new_goal_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
 class PostGoal(Resource):
     """
     This class posts goals to user profile.
     """
     def post(self):
         id = request.json[pf.MOCK_ID]
-        goals = request.json[pf.GOALS]
+        goal = request.json[pf.GOAL]
         try:
-            addGoal = pf.add_goal(id, goals)
+            addGoal = pf.add_goal(id, goal)
             if addGoal is False:
                 raise wz.ServiceUnavailable('Error')
             return {GOALS: addGoal}
