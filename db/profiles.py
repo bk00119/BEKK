@@ -118,4 +118,3 @@ def add_group(id: str, group: str):
 #     dbc.connect_db()
 #     _id = dbc.insert_one(TASKS_COLLECT, task)
 #     return _id
-
