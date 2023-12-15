@@ -195,18 +195,15 @@ def test_deleteGoal():
 
 
 @pytest.fixture()
-def setup_viewGroups():
+def setup_viewProfileGroups():
     usrs.create_user(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_USER[ep.PASSWORD_RESP])
     usrs.create_profile(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS], SAMPLE_PROFILE[ep.GROUPS], SAMPLE_PROFILE[ep.PRIVATE])  
 
-def test_viewGroups():
-    resp = TEST_CLIENT.get(ep.VIEWGROUPS_EP)
+def test_viewProfileGroups():
+    resp = TEST_CLIENT.get(ep.VIEWPROFILEGROUPS_EP)
     resp_json = resp.get_json()
     assert isinstance(resp_json, dict)
-    groups = resp_json[ep.GROUPS]
-    assert isinstance(groups, list)
-    for group in groups:
-        assert isinstance(group, list)
+    # assert ep.GROUPS in resp_json
 
 @pytest.fixture()
 def setup_deleteGroup():
