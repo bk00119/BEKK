@@ -124,11 +124,22 @@ class Profile(Resource):
         return profile
 
 
+new_profile_field = api.model('NewProfile', {
+    pf.NAME: fields.String,
+    pf.GOALS: fields.List(fields.String()),
+    pf.GROUPS: fields.List(fields.String()),
+    pf.PRIVATE: fields.Boolean
+})
+
+
 @api.route(f'{CREATEPROFILE_EP}', methods=['POST'])
+@api.expect(new_profile_field)
 class CreateProfile(Resource):
     """
     This class will save user profile and return save status
     """
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
     def post(self):
         name = request.json[pf.NAME]
         goals = request.json[pf.GOALS]

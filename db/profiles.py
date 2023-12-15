@@ -10,7 +10,7 @@ GOALS = "Goals"
 PROFILES_COLLECT = "profiles"
 
 TEST_PROFILE = {
-    NAME: "john smith",
+    NAME: "john adams",
     GROUPS: ["cs", "fin"],
     PRIVATE: True,
     GOALS: ["cs hw1", "fin hw2"]
