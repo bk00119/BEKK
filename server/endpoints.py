@@ -25,7 +25,7 @@ VIEWGOALS_EP = '/viewGoals'
 POSTGOAL_EP = '/postGoal'
 DELETEGOAL_EP = '/deleteGoal'
 VIEWGROUPS_EP = '/viewGroups'
-POSTGROUP_EP = '/postGroup'
+ADDGROUP_EP = '/addGroup'
 DELETEGROUP_EP = '/deleteGroup'
 LIKETASK_EP = '/likeTask'
 UNLIKETASK_EP = '/unlikeTask'
@@ -162,7 +162,15 @@ class CreateProfile(Resource):
             raise wz.NotAcceptable(f'{str(e)}')
 
 
+del_profile_field = api.model('RemoveProfile', {
+    pf.MOCK_ID: fields.String
+})
+
+
 @api.route(f'{REMOVEPROFILE_EP}', methods=['POST'])
+@api.expect(del_profile_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
 class RemoveProfile(Resource):
     """
     This class will remove user profile and return remove status
@@ -245,16 +253,25 @@ class ViewGoals(Resource):
         }
 
 
+new_goal_field = api.model('NewGoal', {
+    pf.MOCK_ID: fields.String,
+    pf.GOAL: fields.String()
+})
+
+
 @api.route(f'{POSTGOAL_EP}', methods=['POST'])
+@api.expect(new_goal_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
 class PostGoal(Resource):
     """
     This class posts goals to user profile.
     """
     def post(self):
         id = request.json[pf.MOCK_ID]
-        goals = request.json[pf.GOALS]
+        goal = request.json[pf.GOAL]
         try:
-            addGoal = pf.add_goal(id, goals)
+            addGoal = pf.add_goal(id, goal)
             if addGoal is False:
                 raise wz.ServiceUnavailable('Error')
             return {GOALS: addGoal}
@@ -287,8 +304,17 @@ class ViewGroup(Resource):
         }
 
 
-@api.route(f'{POSTGROUP_EP}', methods=['POST'])
-class PostGroup(Resource):
+new_group_field = api.model('NewGroup', {
+    pf.MOCK_ID: fields.String,
+    pf.GROUP: fields.String
+})
+
+
+@api.route(f'{ADDGROUP_EP}', methods=['POST'])
+@api.expect(new_group_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class AddGroup(Resource):
     """
     This class posts group to the user profile.
     """
@@ -301,11 +327,12 @@ class PostGroup(Resource):
     #     }
     def post(self):
         id = request.json.get(pf.MOCK_ID, None)
-        groups = request.json.get(pf.GROUPS, None)
+        # groups = request.json.get(pf.GROUPS, None)
+        group = request.json.get(pf.GROUP, None)
         try:
-            id = pf.add_group(id, groups)
-            if id is None:
-                raise wz.ServiceUnavailable('Error')
+            id = pf.add_group(id, group)
+            # if id is None:
+            #     raise wz.ServiceUnavailable('Error')
             return {
                 MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY ADDED GROUP TO PROFILE'
             }
