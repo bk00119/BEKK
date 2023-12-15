@@ -46,7 +46,9 @@ def get_test_profile():
 
 
 def get_profile(user_id: str):
-    return TEST_PROFILE
+    dbc.connect_db()
+    profile = dbc.fetch_one(PROFILES_COLLECT, {MOCK_ID: ObjectId(user_id)})
+    return profile
 
 
 def del_profile(user_id: str):

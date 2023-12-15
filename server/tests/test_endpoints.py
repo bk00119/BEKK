@@ -71,7 +71,7 @@ def test_generate_valid_profile_id():
     """
     this profile id has to always be part of the profiles database
     """
-    return "123" 
+    return "656e29138f600af5c067f4de" 
 
 def test_get_profile(test_generate_valid_profile_id):
     resp = TEST_CLIENT.get(ep.PROFILE_EP, query_string={ep.PROFILE_ID:f'{test_generate_valid_profile_id}'}) 
