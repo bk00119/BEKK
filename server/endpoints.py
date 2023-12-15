@@ -162,7 +162,15 @@ class CreateProfile(Resource):
             raise wz.NotAcceptable(f'{str(e)}')
 
 
+del_profile_field = api.model('RemoveProfile', {
+    pf.MOCK_ID: fields.String
+})
+
+
 @api.route(f'{REMOVEPROFILE_EP}', methods=['POST'])
+@api.expect(del_profile_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
 class RemoveProfile(Resource):
     """
     This class will remove user profile and return remove status
