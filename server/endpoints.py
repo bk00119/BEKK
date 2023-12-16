@@ -25,7 +25,7 @@ POSTTASK_EP = '/postTask'
 VIEWGOALS_EP = '/viewGoals'
 POSTGOAL_EP = '/postGoal'
 DELETEGOAL_EP = '/deleteGoal'
-VIEWGROUPS_EP = '/viewGroups'
+VIEWPROFILEGROUPS_EP = '/viewProfileGroups'
 ADDGROUP_EP = '/addGroup'
 DELETEGROUP_EP = '/deleteGroup'
 LIKETASK_EP = '/likeTask'
@@ -122,15 +122,28 @@ class Signup(Resource):
         }
 
 
-@api.route(f'{PROFILE_EP}', methods=['GET'])
+profile_id = api.model("Profile", {
+    PROFILE_ID: fields.String
+})
+
+
+@api.route(f'{PROFILE_EP}', methods=['POST'])
+@api.expect(profile_id)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
 class Profile(Resource):
     """
-    This class will deliver contents for user profile.
+    This class will deliver contents for any user profile.
     """
-    def get(self):
-        user_id = request.args[PROFILE_ID]
-        profile = pf.get_profile(user_id)
-        return profile
+    def post(self):
+        user_id = request.json[PROFILE_ID]
+        try:
+            profile = pf.get_profile(user_id)
+            if profile is None:
+                raise wz.ServiceUnavailable('We have a technical problem.')
+            return profile
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
 
 
 new_profile_field = api.model('NewProfile', {
@@ -293,14 +306,24 @@ class DeleteGoal(Resource):
         }
 
 
-@api.route(f'{VIEWGROUPS_EP}', methods=['GET'])
-class ViewGroup(Resource):
+new_profileGroup_field = api.model('NewGroup', {
+    pf.MOCK_ID: fields.String,
+})
+
+
+@api.route(f'{VIEWPROFILEGROUPS_EP}', methods=['POST'])
+@api.expect(new_profileGroup_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class ViewProfileGroup(Resource):
     """
     This class shows the groups for each user.
     """
-    def get(self):
+    def post(self):
+        # user_id = "656e29138f600af5c067f4de"
+        user_id = request.json[pf.MOCK_ID]
         return {
-            GROUPS: pf.get_groups()
+            GROUPS: pf.get_groups(str(user_id))
         }
 
 
