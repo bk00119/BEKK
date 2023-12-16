@@ -20,6 +20,7 @@ SIGNUP_EP = '/signup'
 PROFILE_EP = '/profile'
 CREATEPROFILE_EP = '/createProfile'
 VIEWTASKS_EP = '/viewTasks'
+VIEWUSERTASKS_EP = '/viewUserTasks'
 POSTTASK_EP = '/postTask'
 VIEWGOALS_EP = '/viewGoals'
 POSTGOAL_EP = '/postGoal'
@@ -190,7 +191,6 @@ class ViewTasks(Resource):
     This class will show tasks for the user profile
     """
     def get(self):
-        # return jsonify(tasks.get_tasks())
         return {
             TASKS: tasks.get_tasks()
         }
@@ -352,6 +352,29 @@ class DeleteGroup(Resource):
             GROUP_RESP: TEST_TASK,
             USERNAME_RESP: data[USERNAME_RESP]
         }
+
+
+user_task_field = api.model('UserTasks', {
+    tasks.USER_ID: fields.String,
+})
+
+
+@api.route(f'{VIEWUSERTASKS_EP}', methods=['POST'])
+@api.expect(user_task_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class ViewUserTasks(Resource):
+    """
+    This class is for getting a user's tasks
+    """
+    def post(self):
+        user_id = request.json[tasks.USER_ID]
+        try:
+            return {
+                TASKS: tasks.get_user_tasks(user_id)
+            }
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
 
 
 like_task_field = api.model('LikeTask', {

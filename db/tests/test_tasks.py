@@ -7,7 +7,7 @@ import db.db_connect as dbc
 @pytest.fixture(scope='function')
 def temp_task():
   task = {}
-  task[tsks.USER_ID] = "testuser123"
+  task[tsks.USER_ID] = "6575033f3b89d2b4f309d7af"
   task[tsks.TITLE] = "test title"
   task[tsks.CONTENT] = "test content"
   task[tsks.STATUS] = 1
@@ -58,6 +58,17 @@ def test_get_task_not_exist():
   with pytest.raises(ValueError):
     tsks.get_task(id)
 
+def test_get_user_tasks(temp_task):
+  task = temp_task
+  ret = tsks.get_user_tasks(task[tsks.USER_ID])
+  print(ret[task[tsks.ID]])
+  assert isinstance(ret, dict)
+  assert ret[task[tsks.ID]][tsks.USER_ID] == task[tsks.USER_ID]
+  assert ret[task[tsks.ID]][tsks.TITLE] == task[tsks.TITLE]
+  assert ret[task[tsks.ID]][tsks.CONTENT] == task[tsks.CONTENT]
+  assert ret[task[tsks.ID]][tsks.STATUS] == task[tsks.STATUS]
+  assert ret[task[tsks.ID]][tsks.LIKES] == task[tsks.LIKES]
+  tsks.del_task(ObjectId(task[tsks.ID]))
 
 def test_task_like_unlike(temp_task):
   task = temp_task

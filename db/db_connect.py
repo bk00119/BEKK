@@ -70,18 +70,25 @@ def fetch_one(collection, filt, db=DB):
         return doc
 
 
-def fetch_all_as_dict(db_name, collection):
+def fetch_all_as_dict(db_name, collection, filter=None):
     """
     fetching all data of a collection as dict type
     """
     db = client[db_name]
     tasks = db[collection]
     data = {}
-    for task in tasks.find():
-        # _id: ObjectID; ObjectId is not JSON serializable
-        key = str(task['_id'])
-        del task['_id']
-        data[key] = task
+    if filter is not None:
+        for task in tasks.find(filter):
+            # _id: ObjectID; ObjectId is not JSON serializable
+            key = str(task['_id'])
+            del task['_id']
+            data[key] = task
+    else:
+        for task in tasks.find():
+            # _id: ObjectID; ObjectId is not JSON serializable
+            key = str(task['_id'])
+            del task['_id']
+            data[key] = task
     return data
 
 

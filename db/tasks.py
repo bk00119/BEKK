@@ -6,7 +6,7 @@ This module interfaces to our tasks data.
 import random
 from bson.objectid import ObjectId
 import db.db_connect as dbc
-# import db.users as usrs
+import db.users as usrs
 
 test_tasks = {
     "task1": "SWE",
@@ -38,7 +38,7 @@ MOCK_ID = MOCK_ID = '0' * ID_LEN
 
 def get_tasks():
     dbc.connect_db()
-    return dbc.fetch_all_as_dict(dbc.DB, TASKS_COLLECT)
+    return dbc.fetch_all_as_dict(dbc.DB, TASKS_COLLECT, None)
 
 
 def get_test_tasks():
@@ -55,7 +55,8 @@ def get_new_test_task():
     _id = random.randint(0, BIG_NUM)
     _id = str(_id)
     _id = _id.rjust(ID_LEN, '0')
-    test_task[USER_ID] = 'test123'
+    test_task[USER_ID] = "Test user"
+    test_task[USER_ID] = '6575033f3b89d2b4f309d7af'
     test_task[TITLE] = 'Test Title'
     test_task[CONTENT] = 'Test Content'
     return test_task
@@ -96,6 +97,13 @@ def get_task(task_id: str):
         return dbc.fetch_one(TASKS_COLLECT, {ID: ObjectId(task_id)})
     else:
         raise ValueError(f'Get failure: {task_id} not in database.')
+
+
+def get_user_tasks(user_id: str):
+    if usrs.id_exists(user_id):
+        return dbc.fetch_all_as_dict(dbc.DB, TASKS_COLLECT, {USER_ID: user_id})
+    else:
+        raise ValueError(f'Get failure: {user_id} not in database.')
 
 
 def is_task_liked(task_id: str, user_id: str):

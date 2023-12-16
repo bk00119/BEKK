@@ -237,6 +237,21 @@ def test_postTask(mock_add):
     resp = TEST_CLIENT.post(ep.POSTTASK_EP, json=tsks.get_new_test_task())
     assert resp.status_code == OK
 
+def test_viewUserTask():
+    new_task = tsks.get_new_test_task()
+    test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.TITLE], new_task[tsks.CONTENT]))
+    test_user_id = str(new_task[tsks.USER_ID])
+    resp = TEST_CLIENT.post(ep.VIEWUSERTASKS_EP, json={tsks.USER_ID: test_user_id})
+    resp_json = resp.get_json()
+    assert isinstance(resp_json, dict)
+    assert ep.TASKS in resp_json
+    tasks = resp_json[ep.TASKS]
+    assert isinstance(tasks, dict)
+    for task_id in tasks:
+        assert isinstance(task_id, str)
+        assert isinstance(tasks[task_id], dict)
+    tsks.del_task(test_task_id)
+
 def test_likeTask():
     new_task = tsks.get_new_test_task()
     test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.TITLE], new_task[tsks.CONTENT]))
