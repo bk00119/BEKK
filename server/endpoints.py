@@ -106,20 +106,20 @@ class Logout(Resource):
         }
 
 
-@api.route(f'{SIGNUP_EP}', methods=['POST'])
-class Signup(Resource):
-    """
-    This class supports fetching a user data for signup
-    """
-    @api.response(HTTPStatus.OK, 'Success')
-    @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-    def post(self):
-        data = request.get_json()
-        print(data['username'])
-        return {
-            TOKEN_RESP: TEST_USER_TOKEN,
-            USERNAME_RESP: data[USERNAME_RESP]
-        }
+# @api.route(f'{SIGNUP_EP}', methods=['POST'])
+# class Signup(Resource):
+#     """
+#     This class supports fetching a user data for signup
+#     """
+#     @api.response(HTTPStatus.OK, 'Success')
+#     @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+#     def post(self):
+#         data = request.get_json()
+#         print(data['username'])
+#         return {
+#             TOKEN_RESP: TEST_USER_TOKEN,
+#             USERNAME_RESP: data[USERNAME_RESP]
+#         }
 
 
 profile_id = api.model("Profile", {
@@ -292,18 +292,18 @@ class PostGoal(Resource):
             raise wz.NotAcceptable(f'{str(e)}')
 
 
-@api.route(f'{DELETEGOAL_EP}', methods=['POST'])
-class DeleteGoal(Resource):
-    """
-    This class deletes goals from user profile.
-    """
-    def post(self):
-        data = request.get_json()
-        print(data['username'])
-        return {
-            GOAL_RESP: TEST_TASK,
-            USERNAME_RESP: data[USERNAME_RESP]
-        }
+# @api.route(f'{DELETEGOAL_EP}', methods=['POST'])
+# class DeleteGoal(Resource):
+#     """
+#     This class deletes goals from user profile.
+#     """
+#     def post(self):
+#         data = request.get_json()
+#         print(data['username'])
+#         return {
+#             GOAL_RESP: TEST_TASK,
+#             USERNAME_RESP: data[USERNAME_RESP]
+#         }
 
 
 new_profileGroup_field = api.model('NewGroup', {
@@ -363,18 +363,18 @@ class AddGroup(Resource):
             raise wz.NotAcceptable(f'{str(e)}')
 
 
-@api.route(f'{DELETEGROUP_EP}', methods=['POST'])
-class DeleteGroup(Resource):
-    """
-    This class deletes group of the user profile.
-    """
-    def post(self):
-        data = request.get_json()
-        print(data['username'])
-        return {
-            GROUP_RESP: TEST_TASK,
-            USERNAME_RESP: data[USERNAME_RESP]
-        }
+# @api.route(f'{DELETEGROUP_EP}', methods=['POST'])
+# class DeleteGroup(Resource):
+#     """
+#     This class deletes group of the user profile.
+#     """
+#     def post(self):
+#         data = request.get_json()
+#         print(data['username'])
+#         return {
+#             GROUP_RESP: TEST_TASK,
+#             USERNAME_RESP: data[USERNAME_RESP]
+#         }
 
 
 user_task_field = api.model('UserTasks', {
