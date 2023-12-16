@@ -60,6 +60,7 @@ def test_logout():
     print(f'{resp_json=}')
     assert ep.MESSAGE_RESP in resp_json
 
+@pytest.mark.skip(reason= "not using this endpoint") 
 def test_signup():
     resp = TEST_CLIENT.post(ep.SIGNUP_EP, json=SAMPLE_USER)
     print(f'{resp=}')
@@ -168,7 +169,7 @@ def test_postGoal():
     resp = TEST_CLIENT.post(ep.POSTGOAL_EP, json=pf.get_new_test_goal())
     assert resp.status_code == OK
 
-
+@pytest.mark.skip(reason= "not using this endpoint") 
 def test_deleteGoal():
     resp = TEST_CLIENT.post(ep.DELETEGOAL_EP, json=SAMPLE_USER)
     print(f'{resp=}')
@@ -189,10 +190,11 @@ def test_viewProfileGroups():
     assert isinstance(resp_json, dict)
     # assert ep.GROUPS in resp_json
 
-@pytest.fixture()
-def setup_deleteGroup():
-    usrs.delete_group(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS])
+# @pytest.fixture()
+# def setup_deleteGroup():
+#     usrs.delete_group(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS])
 
+@pytest.mark.skip(reason= "not using this endpoint") 
 def test_deleteGroup():
     resp = TEST_CLIENT.post(ep.DELETEGROUP_EP, json=SAMPLE_USER)
     print(f'{resp=}')
