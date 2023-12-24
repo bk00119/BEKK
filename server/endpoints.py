@@ -90,6 +90,9 @@ class Login(Resource):
     This class supports fetching a user data for login
     """
     def post(self):
+        """
+        posts the user data for login
+        """
         return {
             TOKEN_RESP: TEST_USER_TOKEN
         }
@@ -101,6 +104,9 @@ class Logout(Resource):
     This class supports fetching a user data for logout
     """
     def post(self):
+        """
+        posts the user data for logout
+        """
         return {
             MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY LOGGED OUT'
         }
@@ -136,6 +142,9 @@ class Profile(Resource):
     This class will deliver contents for any user profile.
     """
     def post(self):
+        """
+        posts the user's id for fetching user's profile data 
+        """
         user_id = request.json[PROFILE_ID]
         try:
             profile = pf.get_profile(user_id)
@@ -163,6 +172,9 @@ class CreateProfile(Resource):
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
     def post(self):
+        """
+        posts the user's profile data for creating a new user profile 
+        """
         name = request.json[pf.NAME]
         goals = request.json[pf.GOALS]
         private = request.json[pf.PRIVATE]
@@ -190,6 +202,9 @@ class RemoveProfile(Resource):
     This class will remove user profile and return remove status
     """
     def post(self):
+        """
+        posts the user's id for deleting the user's profile
+        """
         profile_id = request.json[pf.MOCK_ID]
         try:
             pf.del_profile(profile_id)
@@ -201,9 +216,12 @@ class RemoveProfile(Resource):
 @api.route(f'{VIEWTASKS_EP}', methods=['GET'])
 class ViewTasks(Resource):
     """
-    This class will show tasks for the user profile
+    This class will show all tasks
     """
     def get(self):
+        """
+        gets all the tasks
+        """
         return {
             TASKS: tasks.get_tasks()
         }
@@ -215,6 +233,9 @@ class ProfileValidation(Resource):
     This class validates the user profile
     """
     def get(self):
+        """
+        gets the validation of user profile
+        """
         return {
             PROFILE_VALID_RESP: True
         }
@@ -235,14 +256,10 @@ class PostTask(Resource):
     """
     This class is for posting task
     """
-    # def post(self):
-    #     data = request.get_json()
-    #     print(data['username'])
-    #     return {
-    #         TASK_RESP: TEST_TASK,
-    #         USERNAME_RESP: data[USERNAME_RESP]
-    #     }
     def post(self):
+        """
+        posts a new task data to create a new task
+        """
         user_id = request.json[tasks.USER_ID]
         title = request.json[tasks.TITLE]
         content = request.json[tasks.CONTENT]
@@ -261,6 +278,9 @@ class ViewGoals(Resource):
     This class shows goals on the user profile.
     """
     def get(self):
+        """
+        gets all the goals of a user
+        """
         return {
             GOALS: pf.get_goals()
         }
@@ -281,6 +301,9 @@ class PostGoal(Resource):
     This class posts goals to user profile.
     """
     def post(self):
+        """
+        posts a new goal data to create a new goal
+        """
         id = request.json[pf.MOCK_ID]
         goal = request.json[pf.GOAL]
         try:
@@ -320,7 +343,9 @@ class ViewProfileGroup(Resource):
     This class shows the groups for each user.
     """
     def post(self):
-        # user_id = "656e29138f600af5c067f4de"
+        """
+        posts a user's id to get the user's profile groups
+        """
         user_id = request.json[pf.MOCK_ID]
         return {
             GROUPS: pf.get_groups(str(user_id))
@@ -341,14 +366,10 @@ class AddGroup(Resource):
     """
     This class posts group to the user profile.
     """
-    # def post(self):
-    #     data = request.get_json()
-    #     print(data['username'])
-    #     return {
-    #         GROUP_RESP: TEST_TASK,
-    #         USERNAME_RESP: data[USERNAME_RESP]
-    #     }
     def post(self):
+        """
+        posts a new group data to create a new group
+        """
         id = request.json.get(pf.MOCK_ID, None)
         # groups = request.json.get(pf.GROUPS, None)
         group = request.json.get(pf.GROUP, None)
@@ -391,6 +412,9 @@ class ViewUserTasks(Resource):
     This class is for getting a user's tasks
     """
     def post(self):
+        """
+        posts a user's id to get all the user's tasks
+        """
         user_id = request.json[tasks.USER_ID]
         try:
             return {
@@ -415,6 +439,9 @@ class LikeTask(Resource):
     This class likes the taks under user's task lists
     """
     def post(self):
+        """
+        post a user's id and task id to like a task
+        """
         task_id = request.json[tasks.ID]
         user_id = request.json[tasks.USER_ID]
         try:
@@ -435,6 +462,9 @@ class UnlikeTask(Resource):
     This class likes the taks under user's task lists
     """
     def post(self):
+        """
+        post a user's id and task id to unlike a task
+        """
         task_id = request.json[tasks.ID]
         user_id = request.json[tasks.USER_ID]
         try:
