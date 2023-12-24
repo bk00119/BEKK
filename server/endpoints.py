@@ -143,7 +143,7 @@ class Profile(Resource):
     """
     def post(self):
         """
-        posts the user's id for fetching user's profile data 
+        posts the user's id for fetching user's profile data
         """
         user_id = request.json[PROFILE_ID]
         try:
@@ -173,7 +173,7 @@ class CreateProfile(Resource):
     @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
     def post(self):
         """
-        posts the user's profile data for creating a new user profile 
+        posts the user's profile data for creating a new user profile
         """
         name = request.json[pf.NAME]
         goals = request.json[pf.GOALS]
