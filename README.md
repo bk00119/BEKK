@@ -1,4 +1,4 @@
-x Project Overview
+# Project Overview
 ## Team Members & Roles
 | NAME | ROLE |
 | --- | --- |
@@ -20,6 +20,7 @@ x Project Overview
 - Project management: Notion & Kanban board on GitHub
 - Design: Figma
 
+## [Progress and Goals](./ProgressAndGoals.md)
 
 # Potential Features
 ## Tasks
