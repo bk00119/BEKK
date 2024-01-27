@@ -61,7 +61,9 @@ jobs:
         
 
       - name: Deploy to PythonAnywhere
-        run: ./deploy.sh
+        run:
+          chmod 755 deploy.sh 
+          ./deploy.sh
         # env:
           # VENV: ${{ vars.VENV }}
           # PA_DOMAIN: ${{ vars.PA_DOMAIN }}
