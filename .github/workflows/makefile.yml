@@ -21,6 +21,10 @@ env:
   # CLOUD_MONGO_PW: ${{ vars.CLOUD_MONGO_PW }}
   CLOUD_MONGO_USER: ${{ secrets.CLOUD_MONGO_USER }}
   CLOUD_MONGO_PW: ${{ secrets.CLOUD_MONGO_PW }}
+  VENV: ${{ vars.VENV }}
+  PA_DOMAIN: ${{ vars.PA_DOMAIN }}
+  PA_USER: ${{ vars.PA_USER }}
+  PA_PWD: ${{ secrets.PA_PWD }}
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -58,8 +62,8 @@ jobs:
 
       - name: Deploy to PythonAnywhere
         run: ./deploy.sh
-        env:
-        VENV: ${{ vars.VENV }}
-        PA_DOMAIN: ${{ vars.PA_DOMAIN }}
-        PA_USER: ${{ vars.PA_USER }}
-        PA_PWD: ${{ secrets.PA_PWD }}
+        # env:
+          # VENV: ${{ vars.VENV }}
+          # PA_DOMAIN: ${{ vars.PA_DOMAIN }}
+          # PA_USER: ${{ vars.PA_USER }}
+          # PA_PWD: ${{ secrets.PA_PWD }}
