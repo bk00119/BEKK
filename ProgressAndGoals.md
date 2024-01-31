@@ -17,6 +17,12 @@
 
 ### Goals & Requirements & Expectation
 - Add more APIs that may be needed for the client-side application
+    - User Login
+    - User Logout
+    - User Signup
+    - Add Post
+    - Modify Post
+    - Delete Post
     - While working on the client-side app development, communicate with the backend developers to get corresponding APIs
 - Update Wireframe
     - to showcase user interface for a more clear interaction
