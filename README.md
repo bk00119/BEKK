@@ -113,4 +113,4 @@ Streaks motivates users to maintain consistent engagement with the application, 
 ![Insight Wireframe](documentation/images/performance_analyzer_sketch.jpg)
 
 ## Wireframe Designs
-
+[FIGMA](https://www.figma.com/file/Su2Op7alBZjv0cqRajrjWc/BEKK?type=design&node-id=31%3A36&mode=design&t=p80PSTwadZSQ54dj-1)
