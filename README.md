@@ -114,3 +114,22 @@ Streaks motivates users to maintain consistent engagement with the application, 
 
 ## Wireframe Designs
 [FIGMA](https://www.figma.com/file/Su2Op7alBZjv0cqRajrjWc/BEKK?type=design&node-id=31%3A36&mode=design&t=p80PSTwadZSQ54dj-1)
+
+# Pages
+## Home
+- Access global feed where you can view other user's posts.
+- Ability to edit profile and bio on global feed. 
+- Create new posts.
+## Administrative Page
+- Portal to see past posts and create new ones
+- View, add, and edit tasks
+- View completed tasks
+- Associate tasks with goals
+- View, add, and edit goals
+- View tasks associated with goals
+- View old goals that have been completed.
+## Public Profile Page
+- View what your profile looks like to other users.
+- View past posts
+- Edit account bio and profile.
+
