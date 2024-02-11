@@ -30,11 +30,11 @@ test_users = {
 }
 
 sample_user = {
-    FIRST_NAME : "John",
-    LAST_NAME : "Doe",
-    USERNAME : "johndoe123",
-    EMAIL : "johndoe@gmail.com",
-    STREAKS : {'num_streaks': 2, "updated": True}
+    FIRST_NAME: "John",
+    LAST_NAME: "Doe",
+    USERNAME: "johndoe123",
+    EMAIL: "johndoe@gmail.com",
+    STREAKS: {'num_streaks': 2, "updated": True}
 }
 
 
@@ -72,11 +72,7 @@ def retrieve_user(username):
 
 def get_test_user():
     # return {'username': 'user1234', 'password': 'pwpw1234'}
-    return {'first_name' : "John",
-    "last_name" : "Doe",
-    "username" : "johndoe123",
-    "email" : "johndoe@gmail.com",
-    "streaks" : {'num_streaks': 2, "updated": True}}
+    return {'first_name': "John", "last_name": "Doe", "username": "johndoe123", "email": "johndoe@gmail.com", "streaks": {'num_streaks': 2, "updated": True}}
 
 
 def signup(user):
