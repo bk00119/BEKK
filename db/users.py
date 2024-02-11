@@ -73,7 +73,7 @@ def retrieve_user(username):
 def get_test_user():
     # return {'username': 'user1234', 'password': 'pwpw1234'}
     return {'first_name': "John", "last_name": "Doe", "username": "johndoe123",
-            "email": "johndoe@gmail.com", 
+            "email": "johndoe@gmail.com",
             "streaks": {'num_streaks': 2, "updated": True}}
 
 
