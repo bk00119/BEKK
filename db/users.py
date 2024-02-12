@@ -13,6 +13,7 @@ FIRST_NAME = 'first_name'
 LAST_NAME = 'last_name'
 USERNAME = 'username'
 EMAIL = 'email'
+STREAKS = 'streaks'
 
 ID_LEN = 24
 BIG_NUM = 100_000_000_000_000_000_000
@@ -26,6 +27,14 @@ MIN_USER_NAME_LEN = 2
 test_users = {
     'user1234': 'pwpw123',
     'user456': 'pwpw456'
+}
+
+sample_user = {
+    FIRST_NAME: "John",
+    LAST_NAME: "Doe",
+    USERNAME: "johndoe123",
+    EMAIL: "johndoe@gmail.com",
+    STREAKS: {'num_streaks': 2, "updated": True}
 }
 
 
@@ -50,12 +59,22 @@ def get_users():
     return test_users
 
 
+def get_user():
+    return sample_user
+
+
 def retrieve_user(username):
-    return test_users[username]
+    if username:
+        return test_users[username]
+    else:
+        return None
 
 
 def get_test_user():
-    return {'username': 'user1234', 'password': 'pwpw1234'}
+    # return {'username': 'user1234', 'password': 'pwpw1234'}
+    return {'first_name': "John", "last_name": "Doe", "username": "johndoe123",
+            "email": "johndoe@gmail.com",
+            "streaks": {'num_streaks': 2, "updated": True}}
 
 
 def signup(user):
