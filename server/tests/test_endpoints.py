@@ -254,7 +254,7 @@ def test_unlikeTask():
 
 def test_removeProfile():
     new_profile = pf.get_test_profile()
-    test_profile_id = str(pf.add_profile(new_profile[pf.NAME], new_profile[pf.GOALS], new_profile[pf.PRIVATE], new_profile[pf.GROUPS]))
+    test_profile_id = str(pf.add_profile(new_profile[pf.NAME], new_profile[pf.GOALS], new_profile[pf.TASKS], new_profile[pf.POSTS], new_profile[pf.PRIVATE] ))
     resp = TEST_CLIENT.post(ep.REMOVEPROFILE_EP, json={pf.MOCK_ID: test_profile_id})
     assert resp.status_code == OK
     pf.del_profile(test_profile_id)

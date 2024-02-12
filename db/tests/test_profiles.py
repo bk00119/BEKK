@@ -12,7 +12,7 @@ def test_get_profile():
     assert isinstance(profile, dict)
 
 def test_add_profile():
-    profile_id = pf.add_profile("john smith", ["cs hw1", "fin hw2"], True, ["cs", "fin"])
+    profile_id = pf.add_profile("john smith", ["cs hw1", "fin hw2"], [], [], True)
     assert profile_id is not None
 
      
