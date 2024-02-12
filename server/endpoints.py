@@ -158,7 +158,8 @@ class Profile(Resource):
 new_profile_field = api.model('NewProfile', {
     pf.NAME: fields.String,
     pf.GOALS: fields.List(fields.String()),
-    pf.GROUPS: fields.List(fields.String()),
+    pf.TASKS: fields.List(fields.String()),
+    pf.POSTS: fields.List(fields.String()),
     pf.PRIVATE: fields.Boolean
 })
 
@@ -177,10 +178,11 @@ class CreateProfile(Resource):
         """
         name = request.json[pf.NAME]
         goals = request.json[pf.GOALS]
+        tasks = request.json[pf.TASKS]
+        posts = request.json[pf.POSTS]
         private = request.json[pf.PRIVATE]
-        groups = request.json[pf.GROUPS]
         try:
-            new_id = pf.add_profile(name, goals, private, groups)
+            new_id = pf.add_profile(name, goals, tasks, posts, private)
             if new_id is None:
                 raise wz.ServiceUnavailable('We have a technical problem.')
             return {PROFILE_ID: new_id}
