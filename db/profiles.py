@@ -3,20 +3,25 @@ from bson import ObjectId
 import random
 
 MOCK_ID = "_id"
-
 NAME = "Name"
+
+GOALS = "Goals"
+POSTS = "Posts"
+TASKS = "Tasks"
+PRIVATE = "Private"
+
 GROUPS = "Groups"
 GROUP = "GROUP"
-PRIVATE = "Private"
-GOALS = "Goals"
 GOAL = "Goal"
 PROFILES_COLLECT = "profiles"
 
+
 TEST_PROFILE = {
     NAME: "john adams",
-    GROUPS: ["cs", "fin"],
+    GOALS: ["cs hw1", "fin hw2"],
+    TASKS: [],
+    POSTS: [],
     PRIVATE: True,
-    GOALS: ["cs hw1", "fin hw2"]
 }
 ID_LEN = 24
 
@@ -94,15 +99,17 @@ def get_groups(user_id: str):
     return groups
 
 
-def add_profile(name: str, goals: list, private: bool, groups: list):
+def add_profile(name: str, goals: list,
+                tasks: list, posts: list, private: bool):
     dbc.connect_db()
     _id = dbc.insert_one(
                         PROFILES_COLLECT,
                         {
                             NAME: name,
-                            GROUPS: groups,
-                            PRIVATE: private,
                             GOALS: goals,
+                            TASKS: tasks,
+                            POSTS: posts,
+                            PRIVATE: private,
                         })
     return _id
 
