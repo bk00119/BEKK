@@ -222,7 +222,7 @@ def test_postTask(mock_add):
 
 def test_viewUserTask():
     new_task = tsks.get_new_test_task()
-    test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.TITLE], new_task[tsks.CONTENT]))
+    test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.GOAL], new_task[tsks.CONTENT], new_task[tsks.IS_COMPLETED]))
     test_user_id = str(new_task[tsks.USER_ID])
     resp = TEST_CLIENT.post(ep.VIEWUSERTASKS_EP, json={tsks.USER_ID: test_user_id})
     resp_json = resp.get_json()
@@ -237,7 +237,7 @@ def test_viewUserTask():
 
 def test_likeTask():
     new_task = tsks.get_new_test_task()
-    test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.TITLE], new_task[tsks.CONTENT]))
+    test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.GOAL], new_task[tsks.CONTENT], new_task[tsks.IS_COMPLETED]))
     test_user_id = str(dbc.gen_object_id())
     resp = TEST_CLIENT.post(ep.LIKETASK_EP, json={tsks.ID: test_task_id, tsks.USER_ID: test_user_id})
     assert resp.status_code == OK
@@ -245,7 +245,7 @@ def test_likeTask():
 
 def test_unlikeTask():
     new_task = tsks.get_new_test_task()
-    test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.TITLE], new_task[tsks.CONTENT]))
+    test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.GOAL], new_task[tsks.CONTENT], new_task[tsks.IS_COMPLETED]))
     test_user_id = str(dbc.gen_object_id())
     tsks.like_task(test_task_id, test_user_id)
     resp = TEST_CLIENT.post(ep.UNLIKETASK_EP, json={tsks.ID: test_task_id, tsks.USER_ID: test_user_id})

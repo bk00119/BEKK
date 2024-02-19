@@ -245,8 +245,9 @@ class ProfileValidation(Resource):
 
 new_task_field = api.model('NewTask', {
     tasks.USER_ID: fields.String,
-    tasks.TITLE: fields.String,
-    tasks.CONTENT: fields.String
+    tasks.GOAL: fields.String,
+    tasks.IS_COMPLETED: fields.Boolean,
+    tasks.CONTENT: fields.String,
 })
 
 
@@ -263,10 +264,11 @@ class PostTask(Resource):
         posts a new task data to create a new task.
         """
         user_id = request.json[tasks.USER_ID]
-        title = request.json[tasks.TITLE]
+        goal = request.json[tasks.GOAL]
+        is_completed = request.json[tasks.IS_COMPLETED]
         content = request.json[tasks.CONTENT]
         try:
-            new_id = tasks.add_task(user_id, title, content)
+            new_id = tasks.add_task(user_id, goal, is_completed, content)
             if new_id is None:
                 raise wz.ServiceUnavailable('Error')
             return {TASK_ID: new_id}
