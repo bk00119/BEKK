@@ -8,15 +8,14 @@ import db.db_connect as dbc
 def temp_task():
   task = {}
   task[tsks.USER_ID] = "6575033f3b89d2b4f309d7af"
-  task[tsks.TITLE] = "test title"
   task[tsks.CONTENT] = "test content"
-  task[tsks.STATUS] = 1
-  task[tsks.LIKES] = []
-  ret = tsks.add_task(task[tsks.USER_ID], task[tsks.TITLE], task[tsks.CONTENT])
+  task[tsks.GOAL] = "65d2dd8abe686c2ec340e298"
+  task[tsks.IS_COMPLETED] = False
+  ret = tsks.add_task(task[tsks.USER_ID], task[tsks.GOAL], task[tsks.CONTENT], task[tsks.IS_COMPLETED])
   task[tsks.ID] = ret
   return task  
 
-# @pytest.mark.skip(reason="using local MongoDB") 
+@pytest.mark.skip(reason="using local MongoDB") 
 def test_get_all_tasks():
   tasks = tsks.get_tasks()
   assert isinstance(tasks, dict)
@@ -28,7 +27,7 @@ def test_get_all_tasks():
  
 def test_add_task():
   test_task = tsks.get_new_test_task()
-  ret = tsks.add_task(test_task[tsks.USER_ID], test_task[tsks.TITLE], test_task[tsks.CONTENT])
+  ret = tsks.add_task(test_task[tsks.USER_ID], test_task[tsks.GOAL], test_task[tsks.CONTENT], test_task[tsks.IS_COMPLETED])
   assert isinstance(ret, str) # return: str(_id)
   tsks.del_task(ret)
 
@@ -47,10 +46,9 @@ def test_get_task(temp_task):
   ret = tsks.get_task(ObjectId(task[tsks.ID]))
   assert isinstance(ret, dict)
   assert ret[tsks.USER_ID] == task[tsks.USER_ID]
-  assert ret[tsks.TITLE] == task[tsks.TITLE]
+  assert ret[tsks.GOAL] == task[tsks.GOAL]
   assert ret[tsks.CONTENT] == task[tsks.CONTENT]
-  assert ret[tsks.STATUS] == task[tsks.STATUS]
-  assert ret[tsks.LIKES] == task[tsks.LIKES]
+  assert ret[tsks.IS_COMPLETED] == task[tsks.IS_COMPLETED]
   tsks.del_task(ObjectId(task[tsks.ID]))
 
 def test_get_task_not_exist():
@@ -64,10 +62,9 @@ def test_get_user_tasks(temp_task):
   print(ret[task[tsks.ID]])
   assert isinstance(ret, dict)
   assert ret[task[tsks.ID]][tsks.USER_ID] == task[tsks.USER_ID]
-  assert ret[task[tsks.ID]][tsks.TITLE] == task[tsks.TITLE]
+  assert ret[task[tsks.ID]][tsks.GOAL] == task[tsks.GOAL]
   assert ret[task[tsks.ID]][tsks.CONTENT] == task[tsks.CONTENT]
-  assert ret[task[tsks.ID]][tsks.STATUS] == task[tsks.STATUS]
-  assert ret[task[tsks.ID]][tsks.LIKES] == task[tsks.LIKES]
+  assert ret[task[tsks.ID]][tsks.IS_COMPLETED] == task[tsks.IS_COMPLETED]
   tsks.del_task(ObjectId(task[tsks.ID]))
 
 def test_task_like_unlike(temp_task):

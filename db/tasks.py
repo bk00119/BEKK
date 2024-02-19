@@ -30,6 +30,8 @@ TITLE = 'title'
 CONTENT = 'content'
 STATUS = 'status'
 LIKES = 'likes'
+GOAL = 'Goal'
+IS_COMPLETED = 'is_completed'
 
 ID_LEN = 24
 BIG_NUM = 100_000_000_000_000_000_000
@@ -55,10 +57,10 @@ def get_new_test_task():
     _id = random.randint(0, BIG_NUM)
     _id = str(_id)
     _id = _id.rjust(ID_LEN, '0')
-    test_task[USER_ID] = "Test user"
     test_task[USER_ID] = '6575033f3b89d2b4f309d7af'
-    test_task[TITLE] = 'Test Title'
-    test_task[CONTENT] = 'Test Content'
+    test_task[GOAL] = '65d2dd8abe686c2ec340e298'
+    test_task[CONTENT] = 'attend CS101 Office Hours'
+    test_task[IS_COMPLETED] = False
     return test_task
 
 
@@ -67,19 +69,18 @@ def id_exists(id: str) -> bool:
     return dbc.fetch_one(TASKS_COLLECT, {ID: ObjectId(id)})
 
 
-def add_task(user_id: str, title: str, content: str):
-    if not user_id:
-        raise ValueError('user_id may not be blank')
-    if not title:
-        raise ValueError('title may not be blank')
-    if not content:
-        raise ValueError('content may not be blank')
+def add_task(user_id: str, goal: str, content: str, is_completed: bool):
+    # if not user_id:
+    #     raise ValueError('user_id may not be blank')
+    # if not title:
+    #     raise ValueError('title may not be blank')
+    # if not content:
+    #     raise ValueError('content may not be blank')
     task = {}
     task[USER_ID] = user_id
-    task[TITLE] = title
+    task[GOAL] = goal
     task[CONTENT] = content
-    task[STATUS] = 1
-    task[LIKES] = []
+    task[IS_COMPLETED] = is_completed
     dbc.connect_db()
     _id = dbc.insert_one(TASKS_COLLECT, task)
     return _id
