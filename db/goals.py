@@ -87,4 +87,4 @@ def get_user_goals(user_id: str):
     if usrs.id_exists(user_id):
         return dbc.fetch_all_as_dict(dbc.DB, GOALS_COLLECT, {USER_ID: user_id})
     else:
-       raise ValueError(f'Get User Goals Failed: {user_id} not in database.')
+        raise ValueError(f'Get User Goals Failed: {user_id} not in database.')
