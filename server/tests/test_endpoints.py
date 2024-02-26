@@ -121,6 +121,8 @@ def setup_tasks():
     task[tsks.ID] = str(ret)
     return task
 
+# add task to database and then check if view tasks works with filter based on user id 
+# asser a value return task value(s) was given 
 def test_viewTasks(setup_tasks):
     resp = TEST_CLIENT.post(ep.VIEWTASKS_EP, json=setup_tasks)
     resp_json = resp.get_json()
@@ -131,6 +133,7 @@ def test_viewTasks(setup_tasks):
     for task_id in tasks:
         assert isinstance(task_id, str)
         assert isinstance(tasks[task_id], dict)
+
 
 @patch('db.tasks.add_task', return_value=tsks.MOCK_ID, autospec=True)
 def test_postTask(mock_add):
