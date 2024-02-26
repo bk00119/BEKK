@@ -7,6 +7,7 @@ from flask import Flask, request
 from flask_restx import Resource, Api, fields
 from db import profiles as pf
 from db import tasks as tasks
+from db import users as users
 import werkzeug.exceptions as wz
 # import db.db as db
 from flask_cors import CORS
@@ -35,6 +36,7 @@ UNLIKETASK_EP = '/unlikeTask'
 PROFILEVALIDATION_EP = '/profilevalidation'
 REMOVEPROFILE_EP = '/removeProfile'
 VIEWPROFILE_EP = '/viewProfile'
+VIEWUSERPUBLIC_EP = '/viewUserPublic'
 
 
 # Responses
@@ -48,6 +50,7 @@ GOAL_RESP = 'goal'
 GROUP_RESP = 'group'
 LIKE_RESP = 'liked'
 UNLIKE_RESP = 'unliked'
+USER_RESP = 'user'
 
 
 NAME = 'Name'
@@ -57,6 +60,7 @@ PRIVATE = "Private"
 
 TASKS = 'Tasks'
 TASK_ID = 'Task ID'
+USER_ID = 'User ID'
 PROFILE = {
     NAME: 'John Smith',
     GOALS: ['cs hw2', 'fin hw3'],
@@ -84,6 +88,30 @@ TEST_TASK = {
     TASK_DESCRIPTION: "BEKK final project",
     LIKE: True
 }
+
+
+new_user_id_field = api.model("User", {
+    users.ID: fields.String
+})
+
+
+@api.route(f'{VIEWUSERPUBLIC_EP}', methods=['POST'])
+@api.expect(new_user_id_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class ViewUserPublic(Resource):
+    """
+    This class supports fetching a user data for public
+    """
+    def post(self):
+        """
+        posts the user data for login
+        """
+        user_id = request.json[users.ID]
+        try:
+            return users.get_user_public(user_id)
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
 
 
 @api.route(f'{LOGIN_EP}', methods=['POST'])
