@@ -38,6 +38,18 @@ BIG_NUM = 100_000_000_000_000_000_000
 MOCK_ID = MOCK_ID = '0' * ID_LEN
 
 
+def id_exists(id: str) -> bool:
+    dbc.connect_db()
+    return dbc.fetch_one(TASKS_COLLECT, {ID: ObjectId(id)})
+
+
+def get_task(task_id: str):
+    if id_exists(task_id):
+        return dbc.fetch_one(TASKS_COLLECT, {ID: ObjectId(task_id)})
+    else:
+        raise ValueError(f'Get failure: {task_id} not in database.')
+
+
 def get_tasks(filter):
     dbc.connect_db()
     return dbc.fetch_all_as_dict(dbc.DB, TASKS_COLLECT, filter)
@@ -64,11 +76,6 @@ def get_new_test_task():
     return test_task
 
 
-def id_exists(id: str) -> bool:
-    dbc.connect_db()
-    return dbc.fetch_one(TASKS_COLLECT, {ID: ObjectId(id)})
-
-
 def add_task(user_id: str, goal: str, content: str, is_completed: bool):
     # if not user_id:
     #     raise ValueError('user_id may not be blank')
@@ -77,8 +84,8 @@ def add_task(user_id: str, goal: str, content: str, is_completed: bool):
     # if not content:
     #     raise ValueError('content may not be blank')
     task = {}
-    task[USER_ID] = user_id
-    task[GOAL_ID] = goal
+    task[USER_ID] = ObjectId(user_id)
+    task[GOAL_ID] = ObjectId(goal)
     task[CONTENT] = content
     task[IS_COMPLETED] = is_completed
     dbc.connect_db()
@@ -91,13 +98,6 @@ def del_task(task_id: str):
         return dbc.del_one(TASKS_COLLECT, {ID: ObjectId(task_id)})
     else:
         raise ValueError(f'Delete failure: {task_id} not in database.')
-
-
-def get_task(task_id: str):
-    if id_exists(task_id):
-        return dbc.fetch_one(TASKS_COLLECT, {ID: ObjectId(task_id)})
-    else:
-        raise ValueError(f'Get failure: {task_id} not in database.')
 
 
 def get_user_tasks(user_id: str):

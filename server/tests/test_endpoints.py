@@ -10,7 +10,7 @@ from http.client import (
 import sys
 sys.path.append("..")
 from server import endpoints as ep
-
+from bson.objectid import ObjectId
 from unittest.mock import patch
 
 import db.tasks as tsks
@@ -100,22 +100,29 @@ def test_get_users(mock_get_users):
     assert isinstance(users, dict)
     assert len(users) > 0
 
-# @pytest.mark.skip(reason= "endpoint does not exist yet") 
+@pytest.mark.skip(reason="this ep does not test server ep")
 @patch('db.tasks.get_tasks')
 def test_get_tasks(mock_get_tasks):
     mock_get_tasks.return_value = SAMPLE_TASKS
     tasks = tsks.get_tasks()
     assert isinstance(tasks, dict)
-    assert len(tasks) > 0
+    assert len(tasks) > 0   
 
-@pytest.fixture()
+
+@pytest.fixture(scope="function")
 def setup_tasks():
-    tsks.create_task(SAMPLE_TASK[ep.TASK_NAME], SAMPLE_TASK[ep.TASK_DESCRIPTION], SAMPLE_TASK[ep.LIKE])
-    tsks.add_tasks(SAMPLE_TASKS[ep.TASKS])
+    task = { 
+        tsks.USER_ID: "6575033f3b89d2b4f309d7af",
+        tsks.GOAL_ID: "65d2dd8abe686c2ec340e298", 
+        tsks.CONTENT: "test content",
+        tsks.IS_COMPLETED: False
+    }
+    ret = tsks.add_task(task[tsks.USER_ID], task[tsks.GOAL_ID], task[tsks.CONTENT], task[tsks.IS_COMPLETED])
+    task[tsks.ID] = str(ret)
+    return task
 
-# @pytest.mark.skip(reason="request causes internal server error, please fix this- kevin ng ") 
-def test_viewTasks():
-    resp = TEST_CLIENT.get(ep.VIEWTASKS_EP)
+def test_viewTasks(setup_tasks):
+    resp = TEST_CLIENT.post(ep.VIEWTASKS_EP, json=setup_tasks)
     resp_json = resp.get_json()
     assert isinstance(resp_json, dict)
     assert ep.TASKS in resp_json
@@ -222,7 +229,7 @@ def test_postTask(mock_add):
 
 def test_viewUserTask():
     new_task = tsks.get_new_test_task()
-    test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.GOAL], new_task[tsks.CONTENT], new_task[tsks.IS_COMPLETED]))
+    test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.GOAL_ID], new_task[tsks.CONTENT], new_task[tsks.IS_COMPLETED]))
     test_user_id = str(new_task[tsks.USER_ID])
     resp = TEST_CLIENT.post(ep.VIEWUSERTASKS_EP, json={tsks.USER_ID: test_user_id})
     resp_json = resp.get_json()
@@ -237,7 +244,7 @@ def test_viewUserTask():
 
 def test_likeTask():
     new_task = tsks.get_new_test_task()
-    test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.GOAL], new_task[tsks.CONTENT], new_task[tsks.IS_COMPLETED]))
+    test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.GOAL_ID], new_task[tsks.CONTENT], new_task[tsks.IS_COMPLETED]))
     test_user_id = str(dbc.gen_object_id())
     resp = TEST_CLIENT.post(ep.LIKETASK_EP, json={tsks.ID: test_task_id, tsks.USER_ID: test_user_id})
     assert resp.status_code == OK
@@ -245,7 +252,7 @@ def test_likeTask():
 
 def test_unlikeTask():
     new_task = tsks.get_new_test_task()
-    test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.GOAL], new_task[tsks.CONTENT], new_task[tsks.IS_COMPLETED]))
+    test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.GOAL_ID], new_task[tsks.CONTENT], new_task[tsks.IS_COMPLETED]))
     test_user_id = str(dbc.gen_object_id())
     tsks.like_task(test_task_id, test_user_id)
     resp = TEST_CLIENT.post(ep.UNLIKETASK_EP, json={tsks.ID: test_task_id, tsks.USER_ID: test_user_id})

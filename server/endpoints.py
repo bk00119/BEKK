@@ -8,6 +8,7 @@ from flask_restx import Resource, Api, fields
 from db import profiles as pf
 from db import tasks as tasks
 import werkzeug.exceptions as wz
+# from bson.objectid import ObjectId
 # import db.db as db
 
 app = Flask(__name__)
@@ -215,17 +216,24 @@ class RemoveProfile(Resource):
             raise wz.NotAcceptable(f'{str(e)}')
 
 
-@api.route(f'{VIEWTASKS_EP}', methods=['GET'])
+view_task_user_id_field = api.model('ViewTasks', {
+    tasks.USER_ID: fields.String
+})
+
+
+@api.expect(view_task_user_id_field)
+@api.route(f'{VIEWTASKS_EP}', methods=['POST'])
 class ViewTasks(Resource):
     """
     This class will show all tasks
     """
-    def get(self):
+    def post(self):
         """
         gets all the tasks
         """
+        user_id = request.json[tasks.USER_ID]
         return {
-            TASKS: tasks.get_tasks()
+            TASKS: tasks.get_tasks({tasks.USER_ID: user_id})
         }
 
 
@@ -245,7 +253,7 @@ class ProfileValidation(Resource):
 
 new_task_field = api.model('NewTask', {
     tasks.USER_ID: fields.String,
-    tasks.GOAL: fields.String,
+    tasks.GOAL_ID: fields.String,
     tasks.IS_COMPLETED: fields.Boolean,
     tasks.CONTENT: fields.String,
 })
@@ -264,7 +272,7 @@ class PostTask(Resource):
         posts a new task data to create a new task.
         """
         user_id = request.json[tasks.USER_ID]
-        goal = request.json[tasks.GOAL]
+        goal = request.json[tasks.GOAL_ID]
         is_completed = request.json[tasks.IS_COMPLETED]
         content = request.json[tasks.CONTENT]
         try:

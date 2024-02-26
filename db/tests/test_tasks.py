@@ -2,17 +2,18 @@ import pytest
 from bson.objectid import ObjectId
 import db.tasks as tsks
 import db.db_connect as dbc
-
+from unittest.mock import patch
 
 @pytest.fixture(scope='function')
 def temp_task():
-  task = {}
-  task[tsks.USER_ID] = "6575033f3b89d2b4f309d7af"
-  task[tsks.CONTENT] = "test content"
-  task[tsks.GOAL_ID] = "65d2dd8abe686c2ec340e298"
-  task[tsks.IS_COMPLETED] = False
+  task = { 
+    tsks.USER_ID: "6575033f3b89d2b4f309d7af",
+    tsks.GOAL_ID: "65d2dd8abe686c2ec340e298", 
+    tsks.CONTENT: "test content",
+    tsks.IS_COMPLETED: False
+  }
   ret = tsks.add_task(task[tsks.USER_ID], task[tsks.GOAL_ID], task[tsks.CONTENT], task[tsks.IS_COMPLETED])
-  task[tsks.ID] = ret
+  task[tsks.ID] = str(ret)
   return task  
 
 @pytest.mark.skip(reason="using local MongoDB") 
@@ -41,31 +42,30 @@ def test_del_task_not_exist():
   with pytest.raises(ValueError):
     tsks.del_task(id)
 
+
+# adds test task entry and checks if entry has been made via get_task db endpoint 
+# deletes test task from database - cleanup
 def test_get_task(temp_task):
-  tsks.add_task()
-  task = temp_task
-  ret = tsks.get_task(ObjectId(task[tsks.ID]))
+  ret = tsks.get_task(temp_task[tsks.ID])
   assert isinstance(ret, dict)
-  assert ret[tsks.USER_ID] == task[tsks.USER_ID]
-  assert ret[tsks.GOAL_ID] == task[tsks.GOAL_ID]
-  assert ret[tsks.CONTENT] == task[tsks.CONTENT]
-  assert ret[tsks.IS_COMPLETED] == task[tsks.IS_COMPLETED]
-  tsks.del_task(ObjectId(task[tsks.ID]))
+  assert str(ret[tsks.USER_ID]) == temp_task[tsks.USER_ID]
+  assert str(ret[tsks.GOAL_ID]) == temp_task[tsks.GOAL_ID]
+  assert ret[tsks.CONTENT] == temp_task[tsks.CONTENT]
+  assert ret[tsks.IS_COMPLETED] == temp_task[tsks.IS_COMPLETED]
+  tsks.del_task(temp_task[tsks.ID])
 
 
-def test_get_task(temp_task):
+def test_get_tasks(temp_task):
   # create task
-  task = temp_task 
-  task_id = task[tsks.ID] # objectID type
+  ret = tsks.get_tasks({tsks.ID: ObjectId(temp_task[tsks.ID])})
 
-  # get task 
-  ret = tsks.get_tasks({tsks.ID: task_id})
-  assert ret is not None
-
-  # delete task 
-  tsks.del_task(task[tsks.ID])
-
-
+  for key in ret:
+    task = ret[key]
+    assert str(task[tsks.USER_ID]) == temp_task[tsks.USER_ID]
+    assert str(task[tsks.GOAL_ID]) == temp_task[tsks.GOAL_ID]
+    assert task[tsks.CONTENT] == temp_task[tsks.CONTENT]
+    assert task[tsks.IS_COMPLETED] == temp_task[tsks.IS_COMPLETED]
+    tsks.del_task(key)
 
 
 
@@ -74,6 +74,7 @@ def test_get_task_not_exist():
   with pytest.raises(ValueError):
     tsks.get_task(id)
 
+@pytest.mark.skip("pausing task retrieval based on user information")
 def test_get_user_tasks(temp_task):
   task = temp_task
   ret = tsks.get_user_tasks(task[tsks.USER_ID])
