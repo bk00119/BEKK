@@ -100,18 +100,18 @@ new_user_id_field = api.model("User", {
 @api.response(HTTPStatus.OK, 'Success')
 @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
 class ViewUserPublic(Resource):
-  """
-  This class supports fetching a user data for public
-  """
-  def post(self):
-      """
-      posts the user data for login
-      """
-      user_id = request.json[users.ID]
-      try:
-          return users.get_user_public(user_id)
-      except ValueError as e:
-          raise wz.NotAcceptable(f'{str(e)}')
+    """
+    This class supports fetching a user data for public
+    """
+    def post(self):
+        """
+        posts the user data for login
+        """
+        user_id = request.json[users.ID]
+        try:
+            return users.get_user_public(user_id)
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
 
 
 @api.route(f'{LOGIN_EP}', methods=['POST'])
