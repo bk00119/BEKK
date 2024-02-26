@@ -84,8 +84,8 @@ def add_task(user_id: str, goal: str, content: str, is_completed: bool):
     # if not content:
     #     raise ValueError('content may not be blank')
     task = {}
-    task[USER_ID] = ObjectId(user_id)
-    task[GOAL_ID] = ObjectId(goal)
+    task[USER_ID] = user_id
+    task[GOAL_ID] = goal
     task[CONTENT] = content
     task[IS_COMPLETED] = is_completed
     dbc.connect_db()

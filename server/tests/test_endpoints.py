@@ -108,7 +108,7 @@ def test_get_tasks(mock_get_tasks):
     assert isinstance(tasks, dict)
     assert len(tasks) > 0   
 
-
+# add task to database and return the task details passing its own id as a string
 @pytest.fixture(scope="function")
 def setup_tasks():
     task = { 
@@ -121,8 +121,7 @@ def setup_tasks():
     task[tsks.ID] = str(ret)
     return task
 
-# add task to database and then check if view tasks works with filter based on user id 
-# asser a value return task value(s) was given 
+# check if view tasks works with filter based on user id 
 def test_viewTasks(setup_tasks):
     resp = TEST_CLIENT.post(ep.VIEWTASKS_EP, json=setup_tasks)
     resp_json = resp.get_json()
