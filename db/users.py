@@ -63,6 +63,18 @@ def get_user():
     return sample_user
 
 
+def get_user_public(user_id: str):
+    if id_exists(user_id):
+        data = dbc.fetch_one(USERS_COLLECT, {ID: ObjectId(user_id)})
+        return {
+          USERNAME: data['username'],
+          FIRST_NAME: data['first_name'],
+          LAST_NAME: data['last_name']
+        }
+    else:
+        raise ValueError(f'Get failure: {user_id} not in database.')
+
+
 def retrieve_user(username):
     if username:
         return test_users[username]
