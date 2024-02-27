@@ -9,6 +9,7 @@ from db import profiles as pf
 from db import tasks as tasks
 from db import users as users
 import werkzeug.exceptions as wz
+# from bson.objectid import ObjectId
 # import db.db as db
 from flask_cors import CORS
 
@@ -37,6 +38,7 @@ PROFILEVALIDATION_EP = '/profilevalidation'
 REMOVEPROFILE_EP = '/removeProfile'
 VIEWPROFILE_EP = '/viewProfile'
 VIEWUSERPUBLIC_EP = '/viewUserPublic'
+VIEWUSERTASKS_EP = '/viewUserTasks'
 
 
 # Responses
@@ -245,6 +247,27 @@ class RemoveProfile(Resource):
             raise wz.NotAcceptable(f'{str(e)}')
 
 
+# view_task_user_id_field = api.model('ViewTasks', {
+#     tasks.USER_ID: fields.String
+# })
+
+
+# @api.expect(view_task_user_id_field)
+# @api.route(f'{VIEWUSERTASKS_EP}', methods=['POST'])
+# class ViewUserTasks(Resource):
+#     """
+#     This class will show all tasks
+#     """
+#     def post(self):
+#         """
+#         gets all the tasks
+#         """
+#         user_id = request.json[tasks.USER_ID]
+#         return {
+#             TASKS: tasks.get_tasks({tasks.USER_ID: user_id})
+#         }
+
+
 @api.route(f'{VIEWTASKS_EP}', methods=['GET'])
 class ViewTasks(Resource):
     """
@@ -275,7 +298,7 @@ class ProfileValidation(Resource):
 
 new_task_field = api.model('NewTask', {
     tasks.USER_ID: fields.String,
-    tasks.GOAL: fields.String,
+    tasks.GOAL_ID: fields.String,
     tasks.IS_COMPLETED: fields.Boolean,
     tasks.CONTENT: fields.String,
 })
@@ -294,7 +317,7 @@ class PostTask(Resource):
         posts a new task data to create a new task.
         """
         user_id = request.json[tasks.USER_ID]
-        goal = request.json[tasks.GOAL]
+        goal = request.json[tasks.GOAL_ID]
         is_completed = request.json[tasks.IS_COMPLETED]
         content = request.json[tasks.CONTENT]
         try:

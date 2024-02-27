@@ -30,7 +30,7 @@ TITLE = 'title'
 CONTENT = 'content'
 STATUS = 'status'
 LIKES = 'likes'
-GOAL = 'Goal'
+GOAL_ID = 'goal_id'
 IS_COMPLETED = 'is_completed'
 
 ID_LEN = 24
@@ -38,9 +38,21 @@ BIG_NUM = 100_000_000_000_000_000_000
 MOCK_ID = MOCK_ID = '0' * ID_LEN
 
 
-def get_tasks():
+def id_exists(id: str) -> bool:
     dbc.connect_db()
-    return dbc.fetch_all_as_dict(dbc.DB, TASKS_COLLECT, None)
+    return dbc.fetch_one(TASKS_COLLECT, {ID: ObjectId(id)})
+
+
+def get_task(task_id: str):
+    if id_exists(task_id):
+        return dbc.fetch_one(TASKS_COLLECT, {ID: ObjectId(task_id)})
+    else:
+        raise ValueError(f'Get failure: {task_id} not in database.')
+
+
+def get_tasks(filter=None):
+    dbc.connect_db()
+    return dbc.fetch_all_as_dict(dbc.DB, TASKS_COLLECT, filter)
 
 
 def get_test_tasks():
@@ -58,15 +70,10 @@ def get_new_test_task():
     _id = str(_id)
     _id = _id.rjust(ID_LEN, '0')
     test_task[USER_ID] = '6575033f3b89d2b4f309d7af'
-    test_task[GOAL] = '65d2dd8abe686c2ec340e298'
+    test_task[GOAL_ID] = '65d2dd8abe686c2ec340e298'
     test_task[CONTENT] = 'attend CS101 Office Hours'
     test_task[IS_COMPLETED] = False
     return test_task
-
-
-def id_exists(id: str) -> bool:
-    dbc.connect_db()
-    return dbc.fetch_one(TASKS_COLLECT, {ID: ObjectId(id)})
 
 
 def add_task(user_id: str, goal: str, content: str, is_completed: bool):
@@ -78,7 +85,7 @@ def add_task(user_id: str, goal: str, content: str, is_completed: bool):
     #     raise ValueError('content may not be blank')
     task = {}
     task[USER_ID] = user_id
-    task[GOAL] = goal
+    task[GOAL_ID] = goal
     task[CONTENT] = content
     task[IS_COMPLETED] = is_completed
     dbc.connect_db()
@@ -91,13 +98,6 @@ def del_task(task_id: str):
         return dbc.del_one(TASKS_COLLECT, {ID: ObjectId(task_id)})
     else:
         raise ValueError(f'Delete failure: {task_id} not in database.')
-
-
-def get_task(task_id: str):
-    if id_exists(task_id):
-        return dbc.fetch_one(TASKS_COLLECT, {ID: ObjectId(task_id)})
-    else:
-        raise ValueError(f'Get failure: {task_id} not in database.')
 
 
 def get_user_tasks(user_id: str):
