@@ -122,8 +122,8 @@ def setup_tasks():
     return task
 
 # check if view tasks works with filter based on user id 
-def test_viewTasks(setup_tasks):
-    resp = TEST_CLIENT.post(ep.VIEWTASKS_EP, json=setup_tasks)
+def test_viewTasks():
+    resp = TEST_CLIENT.get(ep.VIEWTASKS_EP)
     resp_json = resp.get_json()
     assert isinstance(resp_json, dict)
     assert ep.TASKS in resp_json

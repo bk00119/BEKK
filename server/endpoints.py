@@ -38,6 +38,7 @@ PROFILEVALIDATION_EP = '/profilevalidation'
 REMOVEPROFILE_EP = '/removeProfile'
 VIEWPROFILE_EP = '/viewProfile'
 VIEWUSERPUBLIC_EP = '/viewUserPublic'
+VIEWUSERTASKS_EP = '/viewUserTasks'
 
 
 # Responses
@@ -246,30 +247,39 @@ class RemoveProfile(Resource):
             raise wz.NotAcceptable(f'{str(e)}')
 
 
-view_task_user_id_field = api.model('ViewTasks', {
-    tasks.USER_ID: fields.String
-})
+# view_task_user_id_field = api.model('ViewTasks', {
+#     tasks.USER_ID: fields.String
+# })
 
 
-@api.expect(view_task_user_id_field)
-@api.route(f'{VIEWTASKS_EP}', methods=['POST'])
+# @api.expect(view_task_user_id_field)
+# @api.route(f'{VIEWUSERTASKS_EP}', methods=['POST'])
+# class ViewUserTasks(Resource):
+#     """
+#     This class will show all tasks
+#     """
+#     def post(self):
+#         """
+#         gets all the tasks
+#         """
+#         user_id = request.json[tasks.USER_ID]
+#         return {
+#             TASKS: tasks.get_tasks({tasks.USER_ID: user_id})
+#         }
+
+
+@api.route(f'{VIEWTASKS_EP}', methods=['GET'])
 class ViewTasks(Resource):
     """
     This class will show all tasks
     """
-    def post(self):
+    def get(self):
         """
         gets all the tasks
         """
-        user_id = request.json[tasks.USER_ID]
-        if not user_id:
-            return {
-                TASKS: tasks.get_tasks()
-            }
-        else:
-            return {
-                TASKS: tasks.get_tasks({tasks.USER_ID: user_id})
-            }
+        return {
+            TASKS: tasks.get_tasks()
+        }
 
 
 @api.route(f'{PROFILEVALIDATION_EP}', methods=['GET'])
