@@ -262,9 +262,14 @@ class ViewTasks(Resource):
         gets all the tasks
         """
         user_id = request.json[tasks.USER_ID]
-        return {
-            TASKS: tasks.get_tasks({tasks.USER_ID: user_id})
-        }
+        if not user_id:
+            return {
+                TASKS: tasks.get_tasks()
+            }
+        else:
+            return {
+                TASKS: tasks.get_tasks({tasks.USER_ID: user_id})
+            }
 
 
 @api.route(f'{PROFILEVALIDATION_EP}', methods=['GET'])

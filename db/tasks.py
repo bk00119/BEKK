@@ -50,7 +50,7 @@ def get_task(task_id: str):
         raise ValueError(f'Get failure: {task_id} not in database.')
 
 
-def get_tasks(filter):
+def get_tasks(filter=None):
     dbc.connect_db()
     return dbc.fetch_all_as_dict(dbc.DB, TASKS_COLLECT, filter)
 
