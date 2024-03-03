@@ -332,6 +332,8 @@ class PostTask(Resource):
 user_goals_field = api.model('UserGoals', {
     gls.USER_ID: fields.String,
 })
+
+
 @api.route(f'{VIEWUSERGOALS_EP}', methods=['POST'])
 @api.expect(user_goals_field)
 @api.response(HTTPStatus.OK, 'Success')
