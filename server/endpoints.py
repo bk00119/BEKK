@@ -8,6 +8,7 @@ from flask_restx import Resource, Api, fields
 from db import profiles as pf
 from db import tasks as tasks
 from db import users as users
+from db import goals as gls
 import werkzeug.exceptions as wz
 # from bson.objectid import ObjectId
 # import db.db as db
@@ -24,9 +25,8 @@ SIGNUP_EP = '/signup'
 PROFILE_EP = '/profile'
 CREATEPROFILE_EP = '/createProfile'
 VIEWTASKS_EP = '/viewTasks'
-VIEWUSERTASKS_EP = '/viewUserTasks'
 POSTTASK_EP = '/postTask'
-VIEWGOALS_EP = '/viewGoals'
+VIEWUSERGOALS_EP = '/viewUserGoals'
 POSTGOAL_EP = '/postGoal'
 DELETEGOAL_EP = '/deleteGoal'
 VIEWPROFILEGROUPS_EP = '/viewProfileGroups'
@@ -329,18 +329,28 @@ class PostTask(Resource):
             raise wz.NotAcceptable(f'{str(e)}')
 
 
-@api.route(f'{VIEWGOALS_EP}', methods=['GET'])
-class ViewGoals(Resource):
+user_goals_field = api.model('UserGoals', {
+    gls.USER_ID: fields.String,
+})
+@api.route(f'{VIEWUSERGOALS_EP}', methods=['POST'])
+@api.expect(user_goals_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class ViewUserGoals(Resource):
     """
-    This class shows goals on the user profile.
+    This class shows user's goals based on user_id.
     """
-    def get(self):
+    def post(self):
         """
-        gets all the goals of a user
+        gets all the goals of a user based on user_id
         """
-        return {
-            GOALS: pf.get_goals()
-        }
+        user_id = request.json[gls.USER_ID]
+        try:
+            return {
+                GOALS: gls.get_user_goals(user_id)
+            }
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
 
 
 new_goal_field = api.model('NewGoal', {
