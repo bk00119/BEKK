@@ -27,7 +27,7 @@ CREATEPROFILE_EP = '/createProfile'
 VIEWTASKS_EP = '/viewTasks'
 POSTTASK_EP = '/postTask'
 VIEWUSERGOALS_EP = '/viewUserGoals'
-POSTGOAL_EP = '/postGoal'
+SETUSERGOAL_EP = '/setUserGoal'
 DELETEGOAL_EP = '/deleteGoal'
 VIEWPROFILEGROUPS_EP = '/viewProfileGroups'
 ADDGROUP_EP = '/addGroup'
@@ -354,16 +354,17 @@ class ViewUserGoals(Resource):
 
 
 new_goal_field = api.model('NewGoal', {
-    pf.MOCK_ID: fields.String,
-    pf.GOAL: fields.String()
+    gls.USER_ID: fields.String,
+    gls.CONTENT: fields.String,
+    gls.IS_COMPLETED: fields.Boolean
 })
 
 
-@api.route(f'{POSTGOAL_EP}', methods=['POST'])
+@api.route(f'{SETUSERGOAL_EP}', methods=['POST'])
 @api.expect(new_goal_field)
 @api.response(HTTPStatus.OK, 'Success')
 @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-class PostGoal(Resource):
+class SetUserGoal(Resource):
     """
     This class posts goals to user profile.
     """
@@ -371,13 +372,14 @@ class PostGoal(Resource):
         """
         posts a new goal data to create a new goal
         """
-        id = request.json[pf.MOCK_ID]
-        goal = request.json[pf.GOAL]
+        user_id = request.json[gls.USER_ID]
+        content = request.json[gls.CONTENT]
+        is_completed = request.json[gls.IS_COMPLETED]
         try:
-            addGoal = pf.add_goal(id, goal)
-            if addGoal is False:
+            setGoal = gls.set_goal(user_id, content, is_completed)
+            if setGoal is False:
                 raise wz.ServiceUnavailable('Error')
-            return {GOALS: addGoal}
+            return {GOALS: setGoal}
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 

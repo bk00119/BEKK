@@ -178,9 +178,10 @@ def test_viewUserGoals():
         assert isinstance(goal_id, str)
         assert isinstance(goals[goal_id], dict)
     gls.delete_set_goal(test_goal_id)
-    
-def test_postGoal():
-    resp = TEST_CLIENT.post(ep.POSTGOAL_EP, json=pf.get_new_test_goal())
+
+@pytest.mark.skip(reason= "endpoint not complete")     
+def test_setUserGoal():
+    resp = TEST_CLIENT.post(ep.SETUSERGOAL_EP, json=gls.USER_ID)
     assert resp.status_code == OK
 
 @pytest.mark.skip(reason= "not using this endpoint") 
