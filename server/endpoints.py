@@ -8,6 +8,7 @@ from flask_restx import Resource, Api, fields
 from db import profiles as pf
 from db import tasks as tasks
 from db import users as users
+from db import goals as gls
 from db import posts as psts
 import werkzeug.exceptions as wz
 # from bson.objectid import ObjectId
@@ -25,10 +26,9 @@ SIGNUP_EP = '/signup'
 PROFILE_EP = '/profile'
 CREATEPROFILE_EP = '/createProfile'
 VIEWTASKS_EP = '/viewTasks'
-VIEWUSERTASKS_EP = '/viewUserTasks'
 POSTTASK_EP = '/postTask'
-VIEWGOALS_EP = '/viewGoals'
-POSTGOAL_EP = '/postGoal'
+VIEWUSERGOALS_EP = '/viewUserGoals'
+SETUSERGOAL_EP = '/setUserGoal'
 DELETEGOAL_EP = '/deleteGoal'
 VIEWPROFILEGROUPS_EP = '/viewProfileGroups'
 ADDGROUP_EP = '/addGroup'
@@ -328,31 +328,44 @@ class PostTask(Resource):
 # =====================Task Endpoint END=====================
 
 
-@api.route(f'{VIEWGOALS_EP}', methods=['GET'])
-class ViewGoals(Resource):
-    """
-    This class shows goals on the user profile.
-    """
-    def get(self):
-        """
-        gets all the goals of a user
-        """
-        return {
-            GOALS: pf.get_goals()
-        }
-
-
-new_goal_field = api.model('NewGoal', {
-    pf.MOCK_ID: fields.String,
-    pf.GOAL: fields.String()
+user_goals_field = api.model('UserGoals', {
+    gls.USER_ID: fields.String,
 })
 
 
-@api.route(f'{POSTGOAL_EP}', methods=['POST'])
+@api.route(f'{VIEWUSERGOALS_EP}', methods=['POST'])
+@api.expect(user_goals_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class ViewUserGoals(Resource):
+    """
+    This class shows user's goals based on user_id.
+    """
+    def post(self):
+        """
+        gets all the goals of a user based on user_id
+        """
+        user_id = request.json[gls.USER_ID]
+        try:
+            return {
+                GOALS: gls.get_user_goals(user_id)
+            }
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
+
+
+new_goal_field = api.model('NewGoal', {
+    gls.USER_ID: fields.String,
+    gls.CONTENT: fields.String,
+    gls.IS_COMPLETED: fields.Boolean
+})
+
+
+@api.route(f'{SETUSERGOAL_EP}', methods=['POST'])
 @api.expect(new_goal_field)
 @api.response(HTTPStatus.OK, 'Success')
 @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-class PostGoal(Resource):
+class SetUserGoal(Resource):
     """
     This class posts goals to user profile.
     """
@@ -360,13 +373,14 @@ class PostGoal(Resource):
         """
         posts a new goal data to create a new goal
         """
-        id = request.json[pf.MOCK_ID]
-        goal = request.json[pf.GOAL]
+        user_id = request.json[gls.USER_ID]
+        content = request.json[gls.CONTENT]
+        is_completed = request.json[gls.IS_COMPLETED]
         try:
-            addGoal = pf.add_goal(id, goal)
-            if addGoal is False:
+            setGoal = gls.set_goal(user_id, content, is_completed)
+            if setGoal is False:
                 raise wz.ServiceUnavailable('Error')
-            return {GOALS: addGoal}
+            return {GOALS: setGoal}
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 

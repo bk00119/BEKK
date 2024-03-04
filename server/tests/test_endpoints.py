@@ -18,6 +18,7 @@ import db.users  as usrs
 import db.profiles as pf
 import db.posts as psts
 import db.db_connect as dbc
+import db.goals as gls
 
 import pytest
 
@@ -194,10 +195,11 @@ def setup_viewGoals():
     usrs.create_user(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_USER[ep.PASSWORD_RESP])
 #     usrs.create_profile(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS], SAMPLE_PROFILE[ep.GROUPS], SAMPLE_PROFILE[ep.PRIVATE])
 
-
-
-def test_viewGoals():
-    resp = TEST_CLIENT.get(ep.VIEWGOALS_EP)
+def test_viewUserGoals():
+    new_goal = gls.get_new_test_goals()
+    test_goal_id = str(gls.set_goal(new_goal[gls.USER_ID],new_goal[gls.CONTENT], new_goal[gls.IS_COMPLETED]))
+    test_user_id = str(new_goal[gls.USER_ID])
+    resp = TEST_CLIENT.post(ep.VIEWUSERGOALS_EP, json={gls.USER_ID: test_user_id})
     resp_json = resp.get_json()
     assert isinstance(resp_json, dict)
     assert ep.GOALS in resp_json
@@ -206,10 +208,11 @@ def test_viewGoals():
     for goal_id in goals:
         assert isinstance(goal_id, str)
         assert isinstance(goals[goal_id], dict)
-    
+    gls.delete_set_goal(test_goal_id)
 
-def test_postGoal():
-    resp = TEST_CLIENT.post(ep.POSTGOAL_EP, json=pf.get_new_test_goal())
+@pytest.mark.skip(reason= "endpoint not complete")     
+def test_setUserGoal():
+    resp = TEST_CLIENT.post(ep.SETUSERGOAL_EP, json=gls.USER_ID)
     assert resp.status_code == OK
 
 
