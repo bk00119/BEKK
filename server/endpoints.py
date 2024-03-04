@@ -449,8 +449,6 @@ new_post_fields = api.model('NewPost', {
     psts.CONTENT: fields.String,
     psts.TASK_IDS: fields.List,
     psts.GOAL_IDS: fields.List,
-    psts.LIKE_IDS: fields.List,
-    psts.COMMENT_IDS: fields.List
 })
 
 
@@ -466,8 +464,8 @@ class CreatePost(Resource):
         content = request.json[psts.CONTENT]
         task_ids = request.json[psts.TASK_IDS]
         goal_ids = request.json[psts.GOAL_IDS]
-        like_ids = request.json[psts.LIKE_IDS]
-        comment_ids = request.json[psts.COMMENT_IDS]
+        like_ids = []
+        comment_ids = []
 
         try:
             new_id = psts.add_post(
