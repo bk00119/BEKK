@@ -9,6 +9,7 @@ from db import profiles as pf
 from db import tasks as tasks
 from db import users as users
 from db import goals as gls
+from db import posts as psts
 import werkzeug.exceptions as wz
 # from bson.objectid import ObjectId
 # import db.db as db
@@ -39,6 +40,7 @@ REMOVEPROFILE_EP = '/removeProfile'
 VIEWPROFILE_EP = '/viewProfile'
 VIEWUSERPUBLIC_EP = '/viewUserPublic'
 VIEWUSERTASKS_EP = '/viewUserTasks'
+CREATEPOST_EP = '/createPost'
 
 
 # Responses
@@ -247,28 +249,10 @@ class RemoveProfile(Resource):
             raise wz.NotAcceptable(f'{str(e)}')
 
 
-# view_task_user_id_field = api.model('ViewTasks', {
-#     tasks.USER_ID: fields.String
-# })
+# =====================Task Endpoint START=====================
 
 
-# @api.expect(view_task_user_id_field)
-# @api.route(f'{VIEWUSERTASKS_EP}', methods=['POST'])
-# class ViewUserTasks(Resource):
-#     """
-#     This class will show all tasks
-#     """
-#     def post(self):
-#         """
-#         gets all the tasks
-#         """
-#         user_id = request.json[tasks.USER_ID]
-#         return {
-#             TASKS: tasks.get_tasks({tasks.USER_ID: user_id})
-#         }
-
-
-@api.route(f'{VIEWTASKS_EP}', methods=['GET'])
+@api.route(f'{VIEWTASKS_EP}', methods=['GET', 'POST'])
 class ViewTasks(Resource):
     """
     This class will show all tasks
@@ -282,18 +266,30 @@ class ViewTasks(Resource):
         }
 
 
-@api.route(f'{PROFILEVALIDATION_EP}', methods=['GET'])
-class ProfileValidation(Resource):
+user_task_field = api.model('UserTasks', {
+    tasks.USER_ID: fields.String,
+})
+
+
+@api.route(f'{VIEWUSERTASKS_EP}', methods=['POST'])
+@api.expect(user_task_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class ViewUserTasks(Resource):
     """
-    This class validates the user profile
+    This class is for getting a user's tasks
     """
-    def get(self):
+    def post(self):
         """
-        gets the validation of user profile
+        posts a user's id to get all the user's tasks
         """
-        return {
-            PROFILE_VALID_RESP: True
-        }
+        user_id = request.json[tasks.USER_ID]
+        try:
+            return {
+                TASKS: tasks.get_user_tasks(user_id)
+            }
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
 
 
 new_task_field = api.model('NewTask', {
@@ -327,6 +323,9 @@ class PostTask(Resource):
             return {TASK_ID: new_id}
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
+
+
+# =====================Task Endpoint END=====================
 
 
 user_goals_field = api.model('UserGoals', {
@@ -455,6 +454,51 @@ class AddGroup(Resource):
             raise wz.NotAcceptable(f'{str(e)}')
 
 
+# ===================== POSTS Endpoint START=====================
+
+
+new_post_fields = api.model('NewPost', {
+    psts.USER_ID: fields.String,
+    psts.IS_COMPLETED: fields.Boolean,
+    psts.CONTENT: fields.String,
+    psts.TASK_IDS: fields.List,
+    psts.GOAL_IDS: fields.List,
+})
+
+
+@api.route(f'{CREATEPOST_EP}', methods=["POST"])
+@api.expect(new_post_fields)
+class CreatePost(Resource):
+    """
+    Creates a post
+    """
+    def post(self):
+        user_id = request.json[psts.USER_ID]
+        is_completed = request.json[psts.IS_COMPLETED]
+        content = request.json[psts.CONTENT]
+        task_ids = request.json[psts.TASK_IDS]
+        goal_ids = request.json[psts.GOAL_IDS]
+        like_ids = []
+        comment_ids = []
+
+        try:
+            new_id = psts.add_post(
+                        user_id,
+                        is_completed,
+                        content,
+                        task_ids,
+                        goal_ids,
+                        like_ids,
+                        comment_ids)
+            if new_id is None:
+                raise wz.ServiceUnavailable('We have a technical problem.')
+            return {"POST ID": new_id}
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
+
+
+# ===================== POSTS Endpoint END=====================
+
 # @api.route(f'{DELETEGROUP_EP}', methods=['POST'])
 # class DeleteGroup(Resource):
 #     """
@@ -468,80 +512,66 @@ class AddGroup(Resource):
 #             USERNAME_RESP: data[USERNAME_RESP]
 #         }
 
-
-user_task_field = api.model('UserTasks', {
-    tasks.USER_ID: fields.String,
-})
-
-
-@api.route(f'{VIEWUSERTASKS_EP}', methods=['POST'])
-@api.expect(user_task_field)
-@api.response(HTTPStatus.OK, 'Success')
-@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-class ViewUserTasks(Resource):
-    """
-    This class is for getting a user's tasks
-    """
-    def post(self):
-        """
-        posts a user's id to get all the user's tasks
-        """
-        user_id = request.json[tasks.USER_ID]
-        try:
-            return {
-                TASKS: tasks.get_user_tasks(user_id)
-            }
-        except ValueError as e:
-            raise wz.NotAcceptable(f'{str(e)}')
+# like_task_field = api.model('LikeTask', {
+#     tasks.ID: fields.String,
+#     tasks.USER_ID: fields.String,
+# })
 
 
-like_task_field = api.model('LikeTask', {
-    tasks.ID: fields.String,
-    tasks.USER_ID: fields.String,
-})
+# @api.route(f'{LIKETASK_EP}', methods=['POST'])
+# @api.expect(like_task_field)
+# @api.response(HTTPStatus.OK, 'Success')
+# @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+# class LikeTask(Resource):
+#     """
+#     This class likes the taks under user's task lists
+#     """
+#     def post(self):
+#         """
+#         post a user's id and task id to like a task
+#         """
+#         task_id = request.json[tasks.ID]
+#         user_id = request.json[tasks.USER_ID]
+#         try:
+#             tasks.like_task(task_id, user_id)
+#             return {
+#                 MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY LIKED THE TASK'
+#             }
+#         except ValueError as e:
+#             raise wz.NotAcceptable(f'{str(e)}')
 
 
-@api.route(f'{LIKETASK_EP}', methods=['POST'])
-@api.expect(like_task_field)
-@api.response(HTTPStatus.OK, 'Success')
-@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-class LikeTask(Resource):
-    """
-    This class likes the taks under user's task lists
-    """
-    def post(self):
-        """
-        post a user's id and task id to like a task
-        """
-        task_id = request.json[tasks.ID]
-        user_id = request.json[tasks.USER_ID]
-        try:
-            tasks.like_task(task_id, user_id)
-            return {
-                MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY LIKED THE TASK'
-            }
-        except ValueError as e:
-            raise wz.NotAcceptable(f'{str(e)}')
+# @api.route(f'{UNLIKETASK_EP}', methods=['POST'])
+# @api.expect(like_task_field)
+# @api.response(HTTPStatus.OK, 'Success')
+# @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+# class UnlikeTask(Resource):
+#     """
+#     This class likes the taks under user's task lists
+#     """
+#     def post(self):
+#         """
+#         post a user's id and task id to unlike a task
+#         """
+#         task_id = request.json[tasks.ID]
+#         user_id = request.json[tasks.USER_ID]
+#         try:
+#             tasks.unlike_task(task_id, user_id)
+#             return {
+#                 MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY UNLIKED THE TASK'
+#             }
+#         except ValueError as e:
+#             raise wz.NotAcceptable(f'{str(e)}')
 
-
-@api.route(f'{UNLIKETASK_EP}', methods=['POST'])
-@api.expect(like_task_field)
-@api.response(HTTPStatus.OK, 'Success')
-@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-class UnlikeTask(Resource):
-    """
-    This class likes the taks under user's task lists
-    """
-    def post(self):
-        """
-        post a user's id and task id to unlike a task
-        """
-        task_id = request.json[tasks.ID]
-        user_id = request.json[tasks.USER_ID]
-        try:
-            tasks.unlike_task(task_id, user_id)
-            return {
-                MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY UNLIKED THE TASK'
-            }
-        except ValueError as e:
-            raise wz.NotAcceptable(f'{str(e)}')
+# @api.route(f'{PROFILEVALIDATION_EP}', methods=['GET'])
+# class ProfileValidation(Resource):
+#     """
+#     This class validates the user profile
+#     """
+#     def get(self):
+#         """
+#         gets the validation of user profile
+#         """
+#         return {
+#             PROFILE_VALID_RESP: True
+#         }
