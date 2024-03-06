@@ -251,15 +251,14 @@ class RemoveProfile(Resource):
 
 # =====================Task Endpoint START=====================
 
-
 @api.route(f'{VIEWTASKS_EP}', methods=['GET', 'POST'])
 class ViewTasks(Resource):
     """
-    This class will show all tasks
+    Admin can view all tasks here
     """
     def get(self):
         """
-        gets all the tasks
+        View all tasks globally
         """
         return {
             TASKS: tasks.get_tasks()
@@ -281,7 +280,7 @@ class ViewUserTasks(Resource):
     """
     def post(self):
         """
-        posts a user's id to get all the user's tasks
+        User can view all tasks belonging to themselves/others
         """
         user_id = request.json[tasks.USER_ID]
         try:
@@ -310,7 +309,9 @@ class PostTask(Resource):
     """
     def post(self):
         """
-        posts a new task data to create a new task.
+        Allows user to create a new task
+        (session management in needed to prevent
+        this ep from creating tasks for other users)
         """
         user_id = request.json[tasks.USER_ID]
         goal = request.json[tasks.GOAL_ID]
@@ -461,8 +462,8 @@ new_post_fields = api.model('NewPost', {
     psts.USER_ID: fields.String,
     psts.IS_COMPLETED: fields.Boolean,
     psts.CONTENT: fields.String,
-    psts.TASK_IDS: fields.List,
-    psts.GOAL_IDS: fields.List,
+    psts.TASK_IDS: fields.List(fields.String),
+    psts.GOAL_IDS: fields.List(fields.String),
 })
 
 
