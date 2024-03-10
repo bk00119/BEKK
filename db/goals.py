@@ -45,7 +45,7 @@ def get_new_test_goals():
     _id = random.randint(0, BIG_NUM)
     _id = str(_id)
     _id = _id.rjust(ID_LEN, '0')
-    set_goal[USER_ID] = '65db97830c645f9be9b27adf'
+    set_goal[USER_ID] = '6575033f3b89d2b4f309d7af'
     set_goal[CONTENT] = 'read 5 books'
     set_goal[IS_COMPLETED] = False
     return set_goal
