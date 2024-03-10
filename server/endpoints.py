@@ -5,9 +5,11 @@ The endpoint called `endpoints` will return all available endpoints.
 from http import HTTPStatus
 from flask import Flask, request
 from flask_restx import Resource, Api, fields
+import jwt
 from db import profiles as pf
 from db import tasks as tasks
 from db import users as users
+from db import auth as auth
 import werkzeug.exceptions as wz
 # import db.db as db
 from flask_cors import CORS
@@ -20,6 +22,7 @@ api = Api(app)
 LOGIN_EP = '/login'
 LOGOUT_EP = '/logout'
 SIGNUP_EP = '/signup'
+PROTECTED_EP = '/protected'
 PROFILE_EP = '/profile'
 CREATEPROFILE_EP = '/createProfile'
 VIEWTASKS_EP = '/viewTasks'
@@ -114,7 +117,48 @@ class ViewUserPublic(Resource):
             raise wz.NotAcceptable(f'{str(e)}')
 
 
+@api.route(f'{PROTECTED_EP}', methods=['OPTIONS'])
+class Protected(Resource):
+    """
+    This class verifies the user with its access token
+    """
+    def options(self):
+        """
+        gets the user's access token for authentication
+        """
+        access_token = request.cookies.get('access_token')
+        print("ACCESS: ", access_token)
+        # return ValueError('Missing access token')
+        
+        # if not access_token:
+        #   return ValueError('Missing access token')
+        
+        # try:
+        #   payload = jwt.decode(access_token, auth.SECRET_KEY, algorithms=['HS256'])
+        #   user_id = payload['user_id']
+        #   print('USER ID: ', user_id)
+        #   return {'message': f'Access granted to {user_id}'}
+          
+        # except jwt.ExpiredSignatureError:
+        #   return ValueError('Access token expired')
+        
+        # except jwt.InvalidTokenError:
+        #   return ValueError('Invalid access token')
+        return {
+            'test' : 'YOU HAVE SUCCESSFULLY LOGGED OUT'
+        }
+
+
+user_login_field = api.model("User", {
+    users.EMAIL: fields.String,
+    users.PASSWORD: fields.String
+})
+
+
 @api.route(f'{LOGIN_EP}', methods=['POST'])
+@api.expect(user_login_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
 class Login(Resource):
     """
     This class supports fetching a user data for login
@@ -123,9 +167,30 @@ class Login(Resource):
         """
         posts the user data for login
         """
-        return {
-            TOKEN_RESP: TEST_USER_TOKEN
-        }
+        data = request.get_json()
+        try:
+          return users.login(data)
+        except ValueError as e:
+          raise wz.NotAcceptable(f'{str(e)}')
+        # return {
+        #     TOKEN_RESP: TEST_USER_TOKEN
+        # }
+@api.route(f'/test', methods=['GET'])
+class Test(Resource):
+    """
+    This class supports fetching a user data for login
+    """
+    def get(self):
+        """
+        posts the user data for login
+        """
+        try:
+          return users.login({'email': 'hk0207@gmail.com', 'password':'abc123'})
+        except ValueError as e:
+          raise wz.NotAcceptable(f'{str(e)}')
+        # return {
+        #     TOKEN_RESP: TEST_USER_TOKEN
+        # }
 
 
 @api.route(f'{LOGOUT_EP}', methods=['POST'])
