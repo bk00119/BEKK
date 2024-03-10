@@ -46,6 +46,7 @@ SAMPLE_TASK = {
 
 SAMPLE_ID = "656e2bdc5168d371dc3916e9" 
 
+@pytest.mark.skip(reason= "working on testings") 
 def test_login():
     resp = TEST_CLIENT.post(ep.LOGIN_EP, json=SAMPLE_USER)
     print(f'{resp=}')

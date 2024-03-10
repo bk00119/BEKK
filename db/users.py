@@ -3,7 +3,7 @@ This module interfaces to our user data.
 """
 
 import random
-import uuid
+# import uuid
 from bson.objectid import ObjectId
 from datetime import datetime, timedelta
 import db.db_connect as dbc
@@ -103,16 +103,19 @@ def hash_password(password):
 
 
 def verify_password(plain_password, hashed_password):
-    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+    return bcrypt.checkpw(plain_password.encode('utf-8'),
+                          hashed_password.encode('utf-8'))
 
 
 def generate_access_token(user_id):
     # ACCESS TOKEN
     token_payload = {
         'user_id': user_id,
-        'exp': datetime.utcnow() + timedelta(seconds=auth.JWT_ACCESS_TOKEN_EXPIRATION)
+        'exp': datetime.utcnow()
+        + timedelta(seconds=auth.JWT_ACCESS_TOKEN_EXPIRATION)
     }
-    access_token = jwt.encode(token_payload, auth.SECRET_KEY, algorithm='HS256')
+    access_token = jwt.encode(token_payload,
+                              auth.SECRET_KEY, algorithm='HS256')
     return access_token
 
 
@@ -120,9 +123,11 @@ def generate_refresh_token(user_id):
     # REFRESH TOKEN
     token_payload = {
         'user_id': user_id,
-        'exp': datetime.utcnow() + timedelta(seconds=auth.JWT_REFRESH_TOKEN_EXPIRATION)
+        'exp': datetime.utcnow()
+        + timedelta(seconds=auth.JWT_REFRESH_TOKEN_EXPIRATION)
     }
-    refresh_token = jwt.encode(token_payload, auth.SECRET_KEY, algorithm='HS256')
+    refresh_token = jwt.encode(token_payload,
+                               auth.SECRET_KEY, algorithm='HS256')
 
     # STORE THE REFRESH TOKEN IN THE DATABASE
     # dbc already connected
@@ -131,7 +136,7 @@ def generate_refresh_token(user_id):
       {ID: ObjectId(user_id)},
       {"$set": {"refresh_token": refresh_token}}
     )
-    
+
     return refresh_token
 
 
@@ -161,18 +166,22 @@ def login(user):
         raise ValueError('Password may not be blank')
     dbc.connect_db()
     data = dbc.fetch_one(USERS_COLLECT, {EMAIL: email})
-    
+
     # CHECK IF THE PASSWORD FROM REQUEST MATCHES THE STORED PASSWORD
     if verify_password(password, data[PASSWORD]):
-      # GENERATE JWT TOKEN
-      # response = make_response(jsonify({'message': 'Login successful'}))
-      access_token = generate_access_token(data[ID])
-      refresh_token = generate_refresh_token(data[ID])
-      # response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Strict')
-      # response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True, samesite='Strict')
+        # GENERATE JWT TOKEN
+        # response = make_response(jsonify({'message': 'Login successful'}))
+        access_token = generate_access_token(data[ID])
+        refresh_token = generate_refresh_token(data[ID])
+        # response.set_cookie('access_token', access_token,
+        # httponly=True, secure=True, samesite='Strict')
+        # response.set_cookie('refresh_token', refresh_token,
+        # httponly=True, secure=True, samesite='Strict')
 
-      response = make_response(jsonify({'message': 'Login successful', 'access_token': access_token, 'refresh_token': refresh_token}))
-      return response
+        response = make_response(jsonify({'message': 'Login successful',
+                                          'access_token': access_token,
+                                          'refresh_token': refresh_token}))
+        return response
 
     else:
-      raise ValueError('Invalid email or password')
+        raise ValueError('Invalid email or password')
