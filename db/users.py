@@ -3,8 +3,14 @@ This module interfaces to our user data.
 """
 
 import random
+# import uuid
 from bson.objectid import ObjectId
+from datetime import datetime, timedelta
 import db.db_connect as dbc
+import bcrypt
+import jwt
+from flask import make_response, jsonify
+import db.auth as auth
 
 USERS_COLLECT = 'users'
 
@@ -14,6 +20,7 @@ LAST_NAME = 'last_name'
 USERNAME = 'username'
 EMAIL = 'email'
 STREAKS = 'streaks'
+PASSWORD = 'password'
 
 ID_LEN = 24
 BIG_NUM = 100_000_000_000_000_000_000
@@ -89,6 +96,50 @@ def get_test_user():
             "streaks": {'num_streaks': 2, "updated": True}}
 
 
+def hash_password(password):
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed_password.decode('utf-8')
+
+
+def verify_password(plain_password, hashed_password):
+    return bcrypt.checkpw(plain_password.encode('utf-8'),
+                          hashed_password.encode('utf-8'))
+
+
+def generate_access_token(user_id):
+    # ACCESS TOKEN
+    token_payload = {
+        'user_id': user_id,
+        'exp': datetime.utcnow()
+        + timedelta(seconds=auth.JWT_ACCESS_TOKEN_EXPIRATION)
+    }
+    access_token = jwt.encode(token_payload,
+                              auth.SECRET_KEY, algorithm='HS256')
+    return access_token
+
+
+def generate_refresh_token(user_id):
+    # REFRESH TOKEN
+    token_payload = {
+        'user_id': user_id,
+        'exp': datetime.utcnow()
+        + timedelta(seconds=auth.JWT_REFRESH_TOKEN_EXPIRATION)
+    }
+    refresh_token = jwt.encode(token_payload,
+                               auth.SECRET_KEY, algorithm='HS256')
+
+    # STORE THE REFRESH TOKEN IN THE DATABASE
+    # dbc already connected
+    dbc.update_one(
+      USERS_COLLECT,
+      {ID: ObjectId(user_id)},
+      {"$set": {"refresh_token": refresh_token}}
+    )
+
+    return refresh_token
+
+
 def signup(user):
     if not user:
         raise ValueError('User may not be blank')
@@ -102,3 +153,35 @@ def signup(user):
         raise ValueError('Password may not be blank')
     test_users[username] = password
     return _gen_id()
+
+
+def login(user):
+    if not user:
+        raise ValueError('User may not be blank')
+    email = user['email']
+    password = user['password']
+    if not email:
+        raise ValueError('Email may not be blank')
+    if not password:
+        raise ValueError('Password may not be blank')
+    dbc.connect_db()
+    data = dbc.fetch_one(USERS_COLLECT, {EMAIL: email})
+
+    # CHECK IF THE PASSWORD FROM REQUEST MATCHES THE STORED PASSWORD
+    if verify_password(password, data[PASSWORD]):
+        # GENERATE JWT TOKEN
+        # response = make_response(jsonify({'message': 'Login successful'}))
+        access_token = generate_access_token(data[ID])
+        refresh_token = generate_refresh_token(data[ID])
+        # response.set_cookie('access_token', access_token,
+        # httponly=True, secure=True, samesite='Strict')
+        # response.set_cookie('refresh_token', refresh_token,
+        # httponly=True, secure=True, samesite='Strict')
+
+        response = make_response(jsonify({'message': 'Login successful',
+                                          'access_token': access_token,
+                                          'refresh_token': refresh_token}))
+        return response
+
+    else:
+        raise ValueError('Invalid email or password')
