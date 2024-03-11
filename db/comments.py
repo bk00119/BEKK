@@ -81,7 +81,7 @@ def get_comment(comment_id: str):
 
 def get_user_comments(user_id: str):
     if usrs.id_exists(user_id):
-        return dbc.fetch_all_as_dict(dbc.DB, COMMENTS_COLLECT, 
+        return dbc.fetch_all_as_dict(dbc.DB, COMMENTS_COLLECT,
                                      {USER_ID: user_id})
     else:
         raise ValueError(f'Get User Comments Failed: {user_id} not in DB.')
