@@ -69,18 +69,19 @@ def delete_comment(comment_id: str):
     if id_exists(comment_id):
         return dbc.del_one(COMMENTS_COLLECT, {ID: ObjectId(comment_id)})
     else:
-        raise ValueError(f'Delete Comment Failed: {comment_id} not in database.')
+        raise ValueError(f'Delete Comment Failed: {comment_id} not in DB.')
 
 
 def get_comment(comment_id: str):
     if id_exists(comment_id):
         return dbc.fetch_one(COMMENTS_COLLECT, {ID: ObjectId(comment_id)})
     else:
-        raise ValueError(f'Get Comment Failed: {comment_id} not in database.')
+        raise ValueError(f'Get Comment Failed: {comment_id} not in DB.')
 
 
 def get_user_comments(user_id: str):
     if usrs.id_exists(user_id):
-        return dbc.fetch_all_as_dict(dbc.DB, COMMENTS_COLLECT, {USER_ID: user_id})
+        return dbc.fetch_all_as_dict(dbc.DB, COMMENTS_COLLECT, 
+                                     {USER_ID: user_id})
     else:
-        raise ValueError(f'Get User Comments Failed: {user_id} not in database.')
+        raise ValueError(f'Get User Comments Failed: {user_id} not in DB.')
