@@ -45,7 +45,9 @@ CREATEPOST_EP = '/createPost'
 
 
 # Responses
-TOKEN_RESP = 'token'
+TOKEN_RESP = 'token'  # REMOVE IT AFTER DEVELOPING SIGNUP()
+REFRESH_TOKEN_RESP = 'refresh_token'
+ACCESS_TOKEN_RESP = 'access_token'
 USERNAME_RESP = 'username'
 PASSWORD_RESP = 'password'
 PROFILE_VALID_RESP = "profilevalidation"
