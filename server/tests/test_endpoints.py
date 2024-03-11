@@ -25,8 +25,12 @@ import pytest
 TEST_CLIENT = ep.app.test_client()
 
 SAMPLE_USER = {
-    'username': 'user1234',
-    'password': 'pw1234'
+    usrs.USERNAME: 'user1234',
+    usrs.PASSWORD: 'pw1234',
+    usrs.ID: '6575033f3b89d2b4f309d7af',
+    usrs.FIRST_NAME: 'Firstname',
+    usrs.LAST_NAME: 'Lastname',
+    usrs.EMAIL: 'test@test.com'
 }
 
 SAMPLE_PROFILE = {
@@ -48,14 +52,23 @@ SAMPLE_TASK = {
 
 SAMPLE_ID = "656e2bdc5168d371dc3916e9" 
 
-@pytest.mark.skip(reason= "working on testings") 
 def test_login():
+    # CREATE A NEW USER
+    del SAMPLE_USER[usrs.ID]
+    user_id = usrs.signup(SAMPLE_USER.copy())
+    
+    # CHECK RESPONSE
     resp = TEST_CLIENT.post(ep.LOGIN_EP, json=SAMPLE_USER)
     print(f'{resp=}')
     resp_json = resp.get_json()
     print(f'{resp_json=}')
-    assert ep.TOKEN_RESP in resp_json
+    assert ep.REFRESH_TOKEN_RESP in resp_json
+    assert ep.ACCESS_TOKEN_RESP in resp_json
     
+    # REMOVE THE USER
+    usrs.remove_user(user_id)
+
+@pytest.mark.skip(reason="working on logout") 
 def test_logout():
     resp = TEST_CLIENT.post(ep.LOGOUT_EP, json=SAMPLE_USER)
     print(f'{resp=}')
@@ -63,7 +76,7 @@ def test_logout():
     print(f'{resp_json=}')
     assert ep.MESSAGE_RESP in resp_json
 
-@pytest.mark.skip(reason= "not using this endpoint") 
+@pytest.mark.skip(reason= "still working on it") 
 def test_signup():
     resp = TEST_CLIENT.post(ep.SIGNUP_EP, json=SAMPLE_USER)
     print(f'{resp=}')
@@ -79,7 +92,7 @@ def test_generate_valid_profile_id():
     """
     assert SAMPLE_ID is not None 
     return {ep.PROFILE_ID : SAMPLE_ID}
-    
+
 def test_get_profile(test_generate_valid_profile_id):
     resp = TEST_CLIENT.post(ep.PROFILE_EP, json=test_generate_valid_profile_id) 
     resp_json = resp.get_json() 

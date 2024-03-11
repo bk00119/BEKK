@@ -21,6 +21,9 @@ USERNAME = 'username'
 EMAIL = 'email'
 STREAKS = 'streaks'
 PASSWORD = 'password'
+USER_ID = 'user_id'
+REFRESH_TOKEN = 'refresh_token'
+ACCESS_TOKEN = 'access_token'
 
 ID_LEN = 24
 BIG_NUM = 100_000_000_000_000_000_000
@@ -82,6 +85,15 @@ def get_user_public(user_id: str):
         raise ValueError(f'Get failure: {user_id} not in database.')
 
 
+def get_user_private(user_id: str):
+    if id_exists(user_id):
+        dbc.connect_db()
+        data = dbc.fetch_one(USERS_COLLECT, {ID: ObjectId(user_id)})
+        return data
+    else:
+        raise ValueError(f'Get failure: {user_id} not in database.')
+
+
 def retrieve_user(username):
     if username:
         return test_users[username]
@@ -110,7 +122,7 @@ def verify_password(plain_password, hashed_password):
 def generate_access_token(user_id):
     # ACCESS TOKEN
     token_payload = {
-        'user_id': user_id,
+        USER_ID: user_id,
         'exp': datetime.utcnow()
         + timedelta(seconds=auth.JWT_ACCESS_TOKEN_EXPIRATION)
     }
@@ -122,7 +134,7 @@ def generate_access_token(user_id):
 def generate_refresh_token(user_id):
     # REFRESH TOKEN
     token_payload = {
-        'user_id': user_id,
+        USER_ID: user_id,
         'exp': datetime.utcnow()
         + timedelta(seconds=auth.JWT_REFRESH_TOKEN_EXPIRATION)
     }
@@ -140,19 +152,34 @@ def generate_refresh_token(user_id):
     return refresh_token
 
 
+def remove_user(user_id):
+    dbc.connect_db()
+    if id_exists(user_id):
+        return dbc.del_one(USERS_COLLECT, {ID: ObjectId(user_id)})
+    else:
+        raise ValueError(f'Delete failure: {user_id} not in database.')
+
+
 def signup(user):
     if not user:
         raise ValueError('User may not be blank')
-    username = user['username']
-    password = user['password']
-    if not username:
-        raise ValueError('Username may not be blank')
-    if username in test_users:
-        raise ValueError(f'Duplicate username: {username=}')
-    if not password:
-        raise ValueError('Password may not be blank')
-    test_users[username] = password
-    return _gen_id()
+    # username = user['username']
+    # password = user['password']
+    # if not username:
+    #     raise ValueError('Username may not be blank')
+    # if username in test_users:
+    #     raise ValueError(f'Duplicate username: {username=}')
+    # if not password:
+    #     raise ValueError('Password may not be blank')
+    # test_users[username] = password
+    # return _gen_id()
+
+    # NEED TO MODIFY THIS WHEN WORKING ON USER SIGN UP
+    user[PASSWORD] = hash_password(user[PASSWORD])
+
+    dbc.connect_db()
+    _id = dbc.insert_one(USERS_COLLECT, user)
+    return _id
 
 
 def login(user):
@@ -170,13 +197,8 @@ def login(user):
     # CHECK IF THE PASSWORD FROM REQUEST MATCHES THE STORED PASSWORD
     if verify_password(password, data[PASSWORD]):
         # GENERATE JWT TOKEN
-        # response = make_response(jsonify({'message': 'Login successful'}))
         access_token = generate_access_token(data[ID])
         refresh_token = generate_refresh_token(data[ID])
-        # response.set_cookie('access_token', access_token,
-        # httponly=True, secure=True, samesite='Strict')
-        # response.set_cookie('refresh_token', refresh_token,
-        # httponly=True, secure=True, samesite='Strict')
 
         response = make_response(jsonify({'message': 'Login successful',
                                           'access_token': access_token,
