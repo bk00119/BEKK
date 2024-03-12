@@ -1,4 +1,7 @@
+import db.db_connect as dbc
+
 MOCK_ID = 0
+POSTS_COLLECT = "posts"
 USER_ID = "user_id"
 IS_COMPLETED = "is_completed"
 CONTENT = "content"
@@ -27,4 +30,16 @@ def add_post(user_id,
              goal_ids,
              like_ids,
              comment_ids):
-    pass
+    dbc.connect_db()
+    _id = dbc.insert_one(
+                        POSTS_COLLECT,
+                        {
+                            USER_ID: user_id,
+                            IS_COMPLETED: is_completed,
+                            CONTENT: content,
+                            TASK_IDS: task_ids,
+                            GOAL_IDS: goal_ids,
+                            LIKE_IDS: like_ids,
+                            COMMENT_IDS: comment_ids
+                        })
+    return _id
