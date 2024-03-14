@@ -13,7 +13,7 @@ COMMENT_IDS = "comment_ids"
 
 def get_test_post():
     return {
-        USER_ID: "1",
+        USER_ID: "65f27756a4817e4be8a2a5e9",
         IS_COMPLETED: False,
         CONTENT: "test task",
         TASK_IDS: [],
