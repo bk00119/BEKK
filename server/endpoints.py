@@ -452,7 +452,7 @@ class SetUserGoal(Resource):
 #             USERNAME_RESP: data[USERNAME_RESP]
 #         }
 # =====================Goal Endpoint END=====================
-        
+
 # =====================Comment Endpoint START================
 user_comments_field = api.model('UserComments', {
     cmts.USER_ID: fields.String,
