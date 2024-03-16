@@ -19,6 +19,7 @@ import db.profiles as pf
 import db.posts as psts
 import db.db_connect as dbc
 import db.goals as gls
+import db.comments as cmts
 
 import pytest
 
@@ -239,6 +240,20 @@ def test_deleteGoal():
     assert ep.GOAL_RESP in resp_json
     assert ep.USERNAME_RESP in resp_json
 
+def test_viewUserComments():
+    new_comment = cmts.get_new_test_comments()
+    test_comment_id = str(cmts.add_comment(new_comment[cmts.USER_ID],new_comment[cmts.CONTENT]))
+    test_user_id = str(new_comment[cmts.USER_ID])
+    resp = TEST_CLIENT.post(ep.VIEWCOMMENTS_EP, json={cmts.USER_ID: test_user_id})
+    resp_json = resp.get_json()
+    assert isinstance(resp_json, dict)
+    assert ep.COMMENTS in resp_json
+    comments = resp_json[ep.COMMENTS]
+    assert isinstance(comments, dict)
+    for comment_id in comments:
+        assert isinstance(comment_id, str)
+        assert isinstance(comments[comment_id], dict)
+    cmts.delete_comment(test_comment_id)
 
 @pytest.fixture()
 def setup_viewProfileGroups():
