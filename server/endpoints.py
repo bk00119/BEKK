@@ -10,6 +10,7 @@ from db import tasks as tasks
 from db import users as users
 from db import goals as gls
 from db import posts as psts
+from db import comments as cmts
 import werkzeug.exceptions as wz
 # from bson.objectid import ObjectId
 # import db.db as db
@@ -42,6 +43,7 @@ VIEWPROFILE_EP = '/viewProfile'
 VIEWUSERPUBLIC_EP = '/viewUserPublic'
 VIEWUSERTASKS_EP = '/viewUserTasks'
 CREATEPOST_EP = '/createPost'
+VIEWCOMMENTS_EP = '/comments/view'
 
 
 # Responses
@@ -64,6 +66,7 @@ NAME = 'Name'
 GOALS = 'Goals'
 GROUPS = 'Groups'
 PRIVATE = "Private"
+COMMENTS = 'comments'
 
 TASKS = 'Tasks'
 TASK_ID = 'Task ID'
@@ -378,7 +381,7 @@ class PostTask(Resource):
 
 # =====================Task Endpoint END=====================
 
-
+# =====================Goal Endpoint START=====================
 user_goals_field = api.model('UserGoals', {
     gls.USER_ID: fields.String,
 })
@@ -448,6 +451,33 @@ class SetUserGoal(Resource):
 #             GOAL_RESP: TEST_TASK,
 #             USERNAME_RESP: data[USERNAME_RESP]
 #         }
+# =====================Goal Endpoint END=====================
+
+# =====================Comment Endpoint START================
+user_comments_field = api.model('UserComments', {
+    cmts.USER_ID: fields.String,
+})
+
+
+@api.route(f'{VIEWCOMMENTS_EP}', methods=['POST'])
+@api.expect(user_comments_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class ViewComments(Resource):
+    """
+    This class shows user's comments based on user_id.
+    """
+    def post(self):
+        """
+        gets all the comments of a user based on user_id
+        """
+        user_id = request.json[cmts.USER_ID]
+        try:
+            return {
+                COMMENTS: cmts.get_user_comments(user_id)
+            }
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
 
 
 new_profileGroup_field = api.model('NewGroup', {
