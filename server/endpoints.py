@@ -121,40 +121,7 @@ class ViewUserPublic(Resource):
             raise wz.NotAcceptable(f'{str(e)}')
 
 
-@api.route(f'{PROTECTED_EP}', methods=['OPTIONS'])
-class Protected(Resource):
-    """
-    This class verifies the user with its access token
-    """
-    def options(self):
-        """
-        gets the user's access token for authentication
-        """
-        access_token = request.cookies.get('access_token')
-        print("ACCESS: ", access_token)
-        # return ValueError('Missing access token')
-
-        # if not access_token:
-        #   return ValueError('Missing access token')
-
-        # try:
-        #     payload = jwt.decode(access_token,
-        # auth.SECRET_KEY, algorithms=['HS256'])
-        #     user_id = payload['user_id']
-        #     print('USER ID: ', user_id)
-        #     return {'message': f'Access granted to {user_id}'}
-
-        # except jwt.ExpiredSignatureError:
-        #     return ValueError('Access token expired')
-
-        # except jwt.InvalidTokenError:
-        #     return ValueError('Invalid access token')
-        return {
-            'test': 'YOU HAVE SUCCESSFULLY LOGGED OUT'
-        }
-
-
-user_login_field = api.model("User", {
+user_login_field = api.model("User Login", {
     users.EMAIL: fields.String,
     users.PASSWORD: fields.String
 })

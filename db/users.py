@@ -193,6 +193,8 @@ def login(user):
         raise ValueError('Password may not be blank')
     dbc.connect_db()
     data = dbc.fetch_one(USERS_COLLECT, {EMAIL: email})
+    if not data:
+      raise ValueError('Invalid email or password')
 
     # CHECK IF THE PASSWORD FROM REQUEST MATCHES THE STORED PASSWORD
     if verify_password(password, data[PASSWORD]):
