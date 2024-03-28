@@ -9,40 +9,56 @@ from db import profiles as pf
 from db import tasks as tasks
 from db import users as users
 from db import goals as gls
-from db import posts as psts
+# from db import posts as psts # delete this line after blueprint testing
 import werkzeug.exceptions as wz
 # from bson.objectid import ObjectId
 # import db.db as db
 from flask_cors import CORS
+# from apis import api
+
 
 app = Flask(__name__)
 CORS(app)
 api = Api(app)
+
+# COMMON KEYWORDS
+CREATE = 'create'
+USER = 'User'
+VIEW = 'view'
+DELETE = 'delete'
+TASKS = 'Tasks'
+TASK = 'Task'
+GOALS = 'Goals'
+GOAL = 'Goal'
+PUBLIC = 'Public'
+LIKE = 'like'
+UNLIKE = 'unlike'
 
 # Endpoints
 LOGIN_EP = '/login'
 LOGOUT_EP = '/logout'
 SIGNUP_EP = '/signup'
 PROTECTED_EP = '/protected'
+VIEWUSERPUBLIC_EP = f'/{VIEW}/{USER}/{PUBLIC}'
+VIEWUSERTASKS_EP = f'/{VIEW}/{USER}/{TASKS}'
+VIEWTASKS_EP = f'/{VIEW}/{TASKS}'
+CREATETASK_EP = f'/{CREATE}/{TASK}'
+VIEWUSERGOALS_EP = f'/{VIEW}/{USER}/{GOALS}'
+SETUSERGOAL_EP = f'/set/{USER}/{GOAL}'
+DELETEGOAL_EP = f'/{DELETE}/{GOAL}'
+LIKETASK_EP = f'/{LIKE}/{TASK}'
+UNLIKETASK_EP = f'/{UNLIKE}/{TASK}'
+# CREATEPOST_EP = '/createPost' # delete this line after blueprint testing
+
+# these endpoints are subject to deletion
 PROFILE_EP = '/profile'
+VIEWPROFILE_EP = '/viewProfile'
 CREATEPROFILE_EP = '/createProfile'
-VIEWTASKS_EP = '/viewTasks'
-POSTTASK_EP = '/postTask'
-VIEWUSERGOALS_EP = '/viewUserGoals'
-SETUSERGOAL_EP = '/setUserGoal'
-DELETEGOAL_EP = '/deleteGoal'
+REMOVEPROFILE_EP = '/removeProfile'
 VIEWPROFILEGROUPS_EP = '/viewProfileGroups'
 ADDGROUP_EP = '/addGroup'
 DELETEGROUP_EP = '/deleteGroup'
-LIKETASK_EP = '/likeTask'
-UNLIKETASK_EP = '/unlikeTask'
 PROFILEVALIDATION_EP = '/profilevalidation'
-REMOVEPROFILE_EP = '/removeProfile'
-VIEWPROFILE_EP = '/viewProfile'
-VIEWUSERPUBLIC_EP = '/viewUserPublic'
-VIEWUSERTASKS_EP = '/viewUserTasks'
-CREATEPOST_EP = '/createPost'
-
 
 # Responses
 TOKEN_RESP = 'token'  # REMOVE IT AFTER DEVELOPING SIGNUP()
@@ -315,27 +331,17 @@ class ViewTasks(Resource):
         }
 
 
-user_task_field = api.model('UserTasks', {
-    tasks.USER_ID: fields.String,
-})
-
-
-@api.route(f'{VIEWUSERTASKS_EP}', methods=['POST'])
-@api.expect(user_task_field)
-@api.response(HTTPStatus.OK, 'Success')
-@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+@api.route(f'{VIEWUSERTASKS_EP}/<code>', methods=['GET'])
 class ViewUserTasks(Resource):
     """
-    This class is for getting a user's tasks
+    View a single User's Tasks
     """
-    def post(self):
-        """
-        User can view all tasks belonging to themselves/others
-        """
-        user_id = request.json[tasks.USER_ID]
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+    def get(self, code):
         try:
             return {
-                TASKS: tasks.get_user_tasks(user_id)
+                TASKS: tasks.get_user_tasks(code)
             }
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
@@ -349,7 +355,7 @@ new_task_field = api.model('NewTask', {
 })
 
 
-@api.route(f'{POSTTASK_EP}', methods=['POST'])
+@api.route(f'{CREATETASK_EP}', methods=['POST'])
 @api.expect(new_task_field)
 @api.response(HTTPStatus.OK, 'Success')
 @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
@@ -503,53 +509,6 @@ class AddGroup(Resource):
             }
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
-
-
-# ===================== POSTS Endpoint START=====================
-
-
-new_post_fields = api.model('NewPost', {
-    psts.USER_ID: fields.String,
-    psts.IS_COMPLETED: fields.Boolean,
-    psts.CONTENT: fields.String,
-    psts.TASK_IDS: fields.List(fields.String),
-    psts.GOAL_IDS: fields.List(fields.String),
-})
-
-
-@api.route(f'{CREATEPOST_EP}', methods=["POST"])
-@api.expect(new_post_fields)
-class CreatePost(Resource):
-    """
-    Creates a post
-    """
-    def post(self):
-        user_id = request.json[psts.USER_ID]
-        is_completed = request.json[psts.IS_COMPLETED]
-        content = request.json[psts.CONTENT]
-        task_ids = request.json[psts.TASK_IDS]
-        goal_ids = request.json[psts.GOAL_IDS]
-        like_ids = []
-        comment_ids = []
-
-        try:
-            new_id = psts.add_post(
-                        user_id,
-                        is_completed,
-                        content,
-                        task_ids,
-                        goal_ids,
-                        like_ids,
-                        comment_ids)
-            if new_id is None:
-                raise wz.ServiceUnavailable('We have a technical problem.')
-            return {"POST ID": new_id}
-        except ValueError as e:
-            raise wz.NotAcceptable(f'{str(e)}')
-
-
-# ===================== POSTS Endpoint END=====================
-
 # @api.route(f'{DELETEGROUP_EP}', methods=['POST'])
 # class DeleteGroup(Resource):
 #     """

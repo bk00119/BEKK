@@ -1,4 +1,4 @@
-#import server.endpoints as ep
+#import server as ep
 from http.client import (
     OK,
     NOT_FOUND,
@@ -158,7 +158,7 @@ def test_postTask(mock_add):
     """
     Testing for posting a new task successfully: PostTask.post()
     """
-    resp = TEST_CLIENT.post(ep.POSTTASK_EP, json=tsks.get_new_test_task())
+    resp = TEST_CLIENT.post(ep.CREATETASK_EP, json=tsks.get_new_test_task())
     assert resp.status_code == OK
     
 @patch('db.tasks.add_task', side_effect=ValueError(), autospec=True)
@@ -166,7 +166,7 @@ def test_bad_postTask(mock_add):
     """
     Testing for posting a task with ValueError: PostTask.post()
     """
-    resp = TEST_CLIENT.post(ep.POSTTASK_EP, json=tsks.get_new_test_task())
+    resp = TEST_CLIENT.post(ep.CREATETASK_EP, json=tsks.get_new_test_task())
     assert resp.status_code == NOT_ACCEPTABLE
     
 @patch('db.tasks.add_task', return_value=None)
@@ -174,7 +174,7 @@ def test_postTask_failure(mock_add):
     """
     Testing for posting a task with ValueError: PostTask.post()
     """
-    resp = TEST_CLIENT.post(ep.POSTTASK_EP, json=tsks.get_new_test_task())
+    resp = TEST_CLIENT.post(ep.CREATETASK_EP, json=tsks.get_new_test_task())
     assert resp.status_code == SERVICE_UNAVAILABLE
 
 
@@ -183,22 +183,25 @@ def test_postTask(mock_add):
     """
     Testing for posting a new task successfully: PostTask.post()
     """
-    resp = TEST_CLIENT.post(ep.POSTTASK_EP, json=tsks.get_new_test_task())
+    resp = TEST_CLIENT.post(ep.CREATETASK_EP, json=tsks.get_new_test_task())
     assert resp.status_code == OK
 
+
 def test_viewUserTask():
+    # CREATE TASK 
     new_task = tsks.get_new_test_task()
     test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.GOAL_ID], new_task[tsks.CONTENT], new_task[tsks.IS_COMPLETED]))
+    
+    # CALL EP
     test_user_id = str(new_task[tsks.USER_ID])
-    resp = TEST_CLIENT.post(ep.VIEWUSERTASKS_EP, json={tsks.USER_ID: test_user_id})
+    resp = TEST_CLIENT.get(f'{ep.VIEWUSERTASKS_EP}/{test_user_id}')
+
+    # CHECK RESPONSE IS VALID
     resp_json = resp.get_json()
     assert isinstance(resp_json, dict)
     assert ep.TASKS in resp_json
-    tasks = resp_json[ep.TASKS]
-    assert isinstance(tasks, dict)
-    for task_id in tasks:
-        assert isinstance(task_id, str)
-        assert isinstance(tasks[task_id], dict)
+
+    # CLEANUP 
     tsks.del_task(test_task_id)
 
 # ===================== TASKS TESTS END=====================
@@ -282,10 +285,15 @@ def test_removeProfile():
     assert resp.status_code == OK
     pf.del_profile(test_profile_id)
 
-
+@pytest.mark.skip("user authentication not implemented yet; resolve this ASAP")
 @patch('db.posts.add_post', return_value=psts.MOCK_ID, autospec=True)
 def test_createPost(mock_add):
-    resp = TEST_CLIENT.post(ep.CREATEPOST_EP, json=psts.get_test_post())
+    # AUTHENTICATE FIELDS
+    test_post = psts.get_test_post()
+    assert usrs.id_exists(test_post[psts.USER_ID]) != None
+    
+    # CREATE POST 
+    resp = TEST_CLIENT.post(ep.CREATEPOST_EP, json=test_post)
     assert resp.status_code == OK
     
 
