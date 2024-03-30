@@ -20,6 +20,7 @@ import db.posts as psts
 import db.db_connect as dbc
 import db.goals as gls
 import db.comments as cmts
+import db.auth as auth
 
 import pytest
 
@@ -191,7 +192,12 @@ def test_viewUserTask():
     new_task = tsks.get_new_test_task()
     test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.GOAL_ID], new_task[tsks.CONTENT], new_task[tsks.IS_COMPLETED]))
     test_user_id = str(new_task[tsks.USER_ID])
-    resp = TEST_CLIENT.post(ep.VIEWUSERTASKS_EP, json={tsks.USER_ID: test_user_id})
+    test_access_token = usrs.generate_access_token(test_user_id)
+    resp = TEST_CLIENT.post(ep.VIEWUSERTASKS_EP, json={
+        tsks.USER_ID: test_user_id,
+        auth.ACCESS_TOKEN: test_access_token,
+        auth.REFRESH_TOKEN: test_access_token
+    })
     resp_json = resp.get_json()
     assert isinstance(resp_json, dict)
     assert ep.TASKS in resp_json

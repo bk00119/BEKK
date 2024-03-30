@@ -11,6 +11,7 @@ from db import users as users
 from db import goals as gls
 from db import posts as psts
 from db import comments as cmts
+from db import auth as auth
 import werkzeug.exceptions as wz
 # from bson.objectid import ObjectId
 # import db.db as db
@@ -24,7 +25,6 @@ api = Api(app)
 LOGIN_EP = '/login'
 LOGOUT_EP = '/logout'
 SIGNUP_EP = '/signup'
-PROTECTED_EP = '/protected'
 PROFILE_EP = '/profile'
 CREATEPROFILE_EP = '/createProfile'
 VIEWTASKS_EP = '/viewTasks'
@@ -287,6 +287,8 @@ class ViewTasks(Resource):
 
 user_task_field = api.model('UserTasks', {
     tasks.USER_ID: fields.String,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String
 })
 
 
@@ -303,9 +305,44 @@ class ViewUserTasks(Resource):
         User can view all tasks belonging to themselves/others
         """
         user_id = request.json[tasks.USER_ID]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+
+        if not access_token:
+            return (
+                {'error': 'Access token is missing.'},
+                HTTPStatus.UNAUTHORIZED
+            )
+
+        if not refresh_token:
+            return (
+                {'error': 'Refresh token is missing.'},
+                HTTPStatus.UNAUTHORIZED
+            )
+
+        token_user_id = auth.verify_auth_token(access_token, False)['user_id']
+        if user_id != token_user_id:
+            return (
+                {'error': 'Unauthorized to view the user\'s tasks'},
+                HTTPStatus.UNAUTHORIZED
+            )
+
+        if not auth.verify_auth_token(access_token):
+            if not auth.verify_auth_token(refresh_token):
+                # USER NEEDS TO RE-LOGIN
+                return (
+                    {'error': 'Invalid refresh token.'},
+                    HTTPStatus.UNAUTHORIZED
+                )
+
+            # REGENERATE ACCESS TOKEN
+            access_token = users.generate_access_token(user_id)
+
         try:
             return {
-                TASKS: tasks.get_user_tasks(user_id)
+                TASKS: tasks.get_user_tasks(user_id),
+                # INCLUDE ORGIGNAL OR REGENERATED TOKEN
+                auth.ACCESS_TOKEN: access_token
             }
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')

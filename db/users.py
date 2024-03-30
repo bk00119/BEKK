@@ -77,6 +77,7 @@ def get_user_public(user_id: str):
     if id_exists(user_id):
         data = dbc.fetch_one(USERS_COLLECT, {ID: ObjectId(user_id)})
         return {
+          EMAIL: data['email'],
           USERNAME: data['username'],
           FIRST_NAME: data['first_name'],
           LAST_NAME: data['last_name']
@@ -204,7 +205,12 @@ def login(user):
 
         response = make_response(jsonify({'message': 'Login successful',
                                           'access_token': access_token,
-                                          'refresh_token': refresh_token}))
+                                          'refresh_token': refresh_token,
+                                          ID: data[ID],
+                                          USERNAME: data[USERNAME],
+                                          FIRST_NAME: data[FIRST_NAME],
+                                          LAST_NAME: data[LAST_NAME],
+                                          EMAIL: data[EMAIL]}))
         return response
 
     else:
