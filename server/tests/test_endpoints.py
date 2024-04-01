@@ -119,7 +119,7 @@ def test_get_users(mock_get_users):
     assert len(users) > 0
 
 
-# ===================== TASKS TESTS END=====================
+# ===================== TASKS TESTS START=====================
 
 # @pytest.mark.skip(reason="this ep does not test server ep")
 # @patch('db.tasks.get_tasks')
@@ -208,9 +208,9 @@ def test_viewUserTask():
         assert isinstance(tasks[task_id], dict)
     tsks.del_task(test_task_id)
 
-# ===================== TASKS TESTS END=====================
+# ===================== TASKS TESTS END =====================
 
-
+# ===================== GOALS TESTS START =====================
 @pytest.fixture()
 def setup_viewGoals():
     usrs.create_user(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_USER[ep.PASSWORD_RESP])
@@ -246,6 +246,10 @@ def test_deleteGoal():
     assert ep.GOAL_RESP in resp_json
     assert ep.USERNAME_RESP in resp_json
 
+# ===================== GOALS TESTS END =====================
+
+# ===================== COMMENTS TESTS START =====================
+
 def test_viewUserComments():
     new_comment = cmts.get_new_test_comments()
     test_comment_id = str(cmts.add_comment(new_comment[cmts.USER_ID],new_comment[cmts.CONTENT]))
@@ -261,6 +265,21 @@ def test_viewUserComments():
         assert isinstance(comments[comment_id], dict)
     cmts.delete_comment(test_comment_id)
 
+# ===================== COMMENTS TESTS END =====================
+
+def test_removeProfile():
+    new_profile = pf.get_test_profile()
+    test_profile_id = str(pf.add_profile(new_profile[pf.NAME], new_profile[pf.GOALS], new_profile[pf.TASKS], new_profile[pf.POSTS], new_profile[pf.PRIVATE] ))
+    resp = TEST_CLIENT.post(ep.REMOVEPROFILE_EP, json={pf.MOCK_ID: test_profile_id})
+    assert resp.status_code == OK
+    pf.del_profile(test_profile_id)
+
+
+@patch('db.posts.add_post', return_value=psts.MOCK_ID, autospec=True)
+def test_createPost(mock_add):
+    resp = TEST_CLIENT.post(ep.CREATEPOST_EP, json=psts.get_test_post())
+    assert resp.status_code == OK
+    
 # @pytest.fixture()
 # def setup_viewProfileGroups():
 #     usrs.create_user(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_USER[ep.PASSWORD_RESP])
@@ -286,7 +305,6 @@ def test_viewUserComments():
 #     assert ep.GROUP_RESP in resp_json
 #     assert ep.USERNAME_RESP in resp_json
 
-
 # @patch('db.profiles.add_group', return_value=pf.MOCK_ID, autospec=True)
 # def test_addGroup(mock_add):
 #     """
@@ -295,20 +313,6 @@ def test_viewUserComments():
 #     resp = TEST_CLIENT.post(ep.ADDGROUP_EP, json=pf.get_new_test_group())
 #     assert resp.status_code == OK
 
-
-def test_removeProfile():
-    new_profile = pf.get_test_profile()
-    test_profile_id = str(pf.add_profile(new_profile[pf.NAME], new_profile[pf.GOALS], new_profile[pf.TASKS], new_profile[pf.POSTS], new_profile[pf.PRIVATE] ))
-    resp = TEST_CLIENT.post(ep.REMOVEPROFILE_EP, json={pf.MOCK_ID: test_profile_id})
-    assert resp.status_code == OK
-    pf.del_profile(test_profile_id)
-
-
-@patch('db.posts.add_post', return_value=psts.MOCK_ID, autospec=True)
-def test_createPost(mock_add):
-    resp = TEST_CLIENT.post(ep.CREATEPOST_EP, json=psts.get_test_post())
-    assert resp.status_code == OK
-    
 
 # def test_likeTask():
 #     new_task = tsks.get_new_test_task()
