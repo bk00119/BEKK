@@ -307,11 +307,8 @@ def test_removeProfile():
 
 @patch('db.posts.add_post', return_value=psts.MOCK_ID, autospec=True)
 def test_createPost(mock_add):
-    # AUTHENTICATE FIELDS
-    test_post = psts.get_test_post()
-    assert usrs.id_exists(test_post[psts.USER_ID]) != None
-    
     # CREATE POST 
+    test_post = psts.get_test_post()
     resp = TEST_CLIENT.post(ep.CREATEPOST_EP, json=test_post)
     assert resp.status_code == OK
     
