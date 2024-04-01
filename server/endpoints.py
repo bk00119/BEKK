@@ -11,12 +11,12 @@ from db import users as users
 from db import goals as gls
 # from db import posts as psts # delete this line after blueprint testing
 from db import comments as cmts
+from db import posts as psts
 import werkzeug.exceptions as wz
 # from bson.objectid import ObjectId
 # import db.db as db
 from flask_cors import CORS
 # from apis import api
-
 
 app = Flask(__name__)
 CORS(app)
@@ -35,6 +35,7 @@ PUBLIC = 'Public'
 LIKE = 'like'
 UNLIKE = 'unlike'
 COMMENTS = "comments"
+POST = "post"
 
 # Endpoints
 LOGIN_EP = '/login'
@@ -51,7 +52,7 @@ DELETEGOAL_EP = f'/{DELETE}/{GOAL}'
 LIKETASK_EP = f'/{LIKE}/{TASK}'
 UNLIKETASK_EP = f'/{UNLIKE}/{TASK}'
 VIEWCOMMENTS_EP = f'/{VIEW}/{COMMENTS}'
-# CREATEPOST_EP = '/createPost' # delete this line after blueprint testing
+CREATEPOST_EP = f'/{CREATE}/{POST}'
 
 # these endpoints are subject to deletion
 PROFILE_EP = '/profile'
@@ -505,6 +506,46 @@ class AddGroup(Resource):
             return {
                 MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY ADDED GROUP TO PROFILE'
             }
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
+
+
+new_post_fields = api.model('NewPost', {
+        psts.USER_ID: fields.String,
+        psts.IS_COMPLETED: fields.Boolean,
+        psts.CONTENT: fields.String,
+        psts.TASK_IDS: fields.List(fields.String),
+        psts.GOAL_IDS: fields.List(fields.String),
+    })
+
+
+@api.route(f'{CREATEPOST_EP}', methods=["POST"])
+class CreatePost(Resource):
+    """
+    Creates a post
+    """
+    @api.expect(new_post_fields)
+    def post(self):
+        user_id = request.json[psts.USER_ID]
+        is_completed = request.json[psts.IS_COMPLETED]
+        content = request.json[psts.CONTENT]
+        task_ids = request.json[psts.TASK_IDS]
+        goal_ids = request.json[psts.GOAL_IDS]
+        like_ids = []
+        comment_ids = []
+
+        try:
+            new_id = psts.add_post(
+                        user_id,
+                        is_completed,
+                        content,
+                        task_ids,
+                        goal_ids,
+                        like_ids,
+                        comment_ids)
+            if new_id is None:
+                raise wz.ServiceUnavailable('We have a technical problem.')
+            return {"POST ID": new_id}
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 # @api.route(f'{DELETEGROUP_EP}', methods=['POST'])

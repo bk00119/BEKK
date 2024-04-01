@@ -300,7 +300,7 @@ def test_removeProfile():
     assert resp.status_code == OK
     pf.del_profile(test_profile_id)
 
-@pytest.mark.skip("user authentication not implemented yet; resolve this ASAP")
+
 @patch('db.posts.add_post', return_value=psts.MOCK_ID, autospec=True)
 def test_createPost(mock_add):
     # AUTHENTICATE FIELDS
