@@ -47,7 +47,7 @@ VIEWUSERTASKS_EP = f'/{VIEW}/{USER}/{TASKS}'
 VIEWTASKS_EP = f'/{VIEW}/{TASKS}'
 CREATETASK_EP = f'/{CREATE}/{TASK}'
 VIEWUSERGOALS_EP = f'/{VIEW}/{USER}/{GOALS}'
-SETUSERGOAL_EP = f'/set/{USER}/{GOAL}'
+CREATEUSERGOAL_EP = f'/{CREATE}/{USER}/{GOAL}'
 DELETEGOAL_EP = f'/{DELETE}/{GOAL}'
 LIKETASK_EP = f'/{LIKE}/{TASK}'
 UNLIKETASK_EP = f'/{UNLIKE}/{TASK}'
@@ -437,11 +437,11 @@ new_goal_field = api.model('NewGoal', {
 })
 
 
-@api.route(f'{SETUSERGOAL_EP}', methods=['POST'])
+@api.route(f'{CREATEUSERGOAL_EP}', methods=['POST'])
 @api.expect(new_goal_field)
 @api.response(HTTPStatus.OK, 'Success')
 @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-class SetUserGoal(Resource):
+class CreateUserGoal(Resource):
     """
     This class posts goals to user profile.
     """

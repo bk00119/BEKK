@@ -234,7 +234,7 @@ def test_viewUserGoals():
 
 @pytest.mark.skip(reason= "endpoint not complete")     
 def test_setUserGoal():
-    resp = TEST_CLIENT.post(ep.SETUSERGOAL_EP, json=gls.USER_ID)
+    resp = TEST_CLIENT.post(ep.CREATEUSERGOAL_EP, json=gls.USER_ID)
     assert resp.status_code == OK
 
 
