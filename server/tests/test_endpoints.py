@@ -231,7 +231,7 @@ def test_viewUserGoals():
         assert isinstance(goals[goal_id], dict)
     gls.delete_set_goal(test_goal_id)
 
-@pytest.mark.skip(reason= "endpoint not complete")     
+@pytest.mark.skip(reason= "endpoint not complete")     #TODO
 def test_setUserGoal():
     resp = TEST_CLIENT.post(ep.SETUSERGOAL_EP, json=gls.USER_ID)
     assert resp.status_code == OK
@@ -264,6 +264,22 @@ def test_viewUserComments():
         assert isinstance(comment_id, str)
         assert isinstance(comments[comment_id], dict)
     cmts.delete_comment(test_comment_id)
+
+@patch('db.comments.add_comment', return_value=cmts.MOCK_ID, autospec=True)
+def test_addComment(mock_add):
+    """
+    Testing fo adding a new comment successfully: AddComment.post()
+    """
+    resp = TEST_CLIENT.post(ep.ADDCOMMENT_EP, json=cmts.get_new_test_comments())
+    assert resp.status_code == OK
+
+@patch('db.comments.add_comment', side_effect=ValueError(), autospec=True)
+def test_bad_addComment(mock_add):
+    """
+    Testing for adding a new comment failed: AddComment.post()
+    """
+    resp = TEST_CLIENT.post(ep.ADDCOMMENT_EP, json=cmts.get_new_test_comments())
+    assert resp.status_code == NOT_ACCEPTABLE
 
 # ===================== COMMENTS TESTS END =====================
 
