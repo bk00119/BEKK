@@ -29,7 +29,6 @@ TEST_CLIENT = ep.app.test_client()
 SAMPLE_USER = {
     usrs.USERNAME: 'user1234',
     usrs.PASSWORD: 'pw1234',
-    usrs.ID: '6575033f3b89d2b4f309d7af',
     usrs.FIRST_NAME: 'Firstname',
     usrs.LAST_NAME: 'Lastname',
     usrs.EMAIL: 'test@test.com'
@@ -54,12 +53,27 @@ SAMPLE_TASK = {
 
 SAMPLE_ID = "656e2bdc5168d371dc3916e9" 
 
+def test_signup():
+    resp = TEST_CLIENT.post(ep.SIGNUP_EP, json=SAMPLE_USER)
+    print(f'{resp=}')
+    resp_json = resp.get_json()
+    print(f'{resp_json=}')
+    assert ep.MESSAGE_RESP in resp_json
+    assert ep.ACCESS_TOKEN_RESP in resp_json
+    assert ep.REFRESH_TOKEN_RESP in resp_json
+    assert ep.EMAIL_RESP in resp_json
+    assert ep.ID_RESP in resp_json
+    assert ep.USERNAME_RESP in resp_json
+    assert ep.FIRST_NAME_RESP in resp_json
+    assert ep.LAST_NAME_RESP in resp_json
+    usrs.remove(resp_json[usrs.ID])
+
 def test_login():
-    # CREATE A NEW USER
-    del SAMPLE_USER[usrs.ID]
-    user_id = usrs.signup(SAMPLE_USER.copy())
-    
-    # CHECK RESPONSE
+    # CREATE A TEMP USER
+    signup_resp = TEST_CLIENT.post(ep.SIGNUP_EP, json=SAMPLE_USER)
+    signup_resp_json = signup_resp.get_json()
+    user_id = signup_resp_json[usrs.ID]
+
     resp = TEST_CLIENT.post(ep.LOGIN_EP, json=SAMPLE_USER)
     print(f'{resp=}')
     resp_json = resp.get_json()
@@ -68,24 +82,7 @@ def test_login():
     assert ep.ACCESS_TOKEN_RESP in resp_json
     
     # REMOVE THE USER
-    usrs.remove_user(user_id)
-
-@pytest.mark.skip(reason="working on logout") 
-def test_logout():
-    resp = TEST_CLIENT.post(ep.LOGOUT_EP, json=SAMPLE_USER)
-    print(f'{resp=}')
-    resp_json = resp.get_json()
-    print(f'{resp_json=}')
-    assert ep.MESSAGE_RESP in resp_json
-
-@pytest.mark.skip(reason= "still working on it") 
-def test_signup():
-    resp = TEST_CLIENT.post(ep.SIGNUP_EP, json=SAMPLE_USER)
-    print(f'{resp=}')
-    resp_json = resp.get_json()
-    print(f'{resp_json=}')
-    assert ep.TOKEN_RESP in resp_json
-    assert ep.USERNAME_RESP in resp_json    
+    usrs.remove(user_id)
 
 @pytest.fixture(scope="function")
 def test_generate_valid_profile_id():

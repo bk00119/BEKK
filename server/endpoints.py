@@ -52,8 +52,12 @@ REFRESH_TOKEN_RESP = 'refresh_token'
 ACCESS_TOKEN_RESP = 'access_token'
 USERNAME_RESP = 'username'
 PASSWORD_RESP = 'password'
+EMAIL_RESP = 'email'
+FIRST_NAME_RESP = 'first_name'
+LAST_NAME_RESP = 'last_name'
 PROFILE_VALID_RESP = "profilevalidation"
 TASK_RESP = 'task'
+ID_RESP = '_id'
 MESSAGE_RESP = 'message'
 GOAL_RESP = 'goal'
 GROUP_RESP = 'group'
@@ -147,9 +151,6 @@ class Login(Resource):
             return users.login(data)
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
-        # return {
-        #     TOKEN_RESP: TEST_USER_TOKEN
-        # }
 
 
 @api.route(f'{LOGOUT_EP}', methods=['POST'])
@@ -166,20 +167,34 @@ class Logout(Resource):
         }
 
 
-# @api.route(f'{SIGNUP_EP}', methods=['POST'])
-# class Signup(Resource):
-#     """
-#     This class supports fetching a user data for signup
-#     """
-#     @api.response(HTTPStatus.OK, 'Success')
-#     @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-#     def post(self):
-#         data = request.get_json()
-#         print(data['username'])
-#         return {
-#             TOKEN_RESP: TEST_USER_TOKEN,
-#             USERNAME_RESP: data[USERNAME_RESP]
-#         }
+user_signup_field = api.model("User Signup", {
+    users.EMAIL: fields.String,
+    users.PASSWORD: fields.String,
+    users.USERNAME: fields.String,
+    users.FIRST_NAME: fields.String,
+    users.LAST_NAME: fields.String
+})
+
+
+@api.route(f'{SIGNUP_EP}', methods=['POST'])
+@api.expect(user_signup_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class Signup(Resource):
+    """
+    This class supports fetching a user data for signup
+    """
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+    def post(self):
+        """
+        posts the user data for signup
+        """
+        data = request.get_json()
+        try:
+            return users.signup(data)
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
 
 
 profile_id = api.model("Profile", {

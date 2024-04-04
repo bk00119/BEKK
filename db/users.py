@@ -153,34 +153,53 @@ def generate_refresh_token(user_id):
     return refresh_token
 
 
-def remove_user(user_id):
-    dbc.connect_db()
-    if id_exists(user_id):
-        return dbc.del_one(USERS_COLLECT, {ID: ObjectId(user_id)})
-    else:
-        raise ValueError(f'Delete failure: {user_id} not in database.')
+# def remove_user(user_id):
+#     dbc.connect_db()
+#     if id_exists(user_id):
+#         return dbc.del_one(USERS_COLLECT, {ID: ObjectId(user_id)})
+#     else:
+#         raise ValueError(f'Delete failure: {user_id} not in database.')
 
 
 def signup(user):
     if not user:
         raise ValueError('User may not be blank')
-    # username = user['username']
-    # password = user['password']
-    # if not username:
-    #     raise ValueError('Username may not be blank')
-    # if username in test_users:
-    #     raise ValueError(f'Duplicate username: {username=}')
-    # if not password:
-    #     raise ValueError('Password may not be blank')
-    # test_users[username] = password
-    # return _gen_id()
+    if not user[EMAIL]:
+        raise ValueError('Email may not be blank')
+    if not user[PASSWORD]:
+        raise ValueError('Password may not be blank')
+    if not user[USERNAME]:
+        raise ValueError('Username may not be blank')
+    if not user[FIRST_NAME]:
+        raise ValueError('First name may not be blank')
+    if not user[LAST_NAME]:
+        raise ValueError('Last name may not be blank')
 
-    # NEED TO MODIFY THIS WHEN WORKING ON USER SIGN UP
+    # CHECK IF THE USER ALREADY EXISTS
+    dbc.connect_db()
+    data = dbc.fetch_one(USERS_COLLECT, {EMAIL: user[EMAIL]})
+    if data:
+        raise ValueError('The user already exists')
+
+    # HASH THE PASSWORD
     user[PASSWORD] = hash_password(user[PASSWORD])
 
-    dbc.connect_db()
+    # ADD A NEW USER TO DB
     _id = dbc.insert_one(USERS_COLLECT, user)
-    return _id
+
+    # GENERATE TOKENS
+    access_token = generate_access_token(_id)
+    refresh_token = generate_refresh_token(_id)
+
+    response = make_response(jsonify({'message': 'Signup successful',
+                                      'access_token': access_token,
+                                      'refresh_token': refresh_token,
+                                      ID: _id,
+                                      USERNAME: user[USERNAME],
+                                      FIRST_NAME: user[FIRST_NAME],
+                                      LAST_NAME: user[LAST_NAME],
+                                      EMAIL: user[EMAIL]}))
+    return response
 
 
 def login(user):
@@ -215,3 +234,13 @@ def login(user):
 
     else:
         raise ValueError('Invalid email or password')
+
+
+def remove(_id):
+    if not _id:
+        raise ValueError('User id may not be blank')
+    if id_exists(_id):
+        dbc.connect_db()
+        return dbc.del_one(USERS_COLLECT, {ID: ObjectId(_id)})
+    else:
+        raise ValueError(f'Delete failure: {_id} not in database.')
