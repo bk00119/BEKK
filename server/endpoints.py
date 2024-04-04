@@ -32,11 +32,11 @@ POSTTASK_EP = '/postTask'
 VIEWUSERGOALS_EP = '/viewUserGoals'
 SETUSERGOAL_EP = '/setUserGoal'
 DELETEGOAL_EP = '/deleteGoal'
-VIEWPROFILEGROUPS_EP = '/viewProfileGroups'
-ADDGROUP_EP = '/addGroup'
-DELETEGROUP_EP = '/deleteGroup'
-LIKETASK_EP = '/likeTask'
-UNLIKETASK_EP = '/unlikeTask'
+# VIEWPROFILEGROUPS_EP = '/viewProfileGroups'
+# ADDGROUP_EP = '/addGroup'
+# DELETEGROUP_EP = '/deleteGroup'
+# LIKETASK_EP = '/likeTask'
+# UNLIKETASK_EP = '/unlikeTask'
 PROFILEVALIDATION_EP = '/profilevalidation'
 REMOVEPROFILE_EP = '/removeProfile'
 VIEWPROFILE_EP = '/viewProfile'
@@ -44,6 +44,7 @@ VIEWUSERPUBLIC_EP = '/viewUserPublic'
 VIEWUSERTASKS_EP = '/viewUserTasks'
 CREATEPOST_EP = '/createPost'
 VIEWCOMMENTS_EP = '/comments/view'
+ADDCOMMENT_EP = '/comment/add'
 
 
 # Responses
@@ -64,17 +65,18 @@ USER_RESP = 'user'
 
 NAME = 'Name'
 GOALS = 'Goals'
-GROUPS = 'Groups'
+# GROUPS = 'Groups'
 PRIVATE = "Private"
 COMMENTS = 'comments'
 
 TASKS = 'Tasks'
 TASK_ID = 'Task ID'
 USER_ID = 'User ID'
+COMMENT_ID = 'Comment ID'
 PROFILE = {
     NAME: 'John Smith',
     GOALS: ['cs hw2', 'fin hw3'],
-    GROUPS: ['cs', 'fin'],
+    # GROUPS: ['cs', 'fin'],
     PRIVATE: False
 }
 PROFILE_ID = "Profile ID"
@@ -88,7 +90,7 @@ TEST_USER_TOKEN = 'ABC123'
 TEST_PROFILE = {
     NAME: 'John Smith',
     GOALS: ['cs hw2', 'fin hw3'],
-    GROUPS: ['cs', 'fin'],
+    # GROUPS: ['cs', 'fin'],
     PRIVATE: False
 }
 
@@ -484,60 +486,37 @@ class ViewComments(Resource):
             raise wz.NotAcceptable(f'{str(e)}')
 
 
-new_profileGroup_field = api.model('NewGroup', {
-    pf.MOCK_ID: fields.String,
+added_comment_field = api.model('AddedComment', {
+    cmts.USER_ID: fields.String,
+    cmts.CONTENT: fields.String,
 })
 
 
-@api.route(f'{VIEWPROFILEGROUPS_EP}', methods=['POST'])
-@api.expect(new_profileGroup_field)
+@api.route(f'{ADDCOMMENT_EP}', methods=['POST'])
+@api.expect(added_comment_field)
 @api.response(HTTPStatus.OK, 'Success')
-@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-class ViewProfileGroup(Resource):
+@api.response(HTTPStatus.NOT_ACCEPTABLE, "Not Acceptable")
+@api.response(HTTPStatus.NO_CONTENT, "No Content")
+class AddComment(Resource):
     """
-    This class shows the groups for each user.
+    This class posts a user's comment to a post
     """
     def post(self):
         """
-        posts a user's id to get the user's profile groups
+        posts a user's comment under a post and adds to the DB
         """
-        user_id = request.json[pf.MOCK_ID]
-        return {
-            GROUPS: pf.get_groups(str(user_id))
-        }
-
-
-new_group_field = api.model('NewGroup', {
-    pf.MOCK_ID: fields.String,
-    pf.GROUP: fields.String
-})
-
-
-@api.route(f'{ADDGROUP_EP}', methods=['POST'])
-@api.expect(new_group_field)
-@api.response(HTTPStatus.OK, 'Success')
-@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-class AddGroup(Resource):
-    """
-    This class posts group to the user profile.
-    """
-    def post(self):
-        """
-        posts a new group data to create a new group
-        """
-        id = request.json.get(pf.MOCK_ID, None)
-        # groups = request.json.get(pf.GROUPS, None)
-        group = request.json.get(pf.GROUP, None)
+        user_id = request.json[cmts.USER_ID]
+        content = request.json[cmts.CONTENT]
         try:
-            id = pf.add_group(id, group)
-            # if id is None:
-            #     raise wz.ServiceUnavailable('Error')
-            return {
-                MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY ADDED GROUP TO PROFILE'
-            }
+            new_id = cmts.add_comment(user_id, content)
+            if new_id is None:
+                raise wz.ServiceUnavailable('Failed to add comment')
+            return {COMMENT_ID: new_id}
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 
+
+# =====================Comment Endpoint END ================
 
 # ===================== POSTS Endpoint START=====================
 
@@ -583,6 +562,60 @@ class CreatePost(Resource):
 
 
 # ===================== POSTS Endpoint END=====================
+
+# new_profileGroup_field = api.model('NewGroup', {
+#     pf.MOCK_ID: fields.String,
+# })
+
+
+# @api.route(f'{VIEWPROFILEGROUPS_EP}', methods=['POST'])
+# @api.expect(new_profileGroup_field)
+# @api.response(HTTPStatus.OK, 'Success')
+# @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+# class ViewProfileGroup(Resource):
+#     """
+#     This class shows the groups for each user.
+#     """
+#     def post(self):
+#         """
+#         posts a user's id to get the user's profile groups
+#         """
+#         user_id = request.json[pf.MOCK_ID]
+#         return {
+#             GROUPS: pf.get_groups(str(user_id))
+#         }
+
+
+# new_group_field = api.model('NewGroup', {
+#     pf.MOCK_ID: fields.String,
+#     pf.GROUP: fields.String
+# })
+
+
+# @api.route(f'{ADDGROUP_EP}', methods=['POST'])
+# @api.expect(new_group_field)
+# @api.response(HTTPStatus.OK, 'Success')
+# @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+# class AddGroup(Resource):
+#     """
+#     This class posts group to the user profile.
+#     """
+#     def post(self):
+#         """
+#         posts a new group data to create a new group
+#         """
+#         id = request.json.get(pf.MOCK_ID, None)
+#         # groups = request.json.get(pf.GROUPS, None)
+#         group = request.json.get(pf.GROUP, None)
+#         try:
+#             id = pf.add_group(id, group)
+#             # if id is None:
+#             #     raise wz.ServiceUnavailable('Error')
+#             return {
+#                 MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY ADDED GROUP TO PROFILE'
+#             }
+#         except ValueError as e:
+#             raise wz.NotAcceptable(f'{str(e)}')
 
 # @api.route(f'{DELETEGROUP_EP}', methods=['POST'])
 # class DeleteGroup(Resource):
