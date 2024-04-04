@@ -37,7 +37,7 @@ SAMPLE_USER = {
 SAMPLE_PROFILE = {
     ep.NAME: 'John Adams',
     ep.GOALS: ['cs hw2', 'fin hw3'],
-    ep.GROUPS: ['cs', 'fin'],
+    # ep.GROUPS: ['cs', 'fin'],
     ep.PRIVATE: False
 }
 
@@ -116,7 +116,7 @@ def test_get_users(mock_get_users):
     assert len(users) > 0
 
 
-# ===================== TASKS TESTS END=====================
+# ===================== TASKS TESTS START=====================
 
 # @pytest.mark.skip(reason="this ep does not test server ep")
 # @patch('db.tasks.get_tasks')
@@ -205,9 +205,9 @@ def test_viewUserTask():
         assert isinstance(tasks[task_id], dict)
     tsks.del_task(test_task_id)
 
-# ===================== TASKS TESTS END=====================
+# ===================== TASKS TESTS END =====================
 
-
+# ===================== GOALS TESTS START =====================
 @pytest.fixture()
 def setup_viewGoals():
     usrs.create_user(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_USER[ep.PASSWORD_RESP])
@@ -228,7 +228,7 @@ def test_viewUserGoals():
         assert isinstance(goals[goal_id], dict)
     gls.delete_set_goal(test_goal_id)
 
-@pytest.mark.skip(reason= "endpoint not complete")     
+@pytest.mark.skip(reason= "endpoint not complete")     #TODO
 def test_setUserGoal():
     resp = TEST_CLIENT.post(ep.SETUSERGOAL_EP, json=gls.USER_ID)
     assert resp.status_code == OK
@@ -242,6 +242,10 @@ def test_deleteGoal():
     print(f'{resp_json=}')
     assert ep.GOAL_RESP in resp_json
     assert ep.USERNAME_RESP in resp_json
+
+# ===================== GOALS TESTS END =====================
+
+# ===================== COMMENTS TESTS START =====================
 
 def test_viewUserComments():
     new_comment = cmts.get_new_test_comments()
@@ -258,40 +262,23 @@ def test_viewUserComments():
         assert isinstance(comments[comment_id], dict)
     cmts.delete_comment(test_comment_id)
 
-@pytest.fixture()
-def setup_viewProfileGroups():
-    usrs.create_user(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_USER[ep.PASSWORD_RESP])
-    usrs.create_profile(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS], SAMPLE_PROFILE[ep.GROUPS], SAMPLE_PROFILE[ep.PRIVATE])  
-
-
-def test_viewProfileGroups():
-    resp = TEST_CLIENT.get(ep.VIEWPROFILEGROUPS_EP)
-    resp_json = resp.get_json()
-    assert isinstance(resp_json, dict)
-    # assert ep.GROUPS in resp_json
-
-# @pytest.fixture()
-# def setup_deleteGroup():
-#     usrs.delete_group(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS])
-
-@pytest.mark.skip(reason= "not using this endpoint") 
-def test_deleteGroup():
-    resp = TEST_CLIENT.post(ep.DELETEGROUP_EP, json=SAMPLE_USER)
-    print(f'{resp=}')
-    resp_json = resp.get_json()
-    print(f'{resp_json=}')
-    assert ep.GROUP_RESP in resp_json
-    assert ep.USERNAME_RESP in resp_json
-
-
-@patch('db.profiles.add_group', return_value=pf.MOCK_ID, autospec=True)
-def test_addGroup(mock_add):
+@patch('db.comments.add_comment', return_value=cmts.MOCK_ID, autospec=True)
+def test_addComment(mock_add):
     """
-    Testing for posting a new task successfully: PostTask.post()
+    Testing fo adding a new comment successfully: AddComment.post()
     """
-    resp = TEST_CLIENT.post(ep.ADDGROUP_EP, json=pf.get_new_test_group())
+    resp = TEST_CLIENT.post(ep.ADDCOMMENT_EP, json=cmts.get_new_test_comments())
     assert resp.status_code == OK
 
+@patch('db.comments.add_comment', side_effect=ValueError(), autospec=True)
+def test_bad_addComment(mock_add):
+    """
+    Testing for adding a new comment failed: AddComment.post()
+    """
+    resp = TEST_CLIENT.post(ep.ADDCOMMENT_EP, json=cmts.get_new_test_comments())
+    assert resp.status_code == NOT_ACCEPTABLE
+
+# ===================== COMMENTS TESTS END =====================
 
 def test_removeProfile():
     new_profile = pf.get_test_profile()
@@ -306,6 +293,39 @@ def test_createPost(mock_add):
     resp = TEST_CLIENT.post(ep.CREATEPOST_EP, json=psts.get_test_post())
     assert resp.status_code == OK
     
+# @pytest.fixture()
+# def setup_viewProfileGroups():
+#     usrs.create_user(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_USER[ep.PASSWORD_RESP])
+#     usrs.create_profile(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS], SAMPLE_PROFILE[ep.GROUPS], SAMPLE_PROFILE[ep.PRIVATE])  
+
+
+# def test_viewProfileGroups():
+#     resp = TEST_CLIENT.get(ep.VIEWPROFILEGROUPS_EP)
+#     resp_json = resp.get_json()
+#     assert isinstance(resp_json, dict)
+    # assert ep.GROUPS in resp_json
+
+# @pytest.fixture()
+# def setup_deleteGroup():
+#     usrs.delete_group(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS])
+
+# @pytest.mark.skip(reason= "not using this endpoint") 
+# def test_deleteGroup():
+#     resp = TEST_CLIENT.post(ep.DELETEGROUP_EP, json=SAMPLE_USER)
+#     print(f'{resp=}')
+#     resp_json = resp.get_json()
+#     print(f'{resp_json=}')
+#     assert ep.GROUP_RESP in resp_json
+#     assert ep.USERNAME_RESP in resp_json
+
+# @patch('db.profiles.add_group', return_value=pf.MOCK_ID, autospec=True)
+# def test_addGroup(mock_add):
+#     """
+#     Testing for posting a new task successfully: PostTask.post()
+#     """
+#     resp = TEST_CLIENT.post(ep.ADDGROUP_EP, json=pf.get_new_test_group())
+#     assert resp.status_code == OK
+
 
 # def test_likeTask():
 #     new_task = tsks.get_new_test_task()
