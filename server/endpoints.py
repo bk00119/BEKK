@@ -550,7 +550,7 @@ class AddComment(Resource):
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 
-            
+
 # =====================Comment Endpoint END ================
 
 # ===================== POSTS Endpoint START=====================
@@ -595,7 +595,7 @@ class CreatePost(Resource):
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 
-            
+
 # @api.route(f'{DELETEGROUP_EP}', methods=['POST'])
 # class DeleteGroup(Resource):
 #     """
