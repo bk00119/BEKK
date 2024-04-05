@@ -53,6 +53,7 @@ LIKETASK_EP = f'/{LIKE}/{TASK}'
 UNLIKETASK_EP = f'/{UNLIKE}/{TASK}'
 VIEWCOMMENTS_EP = f'/{VIEW}/{COMMENTS}'
 CREATEPOST_EP = f'/{CREATE}/{POST}'
+ADDCOMMENT_EP = '/comment/add'
 
 # these endpoints are subject to deletion
 PROFILE_EP = '/profile'
@@ -60,9 +61,11 @@ VIEWPROFILE_EP = '/viewProfile'
 CREATEPROFILE_EP = '/createProfile'
 REMOVEPROFILE_EP = '/removeProfile'
 VIEWPROFILEGROUPS_EP = '/viewProfileGroups'
-ADDGROUP_EP = '/addGroup'
-DELETEGROUP_EP = '/deleteGroup'
 PROFILEVALIDATION_EP = '/profilevalidation'
+# ADDGROUP_EP = '/addGroup'
+# DELETEGROUP_EP = '/deleteGroup'
+# LIKETASK_EP = '/likeTask'
+# UNLIKETASK_EP = '/unlikeTask'
 
 # Responses
 TOKEN_RESP = 'token'  # REMOVE IT AFTER DEVELOPING SIGNUP()
@@ -70,8 +73,12 @@ REFRESH_TOKEN_RESP = 'refresh_token'
 ACCESS_TOKEN_RESP = 'access_token'
 USERNAME_RESP = 'username'
 PASSWORD_RESP = 'password'
+EMAIL_RESP = 'email'
+FIRST_NAME_RESP = 'first_name'
+LAST_NAME_RESP = 'last_name'
 PROFILE_VALID_RESP = "profilevalidation"
 TASK_RESP = 'task'
+ID_RESP = '_id'
 MESSAGE_RESP = 'message'
 GOAL_RESP = 'goal'
 GROUP_RESP = 'group'
@@ -82,17 +89,18 @@ USER_RESP = 'user'
 
 NAME = 'Name'
 GOALS = 'Goals'
-GROUPS = 'Groups'
+# GROUPS = 'Groups'
 PRIVATE = "Private"
 COMMENTS = 'comments'
 
 TASKS = 'Tasks'
 TASK_ID = 'Task ID'
 USER_ID = 'User ID'
+COMMENT_ID = 'Comment ID'
 PROFILE = {
     NAME: 'John Smith',
     GOALS: ['cs hw2', 'fin hw3'],
-    GROUPS: ['cs', 'fin'],
+    # GROUPS: ['cs', 'fin'],
     PRIVATE: False
 }
 PROFILE_ID = "Profile ID"
@@ -106,7 +114,7 @@ TEST_USER_TOKEN = 'ABC123'
 TEST_PROFILE = {
     NAME: 'John Smith',
     GOALS: ['cs hw2', 'fin hw3'],
-    GROUPS: ['cs', 'fin'],
+    # GROUPS: ['cs', 'fin'],
     PRIVATE: False
 }
 
@@ -165,9 +173,6 @@ class Login(Resource):
             return users.login(data)
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
-        # return {
-        #     TOKEN_RESP: TEST_USER_TOKEN
-        # }
 
 
 @api.route(f'{LOGOUT_EP}', methods=['POST'])
@@ -184,20 +189,34 @@ class Logout(Resource):
         }
 
 
-# @api.route(f'{SIGNUP_EP}', methods=['POST'])
-# class Signup(Resource):
-#     """
-#     This class supports fetching a user data for signup
-#     """
-#     @api.response(HTTPStatus.OK, 'Success')
-#     @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-#     def post(self):
-#         data = request.get_json()
-#         print(data['username'])
-#         return {
-#             TOKEN_RESP: TEST_USER_TOKEN,
-#             USERNAME_RESP: data[USERNAME_RESP]
-#         }
+user_signup_field = api.model("User Signup", {
+    users.EMAIL: fields.String,
+    users.PASSWORD: fields.String,
+    users.USERNAME: fields.String,
+    users.FIRST_NAME: fields.String,
+    users.LAST_NAME: fields.String
+})
+
+
+@api.route(f'{SIGNUP_EP}', methods=['POST'])
+@api.expect(user_signup_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class Signup(Resource):
+    """
+    This class supports fetching a user data for signup
+    """
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+    def post(self):
+        """
+        posts the user data for signup
+        """
+        data = request.get_json()
+        try:
+            return users.signup(data)
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
 
 
 profile_id = api.model("Profile", {
@@ -502,59 +521,39 @@ class ViewComments(Resource):
             raise wz.NotAcceptable(f'{str(e)}')
 
 
-new_profileGroup_field = api.model('NewGroup', {
-    pf.MOCK_ID: fields.String,
+added_comment_field = api.model('AddedComment', {
+    cmts.USER_ID: fields.String,
+    cmts.CONTENT: fields.String,
 })
 
 
-@api.route(f'{VIEWPROFILEGROUPS_EP}', methods=['POST'])
-@api.expect(new_profileGroup_field)
+@api.route(f'{ADDCOMMENT_EP}', methods=['POST'])
+@api.expect(added_comment_field)
 @api.response(HTTPStatus.OK, 'Success')
-@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-class ViewProfileGroup(Resource):
+@api.response(HTTPStatus.NOT_ACCEPTABLE, "Not Acceptable")
+@api.response(HTTPStatus.NO_CONTENT, "No Content")
+class AddComment(Resource):
     """
-    This class shows the groups for each user.
+    This class posts a user's comment to a post
     """
     def post(self):
         """
-        posts a user's id to get the user's profile groups
+        posts a user's comment under a post and adds to the DB
         """
-        user_id = request.json[pf.MOCK_ID]
-        return {
-            GROUPS: pf.get_groups(str(user_id))
-        }
-
-
-new_group_field = api.model('NewGroup', {
-    pf.MOCK_ID: fields.String,
-    pf.GROUP: fields.String
-})
-
-
-@api.route(f'{ADDGROUP_EP}', methods=['POST'])
-@api.expect(new_group_field)
-@api.response(HTTPStatus.OK, 'Success')
-@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-class AddGroup(Resource):
-    """
-    This class posts group to the user profile.
-    """
-    def post(self):
-        """
-        posts a new group data to create a new group
-        """
-        id = request.json.get(pf.MOCK_ID, None)
-        # groups = request.json.get(pf.GROUPS, None)
-        group = request.json.get(pf.GROUP, None)
+        user_id = request.json[cmts.USER_ID]
+        content = request.json[cmts.CONTENT]
         try:
-            id = pf.add_group(id, group)
-            # if id is None:
-            #     raise wz.ServiceUnavailable('Error')
-            return {
-                MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY ADDED GROUP TO PROFILE'
-            }
+            new_id = cmts.add_comment(user_id, content)
+            if new_id is None:
+                raise wz.ServiceUnavailable('Failed to add comment')
+            return {COMMENT_ID: new_id}
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
+
+            
+# =====================Comment Endpoint END ================
+
+# ===================== POSTS Endpoint START=====================
 
 
 new_post_fields = api.model('NewPost', {
@@ -595,6 +594,8 @@ class CreatePost(Resource):
             return {"POST ID": new_id}
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
+
+            
 # @api.route(f'{DELETEGROUP_EP}', methods=['POST'])
 # class DeleteGroup(Resource):
 #     """
