@@ -36,6 +36,7 @@ PUBLIC = 'Public'
 LIKE = 'like'
 UNLIKE = 'unlike'
 COMMENTS = "comments"
+COMMENT = "comment"
 POST = "post"
 
 # Endpoints
@@ -53,7 +54,7 @@ LIKETASK_EP = f'/{LIKE}/{TASK}'
 UNLIKETASK_EP = f'/{UNLIKE}/{TASK}'
 VIEWCOMMENTS_EP = f'/{VIEW}/{COMMENTS}'
 CREATEPOST_EP = f'/{CREATE}/{POST}'
-ADDCOMMENT_EP = '/comment/add'
+CREATECOMMENT_EP = f'/{COMMENT}/{CREATE}'
 
 # these endpoints are subject to deletion
 PROFILE_EP = '/profile'
@@ -482,6 +483,8 @@ class CreateUserGoal(Resource):
 
 user_comments_field = api.model('UserComments', {
     cmts.USER_ID: fields.String,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String
 })
 
 
@@ -498,9 +501,43 @@ class ViewComments(Resource):
         gets all the comments of a user based on user_id
         """
         user_id = request.json[cmts.USER_ID]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+
+        if not access_token:
+            return (
+                {'error': 'Access token is missing.'},
+                HTTPStatus.UNAUTHORIZED
+            )
+
+        if not refresh_token:
+            return (
+                {'error': 'Refresh token is missing.'},
+                HTTPStatus.UNAUTHORIZED
+            )
+
+        token_user_id = auth.verify_auth_token(access_token, False)['user_id']
+        if user_id != token_user_id:
+            return (
+                {'error': 'Unauthorized to view the user\'s tasks'},
+                HTTPStatus.UNAUTHORIZED
+            )
+
+        if not auth.verify_auth_token(access_token):
+            if not auth.verify_auth_token(refresh_token):
+                # USER NEEDS TO RE-LOGIN
+                return (
+                    {'error': 'Invalid refresh token.'},
+                    HTTPStatus.UNAUTHORIZED
+                )
+
+            # REGENERATE ACCESS TOKEN
+            access_token = users.generate_access_token(user_id)
+
         try:
             return {
-                COMMENTS: cmts.get_user_comments(user_id)
+                COMMENTS: cmts.get_user_comments(user_id),
+                auth.ACCESS_TOKEN: access_token
             }
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
@@ -512,12 +549,12 @@ added_comment_field = api.model('AddedComment', {
 })
 
 
-@api.route(f'{ADDCOMMENT_EP}', methods=['POST'])
+@api.route(f'{CREATECOMMENT_EP}', methods=['POST'])
 @api.expect(added_comment_field)
 @api.response(HTTPStatus.OK, 'Success')
 @api.response(HTTPStatus.NOT_ACCEPTABLE, "Not Acceptable")
 @api.response(HTTPStatus.NO_CONTENT, "No Content")
-class AddComment(Resource):
+class CreateComment(Resource):
     """
     This class posts a user's comment to a post
     """
