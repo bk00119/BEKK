@@ -47,6 +47,9 @@ def add_post(user_id,
 
 
 def fetch_by_user_id(user_id: str):
+    """
+    fetch all posts thats linked to that user_id
+    """
     dbc.connect_db()
     if usrs.id_exists(user_id):
         posts = dbc.fetch_all_as_dict(
