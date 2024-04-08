@@ -250,8 +250,14 @@ def test_deleteGoal():
 def test_viewUserComments():
     new_comment = cmts.get_new_test_comments()
     test_comment_id = str(cmts.add_comment(new_comment[cmts.USER_ID],new_comment[cmts.CONTENT]))
+    
     test_user_id = str(new_comment[cmts.USER_ID])
-    resp = TEST_CLIENT.post(ep.VIEWCOMMENTS_EP, json={cmts.USER_ID: test_user_id})
+    test_access_token = usrs.generate_access_token(test_user_id)
+    resp = TEST_CLIENT.post(ep.VIEWCOMMENTS_EP, json={
+        cmts.USER_ID: test_user_id,
+        auth.ACCESS_TOKEN: test_access_token,
+        auth.REFRESH_TOKEN: test_access_token
+        })
     resp_json = resp.get_json()
     assert isinstance(resp_json, dict)
     assert ep.COMMENTS in resp_json
@@ -294,6 +300,3 @@ def test_createPost(mock_add):
     test_post = psts.get_test_post()
     resp = TEST_CLIENT.post(ep.CREATEPOST_EP, json=test_post)
     assert resp.status_code == OK
-
-        
-
