@@ -62,8 +62,6 @@ CREATEPROFILE_EP = '/createProfile'
 REMOVEPROFILE_EP = '/removeProfile'
 VIEWPROFILEGROUPS_EP = '/viewProfileGroups'
 PROFILEVALIDATION_EP = '/profilevalidation'
-# ADDGROUP_EP = '/addGroup'
-# DELETEGROUP_EP = '/deleteGroup'
 # LIKETASK_EP = '/likeTask'
 # UNLIKETASK_EP = '/unlikeTask'
 
@@ -89,7 +87,6 @@ USER_RESP = 'user'
 
 NAME = 'Name'
 GOALS = 'Goals'
-# GROUPS = 'Groups'
 PRIVATE = "Private"
 COMMENTS = 'comments'
 
@@ -100,7 +97,6 @@ COMMENT_ID = 'Comment ID'
 PROFILE = {
     NAME: 'John Smith',
     GOALS: ['cs hw2', 'fin hw3'],
-    # GROUPS: ['cs', 'fin'],
     PRIVATE: False
 }
 PROFILE_ID = "Profile ID"
@@ -114,7 +110,6 @@ TEST_USER_TOKEN = 'ABC123'
 TEST_PROFILE = {
     NAME: 'John Smith',
     GOALS: ['cs hw2', 'fin hw3'],
-    # GROUPS: ['cs', 'fin'],
     PRIVATE: False
 }
 
