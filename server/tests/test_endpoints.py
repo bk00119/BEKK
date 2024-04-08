@@ -37,7 +37,6 @@ SAMPLE_USER = {
 SAMPLE_PROFILE = {
     ep.NAME: 'John Adams',
     ep.GOALS: ['cs hw2', 'fin hw3'],
-    # ep.GROUPS: ['cs', 'fin'],
     ep.PRIVATE: False
 }
 
