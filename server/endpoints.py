@@ -57,6 +57,7 @@ VIEWCOMMENTS_EP = f'/{VIEW}/{COMMENTS}'
 CREATEPOST_EP = f'/{CREATE}/{POST}'
 VIEWPOSTS_EP = f'/{VIEW}/{POSTS}'
 CREATECOMMENT_EP = f'/{COMMENT}/{CREATE}'
+DELETEPOST_EP = f'/{DELETE}/{POST}'
 
 # these endpoints are subject to deletion
 PROFILE_EP = '/profile'
@@ -621,3 +622,13 @@ class ViewPosts(Resource):
             return posts
         else:
             raise wz.NotFound(f'No posts found with {user_id=}')
+
+
+@api.route(f'{DELETEPOST_EP}/<post_id>', methods=['DELETE'])
+class DeletePost(Resource):
+    """
+    Delete Specific Post
+    """
+    @api.response(HTTPStatus.OK, 'Success')
+    def delete(self, post_id):
+        psts.del_post(post_id)

@@ -315,17 +315,32 @@ def test_createPost(mock_add):
 
 def test_viewPosts(generate_post_fields):
     # create post with user_id 
-    # post_id = psts.add_post(**generate_post_fields) # pausing this to prevent overloading database
+    post_id = psts.add_post(**generate_post_fields) 
 
-    # touch endpoint
+    # view all posts belonging to user 
     user_id = generate_post_fields[psts.USER_ID]
     posts = TEST_CLIENT.get(f'{ep.VIEWPOSTS_EP}/{user_id}')
     posts = posts.get_json()
     
-    # validate post created is in retrieved 
+    # validate those posts
     for post_id in posts:
         assert posts[post_id][psts.USER_ID] == user_id
 
-    # delete post (tbd)
+    # delete created post 
+    psts.del_post(post_id)
+
+
+def test_deletePost(generate_post_fields):
+    # CREATE post
+    post_id = psts.add_post(**generate_post_fields)
+
+    # DELETE post
+    resp = TEST_CLIENT.delete(f'{ep.DELETEPOST_EP}/{post_id}')
+    assert resp.status_code == OK
+
+    # Check if the post is actually deleted
+    deleted_post = psts.fetch_by_post_id(post_id)  # Assuming you have a function to get a post by its id
+    assert deleted_post is None  # Assert that the post doesn't exist anymore
+
     
     
