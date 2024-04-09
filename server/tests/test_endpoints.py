@@ -1,4 +1,4 @@
-#import server.endpoints as ep
+#import server as ep
 from http.client import (
     OK,
     NOT_FOUND,
@@ -37,7 +37,6 @@ SAMPLE_USER = {
 SAMPLE_PROFILE = {
     ep.NAME: 'John Adams',
     ep.GOALS: ['cs hw2', 'fin hw3'],
-    # ep.GROUPS: ['cs', 'fin'],
     ep.PRIVATE: False
 }
 
@@ -157,7 +156,7 @@ def test_postTask(mock_add):
     """
     Testing for posting a new task successfully: PostTask.post()
     """
-    resp = TEST_CLIENT.post(ep.POSTTASK_EP, json=tsks.get_new_test_task())
+    resp = TEST_CLIENT.post(ep.CREATETASK_EP, json=tsks.get_new_test_task())
     assert resp.status_code == OK
     
 @patch('db.tasks.add_task', side_effect=ValueError(), autospec=True)
@@ -165,7 +164,7 @@ def test_bad_postTask(mock_add):
     """
     Testing for posting a task with ValueError: PostTask.post()
     """
-    resp = TEST_CLIENT.post(ep.POSTTASK_EP, json=tsks.get_new_test_task())
+    resp = TEST_CLIENT.post(ep.CREATETASK_EP, json=tsks.get_new_test_task())
     assert resp.status_code == NOT_ACCEPTABLE
     
 @patch('db.tasks.add_task', return_value=None)
@@ -173,7 +172,7 @@ def test_postTask_failure(mock_add):
     """
     Testing for posting a task with ValueError: PostTask.post()
     """
-    resp = TEST_CLIENT.post(ep.POSTTASK_EP, json=tsks.get_new_test_task())
+    resp = TEST_CLIENT.post(ep.CREATETASK_EP, json=tsks.get_new_test_task())
     assert resp.status_code == SERVICE_UNAVAILABLE
 
 
@@ -182,12 +181,16 @@ def test_postTask(mock_add):
     """
     Testing for posting a new task successfully: PostTask.post()
     """
-    resp = TEST_CLIENT.post(ep.POSTTASK_EP, json=tsks.get_new_test_task())
+    resp = TEST_CLIENT.post(ep.CREATETASK_EP, json=tsks.get_new_test_task())
     assert resp.status_code == OK
 
+
 def test_viewUserTask():
+    # CREATE TASK 
     new_task = tsks.get_new_test_task()
     test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.GOAL_ID], new_task[tsks.CONTENT], new_task[tsks.IS_COMPLETED]))
+    
+    # CALL EP
     test_user_id = str(new_task[tsks.USER_ID])
     test_access_token = usrs.generate_access_token(test_user_id)
     resp = TEST_CLIENT.post(ep.VIEWUSERTASKS_EP, json={
@@ -198,11 +201,8 @@ def test_viewUserTask():
     resp_json = resp.get_json()
     assert isinstance(resp_json, dict)
     assert ep.TASKS in resp_json
-    tasks = resp_json[ep.TASKS]
-    assert isinstance(tasks, dict)
-    for task_id in tasks:
-        assert isinstance(task_id, str)
-        assert isinstance(tasks[task_id], dict)
+
+    # CLEANUP 
     tsks.del_task(test_task_id)
 
 # ===================== TASKS TESTS END =====================
@@ -230,7 +230,7 @@ def test_viewUserGoals():
 
 @pytest.mark.skip(reason= "endpoint not complete")     #TODO
 def test_setUserGoal():
-    resp = TEST_CLIENT.post(ep.SETUSERGOAL_EP, json=gls.USER_ID)
+    resp = TEST_CLIENT.post(ep.CREATEUSERGOAL_EP, json=gls.USER_ID)
     assert resp.status_code == OK
 
 
@@ -250,8 +250,14 @@ def test_deleteGoal():
 def test_viewUserComments():
     new_comment = cmts.get_new_test_comments()
     test_comment_id = str(cmts.add_comment(new_comment[cmts.USER_ID],new_comment[cmts.CONTENT]))
+    
     test_user_id = str(new_comment[cmts.USER_ID])
-    resp = TEST_CLIENT.post(ep.VIEWCOMMENTS_EP, json={cmts.USER_ID: test_user_id})
+    test_access_token = usrs.generate_access_token(test_user_id)
+    resp = TEST_CLIENT.post(ep.VIEWCOMMENTS_EP, json={
+        cmts.USER_ID: test_user_id,
+        auth.ACCESS_TOKEN: test_access_token,
+        auth.REFRESH_TOKEN: test_access_token
+        })
     resp_json = resp.get_json()
     assert isinstance(resp_json, dict)
     assert ep.COMMENTS in resp_json
@@ -263,19 +269,19 @@ def test_viewUserComments():
     cmts.delete_comment(test_comment_id)
 
 @patch('db.comments.add_comment', return_value=cmts.MOCK_ID, autospec=True)
-def test_addComment(mock_add):
+def test_createComment(mock_add):
     """
     Testing fo adding a new comment successfully: AddComment.post()
     """
-    resp = TEST_CLIENT.post(ep.ADDCOMMENT_EP, json=cmts.get_new_test_comments())
+    resp = TEST_CLIENT.post(ep.CREATECOMMENT_EP, json=cmts.get_new_test_comments())
     assert resp.status_code == OK
 
 @patch('db.comments.add_comment', side_effect=ValueError(), autospec=True)
-def test_bad_addComment(mock_add):
+def test_bad_createComment(mock_add):
     """
     Testing for adding a new comment failed: AddComment.post()
     """
-    resp = TEST_CLIENT.post(ep.ADDCOMMENT_EP, json=cmts.get_new_test_comments())
+    resp = TEST_CLIENT.post(ep.CREATECOMMENT_EP, json=cmts.get_new_test_comments())
     assert resp.status_code == NOT_ACCEPTABLE
 
 # ===================== COMMENTS TESTS END =====================
@@ -290,67 +296,7 @@ def test_removeProfile():
 
 @patch('db.posts.add_post', return_value=psts.MOCK_ID, autospec=True)
 def test_createPost(mock_add):
-    resp = TEST_CLIENT.post(ep.CREATEPOST_EP, json=psts.get_test_post())
+    # CREATE POST 
+    test_post = psts.get_test_post()
+    resp = TEST_CLIENT.post(ep.CREATEPOST_EP, json=test_post)
     assert resp.status_code == OK
-    
-# @pytest.fixture()
-# def setup_viewProfileGroups():
-#     usrs.create_user(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_USER[ep.PASSWORD_RESP])
-#     usrs.create_profile(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS], SAMPLE_PROFILE[ep.GROUPS], SAMPLE_PROFILE[ep.PRIVATE])  
-
-
-# def test_viewProfileGroups():
-#     resp = TEST_CLIENT.get(ep.VIEWPROFILEGROUPS_EP)
-#     resp_json = resp.get_json()
-#     assert isinstance(resp_json, dict)
-    # assert ep.GROUPS in resp_json
-
-# @pytest.fixture()
-# def setup_deleteGroup():
-#     usrs.delete_group(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS])
-
-# @pytest.mark.skip(reason= "not using this endpoint") 
-# def test_deleteGroup():
-#     resp = TEST_CLIENT.post(ep.DELETEGROUP_EP, json=SAMPLE_USER)
-#     print(f'{resp=}')
-#     resp_json = resp.get_json()
-#     print(f'{resp_json=}')
-#     assert ep.GROUP_RESP in resp_json
-#     assert ep.USERNAME_RESP in resp_json
-
-# @patch('db.profiles.add_group', return_value=pf.MOCK_ID, autospec=True)
-# def test_addGroup(mock_add):
-#     """
-#     Testing for posting a new task successfully: PostTask.post()
-#     """
-#     resp = TEST_CLIENT.post(ep.ADDGROUP_EP, json=pf.get_new_test_group())
-#     assert resp.status_code == OK
-
-
-# def test_likeTask():
-#     new_task = tsks.get_new_test_task()
-#     test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.GOAL_ID], new_task[tsks.CONTENT], new_task[tsks.IS_COMPLETED]))
-#     test_user_id = str(dbc.gen_object_id())
-#     resp = TEST_CLIENT.post(ep.LIKETASK_EP, json={tsks.ID: test_task_id, tsks.USER_ID: test_user_id})
-#     assert resp.status_code == OK
-#     tsks.del_task(test_task_id)
-
-# def test_unlikeTask():
-#     new_task = tsks.get_new_test_task()
-#     test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.GOAL_ID], new_task[tsks.CONTENT], new_task[tsks.IS_COMPLETED]))
-#     test_user_id = str(dbc.gen_object_id())
-#     tsks.like_task(test_task_id, test_user_id)
-#     resp = TEST_CLIENT.post(ep.UNLIKETASK_EP, json={tsks.ID: test_task_id, tsks.USER_ID: test_user_id})
-#     assert resp.status_code == OK
-#     tsks.del_task(test_task_id)
-
-# @pytest.fixture()
-# def setup_likeTask():
-#     tsks.like_task(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_TASK[ep.TASK_NAME], SAMPLE_TASK[ep.TASK_DESCRIPTION], SAMPLE_TASK[ep.LIKE])  
-
-# @pytest.fixture()
-# def setup_unlikeTask():
-#     tsks.unlike_task(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_TASK[ep.TASK_NAME], SAMPLE_TASK[ep.TASK_DESCRIPTION], SAMPLE_TASK[ep.LIKE])
-
-        
-

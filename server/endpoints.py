@@ -9,43 +9,62 @@ from db import profiles as pf
 from db import tasks as tasks
 from db import users as users
 from db import goals as gls
-from db import posts as psts
+# from db import posts as psts # delete this line after blueprint testing
 from db import comments as cmts
 from db import auth as auth
+from db import posts as psts
 import werkzeug.exceptions as wz
 # from bson.objectid import ObjectId
 # import db.db as db
 from flask_cors import CORS
+# from apis import api
 
 app = Flask(__name__)
 CORS(app)
 api = Api(app)
 
+# COMMON KEYWORDS
+CREATE = 'create'
+USER = 'User'
+VIEW = 'view'
+DELETE = 'delete'
+TASKS = 'Tasks'
+TASK = 'Task'
+GOALS = 'Goals'
+GOAL = 'Goal'
+PUBLIC = 'Public'
+LIKE = 'like'
+UNLIKE = 'unlike'
+COMMENTS = "comments"
+COMMENT = "comment"
+POST = "post"
+
 # Endpoints
 LOGIN_EP = '/login'
 LOGOUT_EP = '/logout'
 SIGNUP_EP = '/signup'
+VIEWUSERPUBLIC_EP = f'/{VIEW}/{USER}/{PUBLIC}'
+VIEWUSERTASKS_EP = f'/{VIEW}/{USER}/{TASKS}'
+VIEWTASKS_EP = f'/{VIEW}/{TASKS}'
+CREATETASK_EP = f'/{CREATE}/{TASK}'
+VIEWUSERGOALS_EP = f'/{VIEW}/{USER}/{GOALS}'
+CREATEUSERGOAL_EP = f'/{CREATE}/{USER}/{GOAL}'
+DELETEGOAL_EP = f'/{DELETE}/{GOAL}'
+LIKETASK_EP = f'/{LIKE}/{TASK}'
+UNLIKETASK_EP = f'/{UNLIKE}/{TASK}'
+VIEWCOMMENTS_EP = f'/{VIEW}/{COMMENTS}'
+CREATEPOST_EP = f'/{CREATE}/{POST}'
+CREATECOMMENT_EP = f'/{COMMENT}/{CREATE}'
+
+# these endpoints are subject to deletion
 PROFILE_EP = '/profile'
+VIEWPROFILE_EP = '/viewProfile'
 CREATEPROFILE_EP = '/createProfile'
-VIEWTASKS_EP = '/viewTasks'
-POSTTASK_EP = '/postTask'
-VIEWUSERGOALS_EP = '/viewUserGoals'
-SETUSERGOAL_EP = '/setUserGoal'
-DELETEGOAL_EP = '/deleteGoal'
-# VIEWPROFILEGROUPS_EP = '/viewProfileGroups'
-# ADDGROUP_EP = '/addGroup'
-# DELETEGROUP_EP = '/deleteGroup'
+REMOVEPROFILE_EP = '/removeProfile'
+VIEWPROFILEGROUPS_EP = '/viewProfileGroups'
+PROFILEVALIDATION_EP = '/profilevalidation'
 # LIKETASK_EP = '/likeTask'
 # UNLIKETASK_EP = '/unlikeTask'
-PROFILEVALIDATION_EP = '/profilevalidation'
-REMOVEPROFILE_EP = '/removeProfile'
-VIEWPROFILE_EP = '/viewProfile'
-VIEWUSERPUBLIC_EP = '/viewUserPublic'
-VIEWUSERTASKS_EP = '/viewUserTasks'
-CREATEPOST_EP = '/createPost'
-VIEWCOMMENTS_EP = '/comments/view'
-ADDCOMMENT_EP = '/comment/add'
-
 
 # Responses
 TOKEN_RESP = 'token'  # REMOVE IT AFTER DEVELOPING SIGNUP()
@@ -69,7 +88,6 @@ USER_RESP = 'user'
 
 NAME = 'Name'
 GOALS = 'Goals'
-# GROUPS = 'Groups'
 PRIVATE = "Private"
 COMMENTS = 'comments'
 
@@ -80,7 +98,6 @@ COMMENT_ID = 'Comment ID'
 PROFILE = {
     NAME: 'John Smith',
     GOALS: ['cs hw2', 'fin hw3'],
-    # GROUPS: ['cs', 'fin'],
     PRIVATE: False
 }
 PROFILE_ID = "Profile ID"
@@ -94,7 +111,6 @@ TEST_USER_TOKEN = 'ABC123'
 TEST_PROFILE = {
     NAME: 'John Smith',
     GOALS: ['cs hw2', 'fin hw3'],
-    # GROUPS: ['cs', 'fin'],
     PRIVATE: False
 }
 
@@ -315,7 +331,7 @@ user_task_field = api.model('UserTasks', {
 @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
 class ViewUserTasks(Resource):
     """
-    This class is for getting a user's tasks
+    View a single User's Tasks
     """
     def post(self):
         """
@@ -354,7 +370,7 @@ new_task_field = api.model('NewTask', {
 })
 
 
-@api.route(f'{POSTTASK_EP}', methods=['POST'])
+@api.route(f'{CREATETASK_EP}', methods=['POST'])
 @api.expect(new_task_field)
 @api.response(HTTPStatus.OK, 'Success')
 @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
@@ -417,11 +433,11 @@ new_goal_field = api.model('NewGoal', {
 })
 
 
-@api.route(f'{SETUSERGOAL_EP}', methods=['POST'])
+@api.route(f'{CREATEUSERGOAL_EP}', methods=['POST'])
 @api.expect(new_goal_field)
 @api.response(HTTPStatus.OK, 'Success')
 @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-class SetUserGoal(Resource):
+class CreateUserGoal(Resource):
     """
     This class posts goals to user profile.
     """
@@ -441,23 +457,15 @@ class SetUserGoal(Resource):
             raise wz.NotAcceptable(f'{str(e)}')
 
 
-# @api.route(f'{DELETEGOAL_EP}', methods=['POST'])
-# class DeleteGoal(Resource):
-#     """
-#     This class deletes goals from user profile.
-#     """
-#     def post(self):
-#         data = request.get_json()
-#         print(data['username'])
-#         return {
-#             GOAL_RESP: TEST_TASK,
-#             USERNAME_RESP: data[USERNAME_RESP]
-#         }
 # =====================Goal Endpoint END=====================
 
 # =====================Comment Endpoint START================
+
+
 user_comments_field = api.model('UserComments', {
     cmts.USER_ID: fields.String,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String
 })
 
 
@@ -474,9 +482,43 @@ class ViewComments(Resource):
         gets all the comments of a user based on user_id
         """
         user_id = request.json[cmts.USER_ID]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+
+        if not access_token:
+            return (
+                {'error': 'Access token is missing.'},
+                HTTPStatus.UNAUTHORIZED
+            )
+
+        if not refresh_token:
+            return (
+                {'error': 'Refresh token is missing.'},
+                HTTPStatus.UNAUTHORIZED
+            )
+
+        token_user_id = auth.verify_auth_token(access_token, False)['user_id']
+        if user_id != token_user_id:
+            return (
+                {'error': 'Unauthorized to view the user\'s tasks'},
+                HTTPStatus.UNAUTHORIZED
+            )
+
+        if not auth.verify_auth_token(access_token):
+            if not auth.verify_auth_token(refresh_token):
+                # USER NEEDS TO RE-LOGIN
+                return (
+                    {'error': 'Invalid refresh token.'},
+                    HTTPStatus.UNAUTHORIZED
+                )
+
+            # REGENERATE ACCESS TOKEN
+            access_token = users.generate_access_token(user_id)
+
         try:
             return {
-                COMMENTS: cmts.get_user_comments(user_id)
+                COMMENTS: cmts.get_user_comments(user_id),
+                auth.ACCESS_TOKEN: access_token
             }
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
@@ -488,12 +530,12 @@ added_comment_field = api.model('AddedComment', {
 })
 
 
-@api.route(f'{ADDCOMMENT_EP}', methods=['POST'])
+@api.route(f'{CREATECOMMENT_EP}', methods=['POST'])
 @api.expect(added_comment_field)
 @api.response(HTTPStatus.OK, 'Success')
 @api.response(HTTPStatus.NOT_ACCEPTABLE, "Not Acceptable")
 @api.response(HTTPStatus.NO_CONTENT, "No Content")
-class AddComment(Resource):
+class CreateComment(Resource):
     """
     This class posts a user's comment to a post
     """
@@ -518,20 +560,20 @@ class AddComment(Resource):
 
 
 new_post_fields = api.model('NewPost', {
-    psts.USER_ID: fields.String,
-    psts.IS_COMPLETED: fields.Boolean,
-    psts.CONTENT: fields.String,
-    psts.TASK_IDS: fields.List(fields.String),
-    psts.GOAL_IDS: fields.List(fields.String),
-})
+        psts.USER_ID: fields.String,
+        psts.IS_COMPLETED: fields.Boolean,
+        psts.CONTENT: fields.String,
+        psts.TASK_IDS: fields.List(fields.String),
+        psts.GOAL_IDS: fields.List(fields.String),
+    })
 
 
 @api.route(f'{CREATEPOST_EP}', methods=["POST"])
-@api.expect(new_post_fields)
 class CreatePost(Resource):
     """
     Creates a post
     """
+    @api.expect(new_post_fields)
     def post(self):
         user_id = request.json[psts.USER_ID]
         is_completed = request.json[psts.IS_COMPLETED]
@@ -555,137 +597,3 @@ class CreatePost(Resource):
             return {"POST ID": new_id}
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
-
-
-# ===================== POSTS Endpoint END=====================
-
-# new_profileGroup_field = api.model('NewGroup', {
-#     pf.MOCK_ID: fields.String,
-# })
-
-
-# @api.route(f'{VIEWPROFILEGROUPS_EP}', methods=['POST'])
-# @api.expect(new_profileGroup_field)
-# @api.response(HTTPStatus.OK, 'Success')
-# @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-# class ViewProfileGroup(Resource):
-#     """
-#     This class shows the groups for each user.
-#     """
-#     def post(self):
-#         """
-#         posts a user's id to get the user's profile groups
-#         """
-#         user_id = request.json[pf.MOCK_ID]
-#         return {
-#             GROUPS: pf.get_groups(str(user_id))
-#         }
-
-
-# new_group_field = api.model('NewGroup', {
-#     pf.MOCK_ID: fields.String,
-#     pf.GROUP: fields.String
-# })
-
-
-# @api.route(f'{ADDGROUP_EP}', methods=['POST'])
-# @api.expect(new_group_field)
-# @api.response(HTTPStatus.OK, 'Success')
-# @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-# class AddGroup(Resource):
-#     """
-#     This class posts group to the user profile.
-#     """
-#     def post(self):
-#         """
-#         posts a new group data to create a new group
-#         """
-#         id = request.json.get(pf.MOCK_ID, None)
-#         # groups = request.json.get(pf.GROUPS, None)
-#         group = request.json.get(pf.GROUP, None)
-#         try:
-#             id = pf.add_group(id, group)
-#             # if id is None:
-#             #     raise wz.ServiceUnavailable('Error')
-#             return {
-#                 MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY ADDED GROUP TO PROFILE'
-#             }
-#         except ValueError as e:
-#             raise wz.NotAcceptable(f'{str(e)}')
-
-# @api.route(f'{DELETEGROUP_EP}', methods=['POST'])
-# class DeleteGroup(Resource):
-#     """
-#     This class deletes group of the user profile.
-#     """
-#     def post(self):
-#         data = request.get_json()
-#         print(data['username'])
-#         return {
-#             GROUP_RESP: TEST_TASK,
-#             USERNAME_RESP: data[USERNAME_RESP]
-#         }
-
-# like_task_field = api.model('LikeTask', {
-#     tasks.ID: fields.String,
-#     tasks.USER_ID: fields.String,
-# })
-
-
-# @api.route(f'{LIKETASK_EP}', methods=['POST'])
-# @api.expect(like_task_field)
-# @api.response(HTTPStatus.OK, 'Success')
-# @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-# class LikeTask(Resource):
-#     """
-#     This class likes the taks under user's task lists
-#     """
-#     def post(self):
-#         """
-#         post a user's id and task id to like a task
-#         """
-#         task_id = request.json[tasks.ID]
-#         user_id = request.json[tasks.USER_ID]
-#         try:
-#             tasks.like_task(task_id, user_id)
-#             return {
-#                 MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY LIKED THE TASK'
-#             }
-#         except ValueError as e:
-#             raise wz.NotAcceptable(f'{str(e)}')
-
-
-# @api.route(f'{UNLIKETASK_EP}', methods=['POST'])
-# @api.expect(like_task_field)
-# @api.response(HTTPStatus.OK, 'Success')
-# @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-# class UnlikeTask(Resource):
-#     """
-#     This class likes the taks under user's task lists
-#     """
-#     def post(self):
-#         """
-#         post a user's id and task id to unlike a task
-#         """
-#         task_id = request.json[tasks.ID]
-#         user_id = request.json[tasks.USER_ID]
-#         try:
-#             tasks.unlike_task(task_id, user_id)
-#             return {
-#                 MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY UNLIKED THE TASK'
-#             }
-#         except ValueError as e:
-#             raise wz.NotAcceptable(f'{str(e)}')
-
-# @api.route(f'{PROFILEVALIDATION_EP}', methods=['GET'])
-# class ProfileValidation(Resource):
-#     """
-#     This class validates the user profile
-#     """
-#     def get(self):
-#         """
-#         gets the validation of user profile
-#         """
-#         return {
-#             PROFILE_VALID_RESP: True
-#         }
