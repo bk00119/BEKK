@@ -38,6 +38,7 @@ UNLIKE = 'unlike'
 COMMENTS = "comments"
 COMMENT = "comment"
 POST = "post"
+POSTS = "posts"
 
 # Endpoints
 LOGIN_EP = '/login'
@@ -54,6 +55,7 @@ LIKETASK_EP = f'/{LIKE}/{TASK}'
 UNLIKETASK_EP = f'/{UNLIKE}/{TASK}'
 VIEWCOMMENTS_EP = f'/{VIEW}/{COMMENTS}'
 CREATEPOST_EP = f'/{CREATE}/{POST}'
+VIEWPOSTS_EP = f'/{VIEW}/{POSTS}'
 CREATECOMMENT_EP = f'/{COMMENT}/{CREATE}'
 
 # these endpoints are subject to deletion
@@ -388,6 +390,7 @@ class PostTask(Resource):
         goal = request.json[tasks.GOAL_ID]
         is_completed = request.json[tasks.IS_COMPLETED]
         content = request.json[tasks.CONTENT]
+
         try:
             new_id = tasks.add_task(user_id, goal, is_completed, content)
             if new_id is None:
@@ -396,10 +399,11 @@ class PostTask(Resource):
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 
-
 # =====================Task Endpoint END=====================
 
 # =====================Goal Endpoint START=====================
+
+
 user_goals_field = api.model('UserGoals', {
     gls.USER_ID: fields.String,
 })
@@ -597,3 +601,23 @@ class CreatePost(Resource):
             return {"POST ID": new_id}
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
+
+
+@api.route(f'{VIEWPOSTS_EP}/<user_id>', methods=["GET"])
+class ViewPosts(Resource):
+    """
+    View all posts globally
+    """
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_FOUND, 'Data Not Found')
+    def get(self, user_id):
+        # GLOBAL FETCH FOR POSTS
+        if not user_id:
+            return psts.fetch_all_posts()
+
+        # USER-BASED FETCH FOR POSTS
+        posts = psts.fetch_by_user_id(user_id)
+        if posts:
+            return posts
+        else:
+            raise wz.NotFound(f'No posts found with {user_id=}')

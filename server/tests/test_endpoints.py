@@ -293,10 +293,39 @@ def test_removeProfile():
     assert resp.status_code == OK
     pf.del_profile(test_profile_id)
 
+@pytest.fixture()
+def generate_post_fields():
+    return {
+        psts.USER_ID: '6575033f3b89d2b4f309d7af', 
+        psts.IS_COMPLETED: False, 
+        psts.CONTENT: "Test Entry", 
+        psts.TASK_IDS: [], 
+        psts.GOAL_IDS: [], 
+        psts.LIKE_IDS: [],
+        psts.COMMENT_IDS: [], 
+    }   
+
 
 @patch('db.posts.add_post', return_value=psts.MOCK_ID, autospec=True)
 def test_createPost(mock_add):
     # CREATE POST 
     test_post = psts.get_test_post()
     resp = TEST_CLIENT.post(ep.CREATEPOST_EP, json=test_post)
-    assert resp.status_code == OK
+    assert resp.status_code == OK    
+
+def test_viewPosts(generate_post_fields):
+    # create post with user_id 
+    # post_id = psts.add_post(**generate_post_fields) # pausing this to prevent overloading database
+
+    # touch endpoint
+    user_id = generate_post_fields[psts.USER_ID]
+    posts = TEST_CLIENT.get(f'{ep.VIEWPOSTS_EP}/{user_id}')
+    posts = posts.get_json()
+    
+    # validate post created is in retrieved 
+    for post_id in posts:
+        assert posts[post_id][psts.USER_ID] == user_id
+
+    # delete post (tbd)
+    
+    

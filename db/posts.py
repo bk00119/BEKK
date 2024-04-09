@@ -1,4 +1,5 @@
 import db.db_connect as dbc
+import db.users as usrs
 
 MOCK_ID = 0
 POSTS_COLLECT = "posts"
@@ -43,3 +44,17 @@ def add_post(user_id,
                             COMMENT_IDS: comment_ids
                         })
     return _id
+
+
+def fetch_by_user_id(user_id: str):
+    """
+    fetch all posts thats linked to that user_id
+    """
+    dbc.connect_db()
+    if usrs.id_exists(user_id):
+        posts = dbc.fetch_all_as_dict(
+            dbc.DB, POSTS_COLLECT, {USER_ID: user_id}
+            )
+        return posts
+    else:
+        raise ValueError(f'Get failure: {user_id} not in database.')
