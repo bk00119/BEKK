@@ -306,8 +306,8 @@ def test_createPost(mock_add):
     # CREATE POST 
     test_post = psts.get_test_post()
     resp = TEST_CLIENT.post(ep.CREATEPOST_EP, json=test_post)
-    assert resp.status_code == OK
-    
+    assert resp.status_code == OK    
+
 def test_viewPosts(generate_post_fields):
     # create post with user_id 
     # post_id = psts.add_post(**generate_post_fields) # pausing this to prevent overloading database
@@ -322,4 +322,5 @@ def test_viewPosts(generate_post_fields):
         assert posts[post_id][psts.USER_ID] == user_id
 
     # delete post (tbd)
+    
     
