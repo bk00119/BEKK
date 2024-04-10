@@ -1,4 +1,6 @@
 import db.db_connect as dbc
+import db.users as usrs
+from bson import ObjectId
 
 MOCK_ID = 0
 POSTS_COLLECT = "posts"
@@ -9,6 +11,7 @@ TASK_IDS = "task_ids"
 GOAL_IDS = "goal_ids"
 LIKE_IDS = "like_ids"
 COMMENT_IDS = "comment_ids"
+ID = "_id"
 
 
 def get_test_post():
@@ -43,3 +46,33 @@ def add_post(user_id,
                             COMMENT_IDS: comment_ids
                         })
     return _id
+
+
+def fetch_by_user_id(user_id: str):
+    """
+    fetch all posts thats linked to that user_id
+    """
+    dbc.connect_db()
+    if usrs.id_exists(user_id):
+        posts = dbc.fetch_all_as_dict(
+            dbc.DB, POSTS_COLLECT, {USER_ID: user_id}
+            )
+        return posts
+    else:
+        raise ValueError(f'Get failure: {user_id} not in database.')
+
+
+def fetch_by_post_id(post_id: str):
+    """
+    fetch all posts thats linked to that user_id
+    """
+    dbc.connect_db()
+    return dbc.fetch_one(POSTS_COLLECT, {ID: ObjectId(post_id)})
+
+
+def del_post(post_id: str):
+    """
+    delete post_id
+    """
+    dbc.connect_db()
+    dbc.del_one(POSTS_COLLECT, {ID: ObjectId(post_id)})
