@@ -598,7 +598,6 @@ class CreateComment(Resource):
 
 new_post_fields = api.model('NewPost', {
         psts.USER_ID: fields.String,
-        psts.IS_COMPLETED: fields.Boolean,
         psts.CONTENT: fields.String,
         psts.TASK_IDS: fields.List(fields.String),
         psts.GOAL_IDS: fields.List(fields.String),
@@ -613,7 +612,6 @@ class CreatePost(Resource):
     @api.expect(new_post_fields)
     def post(self):
         user_id = request.json[psts.USER_ID]
-        is_completed = request.json[psts.IS_COMPLETED]
         content = request.json[psts.CONTENT]
         task_ids = request.json[psts.TASK_IDS]
         goal_ids = request.json[psts.GOAL_IDS]
@@ -623,7 +621,6 @@ class CreatePost(Resource):
         try:
             new_id = psts.add_post(
                         user_id,
-                        is_completed,
                         content,
                         task_ids,
                         goal_ids,

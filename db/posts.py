@@ -5,7 +5,6 @@ from bson import ObjectId
 MOCK_ID = 0
 POSTS_COLLECT = "posts"
 USER_ID = "user_id"
-IS_COMPLETED = "is_completed"
 CONTENT = "content"
 TASK_IDS = "task_ids"
 GOAL_IDS = "goal_ids"
@@ -17,7 +16,6 @@ ID = "_id"
 def get_test_post():
     return {
         USER_ID: "65f27756a4817e4be8a2a5e9",
-        IS_COMPLETED: False,
         CONTENT: "test task",
         TASK_IDS: [],
         GOAL_IDS: [],
@@ -27,7 +25,6 @@ def get_test_post():
 
 
 def add_post(user_id,
-             is_completed,
              content,
              task_ids,
              goal_ids,
@@ -38,7 +35,6 @@ def add_post(user_id,
                         POSTS_COLLECT,
                         {
                             USER_ID: user_id,
-                            IS_COMPLETED: is_completed,
                             CONTENT: content,
                             TASK_IDS: task_ids,
                             GOAL_IDS: goal_ids,

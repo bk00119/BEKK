@@ -5,7 +5,6 @@ import db.posts as psts
 def generate_post_fields():
     return {
         psts.USER_ID: '6575033f3b89d2b4f309d7af', 
-        psts.IS_COMPLETED: False, 
         psts.CONTENT: "Test Entry", 
         psts.TASK_IDS: [], 
         psts.GOAL_IDS: [], 
