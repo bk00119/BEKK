@@ -41,6 +41,7 @@ POST = "post"
 POSTS = "posts"
 
 # Endpoints
+REGENERATE_ACCESS_TOKEN_EP = f'/{auth.ACCESS_TOKEN}/regenerate'
 LOGIN_EP = '/login'
 LOGOUT_EP = '/logout'
 SIGNUP_EP = '/signup'
@@ -123,6 +124,38 @@ TEST_TASK = {
     TASK_DESCRIPTION: "BEKK final project",
     LIKE: True
 }
+
+
+token_field = api.model("Tokens", {
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String
+})
+
+
+@api.route(f'{REGENERATE_ACCESS_TOKEN_EP}', methods=['POST'])
+@api.expect(token_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class RegenerateAccessToken(Resource):
+    """
+    This class supports fetching a user data for login
+    """
+    def post(self):
+        """
+        posts the user data for login
+        """
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+        new_access_token = auth.regenerate_access_token(access_token,
+                                                        refresh_token)
+
+        try:
+            return {
+                # REGENERATED TOKEN
+                auth.ACCESS_TOKEN: new_access_token
+            }
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
 
 
 new_user_id_field = api.model("User", {
@@ -351,8 +384,7 @@ class ViewUserTasks(Resource):
 
         # REGENERATE AN ACCESS TOKEN IF THE TOKEN IS EXPIRED
         # OTHERWISE RETURN THE ORIGINAL ACCESS TOKEN
-        access_token = auth.regenerate_access_token(user_id,
-                                                    access_token,
+        access_token = auth.regenerate_access_token(access_token,
                                                     refresh_token)
 
         try:

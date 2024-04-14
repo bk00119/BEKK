@@ -81,8 +81,12 @@ def verify(user_id, access_token, refresh_token):
     return None
 
 
-def regenerate_access_token(user_id, access_token, refresh_token):
-    if (not verify_auth_token(access_token, refresh_token)
+def regenerate_access_token(access_token, refresh_token):
+    access_token_user_id = verify_auth_token(access_token, False)['user_id']
+    refresh_token_user_id = verify_auth_token(refresh_token, False)['user_id']
+
+    if (access_token_user_id == refresh_token_user_id
+       and not verify_auth_token(access_token, refresh_token)
        and verify_auth_token(refresh_token)):
-        return users.generate_access_token(user_id)
+        return users.generate_access_token(access_token_user_id)
     return access_token

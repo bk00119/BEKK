@@ -26,12 +26,16 @@ import pytest
 
 TEST_CLIENT = ep.app.test_client()
 
+SAMPLE_ID = "656e2bdc5168d371dc3916e9"
+
 SAMPLE_USER = {
     usrs.USERNAME: 'user1234',
     usrs.PASSWORD: 'pw1234',
     usrs.FIRST_NAME: 'Firstname',
     usrs.LAST_NAME: 'Lastname',
-    usrs.EMAIL: 'test@test.com'
+    usrs.EMAIL: 'test@test.com',
+    auth.ACCESS_TOKEN: usrs.generate_access_token(SAMPLE_ID),
+    auth.REFRESH_TOKEN: usrs.generate_access_token(SAMPLE_ID)
 }
 
 SAMPLE_PROFILE = {
@@ -50,7 +54,12 @@ SAMPLE_TASK = {
     ep.LIKE: False
 }
 
-SAMPLE_ID = "656e2bdc5168d371dc3916e9" 
+def test_regenerate_access_token():
+    resp = TEST_CLIENT.post(ep.REGENERATE_ACCESS_TOKEN_EP, json=SAMPLE_USER)
+    print(f'{resp=}')
+    resp_json = resp.get_json()
+    print(f'{resp_json=}')
+    assert ep.ACCESS_TOKEN_RESP in resp_json
 
 def test_signup():
     resp = TEST_CLIENT.post(ep.SIGNUP_EP, json=SAMPLE_USER)
