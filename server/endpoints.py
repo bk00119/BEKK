@@ -463,7 +463,7 @@ class ViewUserGoals(Resource):
         res = auth.verify(user_id, access_token, refresh_token)
         if res:
             return res
-        
+
         access_token = auth.regenerate_access_token(access_token,
                                                     refresh_token)
 
