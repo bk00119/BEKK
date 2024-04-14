@@ -268,7 +268,7 @@ def test_viewUserComments():
     
     test_user_id = str(new_comment[cmts.USER_ID])
     test_access_token = usrs.generate_access_token(test_user_id)
-    resp = TEST_CLIENT.post(ep.VIEWCOMMENTS_EP, json={
+    resp = TEST_CLIENT.post(ep.VIEWUSERCOMMENTS_EP, json={
         cmts.USER_ID: test_user_id,
         auth.ACCESS_TOKEN: test_access_token,
         auth.REFRESH_TOKEN: test_access_token
