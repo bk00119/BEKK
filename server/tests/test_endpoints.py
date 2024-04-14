@@ -15,7 +15,6 @@ from unittest.mock import patch
 
 import db.tasks as tsks
 import db.users  as usrs
-import db.profiles as pf
 import db.posts as psts
 import db.db_connect as dbc
 import db.goals as gls
@@ -38,11 +37,6 @@ SAMPLE_USER = {
     auth.REFRESH_TOKEN: usrs.generate_access_token(SAMPLE_ID)
 }
 
-SAMPLE_PROFILE = {
-    ep.NAME: 'John Adams',
-    ep.GOALS: ['cs hw2', 'fin hw3'],
-    ep.PRIVATE: False
-}
 
 SAMPLE_TASKS = {
     ep.TASKS: ['task1', 'task2', 'task3']
@@ -92,29 +86,6 @@ def test_login():
     # REMOVE THE USER
     usrs.remove(user_id)
 
-@pytest.fixture(scope="function")
-def test_generate_valid_profile_id():
-    """
-    checks and generates profile id from profile collections in MongoDB
-    """
-    assert SAMPLE_ID is not None 
-    return {ep.PROFILE_ID : SAMPLE_ID}
-
-def test_get_profile(test_generate_valid_profile_id):
-    resp = TEST_CLIENT.post(ep.PROFILE_EP, json=test_generate_valid_profile_id) 
-    resp_json = resp.get_json() 
-    assert isinstance(resp_json, dict)
-    assert resp.status_code == OK 
-
-@patch('db.profiles.add_profile', return_value=pf.MOCK_ID, autospec=True)
-def test_create_profile(mock_add):
-    resp = TEST_CLIENT.post(ep.CREATEPROFILE_EP, json=pf.get_test_profile()) 
-    assert resp.status_code == OK
-
-@patch('db.profiles.add_profile', side_effect=ValueError(), autospec=True)
-def test_create_bad_profile(mock_add):
-    resp = TEST_CLIENT.post(ep.CREATEPROFILE_EP, json=pf.get_test_profile())
-    assert resp.status_code == NOT_ACCEPTABLE
  
 @patch('db.users.get_users')
 def test_get_users(mock_get_users):
@@ -220,7 +191,6 @@ def test_viewUserTask():
 @pytest.fixture()
 def setup_viewGoals():
     usrs.create_user(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_USER[ep.PASSWORD_RESP])
-#     usrs.create_profile(SAMPLE_USER[ep.USERNAME_RESP], SAMPLE_PROFILE[ep.NAME], SAMPLE_PROFILE[ep.GOALS], SAMPLE_PROFILE[ep.GROUPS], SAMPLE_PROFILE[ep.PRIVATE])
 
 def test_viewUserGoals():
     new_goal = gls.get_new_test_goals()
@@ -294,13 +264,6 @@ def test_bad_createComment(mock_add):
     assert resp.status_code == NOT_ACCEPTABLE
 
 # ===================== COMMENTS TESTS END =====================
-
-def test_removeProfile():
-    new_profile = pf.get_test_profile()
-    test_profile_id = str(pf.add_profile(new_profile[pf.NAME], new_profile[pf.GOALS], new_profile[pf.TASKS], new_profile[pf.POSTS], new_profile[pf.PRIVATE] ))
-    resp = TEST_CLIENT.post(ep.REMOVEPROFILE_EP, json={pf.MOCK_ID: test_profile_id})
-    assert resp.status_code == OK
-    pf.del_profile(test_profile_id)
 
 @pytest.fixture()
 def generate_post_fields():
