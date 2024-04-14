@@ -226,10 +226,16 @@ def test_viewUserGoals():
     new_goal = gls.get_new_test_goals()
     test_goal_id = str(gls.set_goal(new_goal[gls.USER_ID],new_goal[gls.CONTENT], new_goal[gls.IS_COMPLETED]))
     test_user_id = str(new_goal[gls.USER_ID])
-    resp = TEST_CLIENT.post(ep.VIEWUSERGOALS_EP, json={gls.USER_ID: test_user_id})
+    test_access_token = usrs.generate_access_token(test_user_id)
+    resp = TEST_CLIENT.post(ep.VIEWUSERGOALS_EP, json={
+        gls.USER_ID: test_user_id,
+        auth.ACCESS_TOKEN: test_access_token,
+        auth.REFRESH_TOKEN: test_access_token
+        })
     resp_json = resp.get_json()
     assert isinstance(resp_json, dict)
     assert ep.GOALS in resp_json
+    
     goals = resp_json[ep.GOALS]
     assert isinstance(goals, dict)
     for goal_id in goals:

@@ -439,6 +439,8 @@ class PostTask(Resource):
 
 user_goals_field = api.model('UserGoals', {
     gls.USER_ID: fields.String,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String
 })
 
 
@@ -448,16 +450,27 @@ user_goals_field = api.model('UserGoals', {
 @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
 class ViewUserGoals(Resource):
     """
-    This class shows user's goals based on user_id.
+    This class shows a single user's goals
     """
     def post(self):
         """
         gets all the goals of a user based on user_id
         """
         user_id = request.json[gls.USER_ID]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            return res
+        
+        access_token = auth.regenerate_access_token(access_token,
+                                                    refresh_token)
+
         try:
             return {
-                GOALS: gls.get_user_goals(user_id)
+                GOALS: gls.get_user_goals(user_id),
+                auth.ACCESS_TOKEN: access_token
             }
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
