@@ -5,11 +5,9 @@ The endpoint called `endpoints` will return all available endpoints.
 from http import HTTPStatus
 from flask import Flask, request
 from flask_restx import Resource, Api, fields
-from db import profiles as pf
 from db import tasks as tasks
 from db import users as users
 from db import goals as gls
-# from db import posts as psts # delete this line after blueprint testing
 from db import comments as cmts
 from db import auth as auth
 from db import posts as psts
@@ -49,6 +47,7 @@ VIEWUSERPUBLIC_EP = f'/{VIEW}/{USER}/{PUBLIC}'
 VIEWUSERTASKS_EP = f'/{VIEW}/{USER}/{TASKS}'
 VIEWTASKS_EP = f'/{VIEW}/{TASKS}'
 CREATETASK_EP = f'/{CREATE}/{TASK}'
+DELETETASK_EP = f'/{DELETE}/{TASK}'
 VIEWUSERGOALS_EP = f'/{VIEW}/{USER}/{GOALS}'
 CREATEUSERGOAL_EP = f'/{CREATE}/{USER}/{GOAL}'
 DELETEGOAL_EP = f'/{DELETE}/{GOAL}'
@@ -60,15 +59,6 @@ VIEWPOSTS_EP = f'/{VIEW}/{POSTS}'
 CREATECOMMENT_EP = f'/{COMMENT}/{CREATE}'
 DELETEPOST_EP = f'/{DELETE}/{POST}'
 
-# these endpoints are subject to deletion
-PROFILE_EP = '/profile'
-VIEWPROFILE_EP = '/viewProfile'
-CREATEPROFILE_EP = '/createProfile'
-REMOVEPROFILE_EP = '/removeProfile'
-VIEWPROFILEGROUPS_EP = '/viewProfileGroups'
-PROFILEVALIDATION_EP = '/profilevalidation'
-# LIKETASK_EP = '/likeTask'
-# UNLIKETASK_EP = '/unlikeTask'
 
 # Responses
 TOKEN_RESP = 'token'  # REMOVE IT AFTER DEVELOPING SIGNUP()
@@ -99,12 +89,6 @@ TASKS = 'Tasks'
 TASK_ID = 'Task ID'
 USER_ID = 'User ID'
 COMMENT_ID = 'Comment ID'
-PROFILE = {
-    NAME: 'John Smith',
-    GOALS: ['cs hw2', 'fin hw3'],
-    PRIVATE: False
-}
-PROFILE_ID = "Profile ID"
 TASK_NAME = 'task name'
 TASK_DESCRIPTION = 'task description'
 LIKE = False
@@ -112,11 +96,7 @@ LIKE = False
 
 # User Example Data
 TEST_USER_TOKEN = 'ABC123'
-TEST_PROFILE = {
-    NAME: 'John Smith',
-    GOALS: ['cs hw2', 'fin hw3'],
-    PRIVATE: False
-}
+
 
 # Task Example Data
 TEST_TASK = {
@@ -251,93 +231,6 @@ class Signup(Resource):
             raise wz.NotAcceptable(f'{str(e)}')
 
 
-profile_id = api.model("Profile", {
-    PROFILE_ID: fields.String
-})
-
-
-@api.route(f'{PROFILE_EP}', methods=['POST'])
-@api.expect(profile_id)
-@api.response(HTTPStatus.OK, 'Success')
-@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-class Profile(Resource):
-    """
-    This class will deliver contents for any user profile.
-    """
-    def post(self):
-        """
-        posts the user's id for fetching user's profile data
-        """
-        user_id = request.json[PROFILE_ID]
-        try:
-            profile = pf.get_profile(user_id)
-            if profile is None:
-                raise wz.ServiceUnavailable('We have a technical problem.')
-            return profile
-        except ValueError as e:
-            raise wz.NotAcceptable(f'{str(e)}')
-
-
-new_profile_field = api.model('NewProfile', {
-    pf.NAME: fields.String,
-    pf.GOALS: fields.List(fields.String()),
-    pf.TASKS: fields.List(fields.String()),
-    pf.POSTS: fields.List(fields.String()),
-    pf.PRIVATE: fields.Boolean
-})
-
-
-@api.route(f'{CREATEPROFILE_EP}', methods=['POST'])
-@api.expect(new_profile_field)
-class CreateProfile(Resource):
-    """
-    This class will save user profile and return save status
-    """
-    @api.response(HTTPStatus.OK, 'Success')
-    @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-    def post(self):
-        """
-        posts the user's profile data for creating a new user profile
-        """
-        name = request.json[pf.NAME]
-        goals = request.json[pf.GOALS]
-        tasks = request.json[pf.TASKS]
-        posts = request.json[pf.POSTS]
-        private = request.json[pf.PRIVATE]
-        try:
-            new_id = pf.add_profile(name, goals, tasks, posts, private)
-            if new_id is None:
-                raise wz.ServiceUnavailable('We have a technical problem.')
-            return {PROFILE_ID: new_id}
-        except ValueError as e:
-            raise wz.NotAcceptable(f'{str(e)}')
-
-
-del_profile_field = api.model('RemoveProfile', {
-    pf.MOCK_ID: fields.String
-})
-
-
-@api.route(f'{REMOVEPROFILE_EP}', methods=['POST'])
-@api.expect(del_profile_field)
-@api.response(HTTPStatus.OK, 'Success')
-@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-class RemoveProfile(Resource):
-    """
-    This class will remove user profile and return remove status
-    """
-    def post(self):
-        """
-        posts the user's id for deleting the user's profile
-        """
-        profile_id = request.json[pf.MOCK_ID]
-        try:
-            pf.del_profile(profile_id)
-            return {MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY REMOVED YOUR PROFILE'}
-        except ValueError as e:
-            raise wz.NotAcceptable(f'{str(e)}')
-
-
 # =====================Task Endpoint START=====================
 
 @api.route(f'{VIEWTASKS_EP}', methods=['GET', 'POST'])
@@ -431,6 +324,16 @@ class PostTask(Resource):
             return {TASK_ID: new_id}
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
+
+# @api.route(f'{DELETETASK_EP}/<task_id>', methods=['DELETE'])
+# class DeleteTask(Resource):
+#     """
+#     Delete Specific Post
+#     """
+#     @api.response(HTTPStatus.OK, 'Success')
+#     def delete(self, task_id):
+#         tasks.del_task(task_id)
+
 
 # =====================Task Endpoint END=====================
 
@@ -590,7 +493,6 @@ class CreateComment(Resource):
 
 new_post_fields = api.model('NewPost', {
         psts.USER_ID: fields.String,
-        psts.IS_COMPLETED: fields.Boolean,
         psts.CONTENT: fields.String,
         psts.TASK_IDS: fields.List(fields.String),
         psts.GOAL_IDS: fields.List(fields.String),
@@ -605,7 +507,6 @@ class CreatePost(Resource):
     @api.expect(new_post_fields)
     def post(self):
         user_id = request.json[psts.USER_ID]
-        is_completed = request.json[psts.IS_COMPLETED]
         content = request.json[psts.CONTENT]
         task_ids = request.json[psts.TASK_IDS]
         goal_ids = request.json[psts.GOAL_IDS]
@@ -615,7 +516,6 @@ class CreatePost(Resource):
         try:
             new_id = psts.add_post(
                         user_id,
-                        is_completed,
                         content,
                         task_ids,
                         goal_ids,
@@ -656,3 +556,5 @@ class DeletePost(Resource):
     @api.response(HTTPStatus.OK, 'Success')
     def delete(self, post_id):
         psts.del_post(post_id)
+
+# ===================== POSTS Endpoint END=====================
