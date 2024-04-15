@@ -47,6 +47,7 @@ VIEWUSERPUBLIC_EP = f'/{VIEW}/{USER}/{PUBLIC}'
 VIEWUSERTASKS_EP = f'/{VIEW}/{USER}/{TASKS}'
 VIEWTASKS_EP = f'/{VIEW}/{TASKS}'
 CREATETASK_EP = f'/{CREATE}/{TASK}'
+DELETETASK_EP = f'/{DELETE}/{TASK}'
 VIEWUSERGOALS_EP = f'/{VIEW}/{USER}/{GOALS}'
 CREATEUSERGOAL_EP = f'/{CREATE}/{USER}/{GOAL}'
 DELETEGOAL_EP = f'/{DELETE}/{GOAL}'
@@ -323,6 +324,16 @@ class PostTask(Resource):
             return {TASK_ID: new_id}
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
+
+# @api.route(f'{DELETETASK_EP}/<task_id>', methods=['DELETE'])
+# class DeleteTask(Resource):
+#     """
+#     Delete Specific Post
+#     """
+#     @api.response(HTTPStatus.OK, 'Success')
+#     def delete(self, task_id):
+#         tasks.del_task(task_id)
+
 
 # =====================Task Endpoint END=====================
 
