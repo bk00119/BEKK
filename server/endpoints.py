@@ -537,8 +537,9 @@ class ViewPosts(Resource):
     @api.response(HTTPStatus.NOT_FOUND, 'Data Not Found')
     def get(self, user_id):
         # GLOBAL FETCH FOR POSTS
-        if not user_id:
-            return psts.fetch_all_posts()
+        # if not user_id:
+        if user_id == 'all':
+            return psts.fetch_all()
 
         # USER-BASED FETCH FOR POSTS
         posts = psts.fetch_by_user_id(user_id)

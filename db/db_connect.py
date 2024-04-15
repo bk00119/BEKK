@@ -92,6 +92,19 @@ def fetch_all_as_dict(db_name, collection, filter=None):
     return data
 
 
+def fetch_data_from_two_collections(db_name, collection, filter):
+    """
+    fetching all data of two collection as dict type
+    """
+    db = client[db_name]
+    posts = {}
+    for post in db[collection].aggregate(filter):
+        key = post['_id']
+        del post['_id']
+        posts[key] = post
+    return posts
+
+
 def insert_one(collection, doc, db=DB):
     """
     inserting one document to the collection

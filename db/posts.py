@@ -44,6 +44,61 @@ def add_post(user_id,
     return _id
 
 
+def fetch_all():
+    """
+    fetch all posts
+    """
+    dbc.connect_db()
+    posts = dbc.fetch_data_from_two_collections(dbc.DB, POSTS_COLLECT, [
+        {
+            "$lookup": {
+                "from": "users",
+                "let": {
+                    "user_id": {
+                      # CONVERT USER_ID(STRING) TO OBJECTID
+                      "$toObjectId": "$user_id"
+                    }
+                },
+                "pipeline": [{
+                    "$match": {
+                        "$expr": {
+                            "$eq": [
+                                "$_id",
+                                "$$user_id"
+                            ]
+                        }
+                    }
+                }],
+                "as": "user"
+            }
+        },
+        {
+            "$unwind": "$user"
+        },
+        {
+            "$project": {
+                "_id": {
+                    '$toString': "$_id"
+                },
+                "username": "$user.username",
+                "user_id": 1,
+                'content': 1,
+                'task_ids': 1,
+                'goal_ids': 1,
+                'like_ids': 1,
+                'comment_ids': 1
+            }
+        },
+        # {
+        #   "$sort": {
+        #       "user": 1,
+        #       "name": 1
+        #   }
+        # }
+    ])
+    return posts
+
+
 def fetch_by_user_id(user_id: str):
     """
     fetch all posts thats linked to that user_id

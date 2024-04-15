@@ -296,6 +296,18 @@ def test_viewPosts(generate_post_fields):
 
     # view all posts belonging to user 
     user_id = generate_post_fields[psts.USER_ID]
+    # 1) WITHOUT USER_ID -> GET ALL
+    posts = TEST_CLIENT.get(f'{ep.VIEWPOSTS_EP}/all')
+    posts = posts.get_json()
+
+    # validate those posts
+    assert isinstance(posts, dict)
+    for post_id in posts:
+        assert isinstance(post_id, str)
+        assert isinstance(posts[post_id], dict)
+
+
+    # 2) WITH USER_ID 
     posts = TEST_CLIENT.get(f'{ep.VIEWPOSTS_EP}/{user_id}')
     posts = posts.get_json()
     
