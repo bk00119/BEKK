@@ -16,7 +16,8 @@ def test_add_comment():
     test_comment = cmt.get_new_test_comments()
     ret = cmt.add_comment(test_comment[cmt.USER_ID], test_comment[cmt.CONTENT])
     assert isinstance(ret, str)
-    cmt.delete_comment(ret)
+    if ret:
+        cmt.delete_comment(ret)
 
 def test_delete_comment(temp_comment):
     comment = temp_comment

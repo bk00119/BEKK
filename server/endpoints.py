@@ -54,7 +54,7 @@ CREATEUSERGOAL_EP = f'/{CREATE}/{USER}/{GOAL}'
 DELETEGOAL_EP = f'/{DELETE}/{GOAL}'
 LIKETASK_EP = f'/{LIKE}/{TASK}'
 UNLIKETASK_EP = f'/{UNLIKE}/{TASK}'
-VIEWCOMMENTS_EP = f'/{VIEW}/{COMMENTS}'
+VIEWUSERCOMMENTS_EP = f'/{VIEW}/{USER}/{COMMENTS}'
 CREATEPOST_EP = f'/{CREATE}/{POST}'
 VIEWPOSTS_EP = f'/{VIEW}/{POSTS}'
 CREATECOMMENT_EP = f'/{COMMENT}/{CREATE}'
@@ -439,6 +439,8 @@ class PostTask(Resource):
 
 user_goals_field = api.model('UserGoals', {
     gls.USER_ID: fields.String,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String
 })
 
 
@@ -448,16 +450,27 @@ user_goals_field = api.model('UserGoals', {
 @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
 class ViewUserGoals(Resource):
     """
-    This class shows user's goals based on user_id.
+    This class shows a single user's goals
     """
     def post(self):
         """
         gets all the goals of a user based on user_id
         """
         user_id = request.json[gls.USER_ID]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            return res
+
+        access_token = auth.regenerate_access_token(access_token,
+                                                    refresh_token)
+
         try:
             return {
-                GOALS: gls.get_user_goals(user_id)
+                GOALS: gls.get_user_goals(user_id),
+                auth.ACCESS_TOKEN: access_token
             }
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
@@ -506,11 +519,11 @@ user_comments_field = api.model('UserComments', {
 })
 
 
-@api.route(f'{VIEWCOMMENTS_EP}', methods=['POST'])
+@api.route(f'{VIEWUSERCOMMENTS_EP}', methods=['POST'])
 @api.expect(user_comments_field)
 @api.response(HTTPStatus.OK, 'Success')
 @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
-class ViewComments(Resource):
+class ViewUserComments(Resource):
     """
     This class shows user's comments based on user_id.
     """
@@ -522,35 +535,14 @@ class ViewComments(Resource):
         access_token = request.json[auth.ACCESS_TOKEN]
         refresh_token = request.json[auth.REFRESH_TOKEN]
 
-        if not access_token:
-            return (
-                {'error': 'Access token is missing.'},
-                HTTPStatus.UNAUTHORIZED
-            )
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            return res
 
-        if not refresh_token:
-            return (
-                {'error': 'Refresh token is missing.'},
-                HTTPStatus.UNAUTHORIZED
-            )
-
-        token_user_id = auth.verify_auth_token(access_token, False)['user_id']
-        if user_id != token_user_id:
-            return (
-                {'error': 'Unauthorized to view the user\'s tasks'},
-                HTTPStatus.UNAUTHORIZED
-            )
-
-        if not auth.verify_auth_token(access_token):
-            if not auth.verify_auth_token(refresh_token):
-                # USER NEEDS TO RE-LOGIN
-                return (
-                    {'error': 'Invalid refresh token.'},
-                    HTTPStatus.UNAUTHORIZED
-                )
-
-            # REGENERATE ACCESS TOKEN
-            access_token = users.generate_access_token(user_id)
+        # REGENERATE AN ACCESS TOKEN IF THE TOKEN IS EXPIRED
+        # OTHERWISE RETURN THE ORIGINAL ACCESS TOKEN
+        access_token = auth.regenerate_access_token(access_token,
+                                                    refresh_token)
 
         try:
             return {
