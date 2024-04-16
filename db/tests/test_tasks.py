@@ -49,7 +49,7 @@ def test_get_task(temp_task):
   ret = tsks.get_task(temp_task[tsks.ID])
   assert isinstance(ret, dict)
   assert str(ret[tsks.USER_ID]) == temp_task[tsks.USER_ID]
-  assert str(ret[tsks.GOAL_ID]) == temp_task[tsks.GOAL_ID]
+  # assert str(ret[tsks.GOAL_ID]) == temp_task[tsks.GOAL_ID]
   assert ret[tsks.CONTENT] == temp_task[tsks.CONTENT]
   assert ret[tsks.IS_COMPLETED] == temp_task[tsks.IS_COMPLETED]
   tsks.del_task(temp_task[tsks.ID])
@@ -62,7 +62,7 @@ def test_get_tasks(temp_task):
   for key in ret:
     task = ret[key]
     assert str(task[tsks.USER_ID]) == temp_task[tsks.USER_ID]
-    assert str(task[tsks.GOAL_ID]) == temp_task[tsks.GOAL_ID]
+    # assert str(task[tsks.GOAL_ID]) == temp_task[tsks.GOAL_ID]
     assert task[tsks.CONTENT] == temp_task[tsks.CONTENT]
     assert task[tsks.IS_COMPLETED] == temp_task[tsks.IS_COMPLETED]
     tsks.del_task(key)
@@ -81,7 +81,7 @@ def test_get_user_tasks(temp_task):
   print(ret[task[tsks.ID]])
   assert isinstance(ret, dict)
   assert ret[task[tsks.ID]][tsks.USER_ID] == task[tsks.USER_ID]
-  assert ret[task[tsks.ID]][tsks.GOAL_ID] == task[tsks.GOAL_ID]
+  # assert ret[task[tsks.ID]][tsks.GOAL_ID] == task[tsks.GOAL_ID]
   assert ret[task[tsks.ID]][tsks.CONTENT] == task[tsks.CONTENT]
   assert ret[task[tsks.ID]][tsks.IS_COMPLETED] == task[tsks.IS_COMPLETED]
   tsks.del_task(ObjectId(task[tsks.ID]))

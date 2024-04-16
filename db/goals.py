@@ -7,6 +7,7 @@ import random
 from bson.objectid import ObjectId
 import db.db_connect as dbc
 import db.users as usrs
+import db.tasks as tasks
 
 # GOALS COLLECTION:
 # _id: ObjectID
@@ -19,6 +20,7 @@ ID = '_id'
 USER_ID = 'user_id'
 IS_COMPLETED = 'is_completed'
 CONTENT = 'content'
+TASK_IDS = 'task_ids'
 
 ID_LEN = 24
 BIG_NUM = 100_000_000_000_000_000_000
@@ -48,6 +50,7 @@ def get_new_test_goals():
     set_goal[USER_ID] = '6575033f3b89d2b4f309d7af'
     set_goal[CONTENT] = 'read 5 books'
     set_goal[IS_COMPLETED] = False
+    # set_goal[TASK_IDS] = []
     return set_goal
 
 
@@ -63,7 +66,8 @@ def set_goal(user_id: str, content: str, is_completed: bool):
     goal = {}
     goal[USER_ID] = user_id
     goal[CONTENT] = content
-    goal[IS_COMPLETED] = is_completed
+    goal[IS_COMPLETED] = is_completed  # DO WE NEED THIS??
+    goal[TASK_IDS] = []  # SET TO AN EMPTY ARRAY
     dbc.connect_db()
     _id = dbc.insert_one(GOALS_COLLECT, goal)
     return _id
@@ -85,6 +89,12 @@ def get_set_goal(goal_id: str):
 
 def get_user_goals(user_id: str):
     if usrs.id_exists(user_id):
-        return dbc.fetch_all_as_dict(dbc.DB, GOALS_COLLECT, {USER_ID: user_id})
+        goals = dbc.fetch_all_as_dict(dbc.DB, GOALS_COLLECT,
+                                      {USER_ID: user_id})
+        for goal_id in goals:
+            goals[goal_id]['tasks'] = []
+            for task_id in goals[goal_id]['task_ids']:
+                goals[goal_id]['tasks'].append(tasks.get_task(task_id))
+        return goals
     else:
         raise ValueError(f'Get User Goals Failed: {user_id} not in database.')

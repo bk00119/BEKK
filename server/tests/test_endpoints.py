@@ -204,6 +204,7 @@ def test_viewUserGoals():
         })
     resp_json = resp.get_json()
     assert isinstance(resp_json, dict)
+    print(resp_json)
     assert ep.GOALS in resp_json
     
     goals = resp_json[ep.GOALS]

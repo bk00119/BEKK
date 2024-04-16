@@ -318,7 +318,9 @@ class PostTask(Resource):
         content = request.json[tasks.CONTENT]
 
         try:
-            new_id = tasks.add_task(user_id, goal, is_completed, content)
+            # TASK: user_id, content, is_complete
+            new_id = tasks.add_task(user_id, goal, content, is_completed)
+            # GOAL: add task_id to tasks[]
             if new_id is None:
                 raise wz.ServiceUnavailable('Error')
             return {TASK_ID: new_id}
@@ -371,10 +373,11 @@ class ViewUserGoals(Resource):
                                                     refresh_token)
 
         try:
-            return {
+            data = {
                 GOALS: gls.get_user_goals(user_id),
                 auth.ACCESS_TOKEN: access_token
             }
+            return data
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 
@@ -531,7 +534,7 @@ class CreatePost(Resource):
 @api.route(f'{VIEWPOSTS_EP}/<user_id>', methods=["GET"])
 class ViewPosts(Resource):
     """
-    View all posts globally
+    View posts by 'all' or users
     """
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_FOUND, 'Data Not Found')

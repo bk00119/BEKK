@@ -7,6 +7,7 @@ import random
 from bson.objectid import ObjectId
 import db.db_connect as dbc
 import db.users as usrs
+import db.goals as goals
 
 test_tasks = {
     "task1": "SWE",
@@ -85,11 +86,18 @@ def add_task(user_id: str, goal: str, content: str, is_completed: bool):
     #     raise ValueError('content may not be blank')
     task = {}
     task[USER_ID] = user_id
-    task[GOAL_ID] = goal
+    # task[GOAL_ID] = goal
     task[CONTENT] = content
     task[IS_COMPLETED] = is_completed
     dbc.connect_db()
     _id = dbc.insert_one(TASKS_COLLECT, task)
+
+    # UPDATE GOAL
+    dbc.update_one(
+        goals.GOALS_COLLECT,
+        {goals.ID: ObjectId(goal)},
+        {"$addToSet": {goals.TASK_IDS: _id}}
+    )
     return _id
 
 
