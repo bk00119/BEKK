@@ -24,6 +24,7 @@ PASSWORD = 'password'
 USER_ID = 'user_id'
 REFRESH_TOKEN = 'refresh_token'
 ACCESS_TOKEN = 'access_token'
+IS_ADMIN = 'is_admin'
 
 ID_LEN = 24
 BIG_NUM = 100_000_000_000_000_000_000

@@ -16,6 +16,8 @@ import werkzeug.exceptions as wz
 # import db.db as db
 from flask_cors import CORS
 # from apis import api
+import os
+import utils.tools as tools
 
 app = Flask(__name__)
 CORS(app)
@@ -37,6 +39,7 @@ COMMENTS = "comments"
 COMMENT = "comment"
 POST = "post"
 POSTS = "posts"
+DEVELOPER = "developer"
 
 # Endpoints
 REGENERATE_ACCESS_TOKEN_EP = f'/{auth.ACCESS_TOKEN}/regenerate'
@@ -59,6 +62,9 @@ CREATEPOST_EP = f'/{CREATE}/{POST}'
 VIEWPOSTS_EP = f'/{VIEW}/{POSTS}'
 CREATECOMMENT_EP = f'/{COMMENT}/{CREATE}'
 DELETEPOST_EP = f'/{DELETE}/{POST}'
+
+# DEVELOPER ENDPOINTS
+ACCESSLOGS_EP = f'/{DEVELOPER}/access_logs'
 
 
 # Responses
@@ -156,6 +162,7 @@ class ViewUserPublic(Resource):
         """
         posts the user data for login
         """
+        tools.log_access(VIEWUSERPUBLIC_EP, request)
         user_id = request.json[users.ID]
         try:
             return users.get_user_public(user_id)
@@ -181,25 +188,12 @@ class Login(Resource):
         """
         posts the user data for login
         """
+        tools.log_access(LOGIN_EP, request)
         data = request.get_json()
         try:
             return users.login(data)
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
-
-
-@api.route(f'{LOGOUT_EP}', methods=['POST'])
-class Logout(Resource):
-    """
-    This class supports fetching a user data for logout
-    """
-    def post(self):
-        """
-        posts the user data for logout
-        """
-        return {
-            MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY LOGGED OUT'
-        }
 
 
 user_signup_field = api.model("User Signup", {
@@ -225,6 +219,7 @@ class Signup(Resource):
         """
         posts the user data for signup
         """
+        tools.log_access(SIGNUP_EP, request)
         data = request.get_json()
         try:
             return users.signup(data)
@@ -267,6 +262,7 @@ class ViewUserTasks(Resource):
         """
         User can view all tasks belonging to themselves/others
         """
+        tools.log_access(VIEWUSERTASKS_EP, request)
         user_id = request.json[tasks.USER_ID]
         access_token = request.json[auth.ACCESS_TOKEN]
         refresh_token = request.json[auth.REFRESH_TOKEN]
@@ -313,6 +309,7 @@ class PostTask(Resource):
         (session management in needed to prevent
         this ep from creating tasks for other users)
         """
+        tools.log_access(CREATETASK_EP, request)
         user_id = request.json[tasks.USER_ID]
         goal = request.json[tasks.GOAL_ID]
         is_completed = request.json[tasks.IS_COMPLETED]
@@ -362,6 +359,7 @@ class ViewUserGoals(Resource):
         """
         gets all the goals of a user based on user_id
         """
+        tools.log_access(VIEWUSERGOALS_EP, request)
         user_id = request.json[gls.USER_ID]
         access_token = request.json[auth.ACCESS_TOKEN]
         refresh_token = request.json[auth.REFRESH_TOKEN]
@@ -402,6 +400,7 @@ class CreateUserGoal(Resource):
         """
         posts a new goal data to create a new goal
         """
+        tools.log_access(CREATEUSERGOAL_EP, request)
         user_id = request.json[gls.USER_ID]
         content = request.json[gls.CONTENT]
         is_completed = request.json[gls.IS_COMPLETED]
@@ -462,6 +461,7 @@ class ViewUserComments(Resource):
         """
         gets all the comments of a user based on user_id
         """
+        tools.log_access(VIEWUSERCOMMENTS_EP, request)
         user_id = request.json[cmts.USER_ID]
         # access_token = request.json[auth.ACCESS_TOKEN]
         # refresh_token = request.json[auth.REFRESH_TOKEN]
@@ -501,6 +501,7 @@ class CreateComment(Resource):
         """
         posts a user's comment under a post and adds to the DB
         """
+        tools.log_access(CREATECOMMENT_EP, request)
         user_id = request.json[cmts.USER_ID]
         content = request.json[cmts.CONTENT]
         try:
@@ -532,6 +533,7 @@ class CreatePost(Resource):
     """
     @api.expect(new_post_fields)
     def post(self):
+        tools.log_access(CREATEPOST_EP, request)
         user_id = request.json[psts.USER_ID]
         content = request.json[psts.CONTENT]
         task_ids = request.json[psts.TASK_IDS]
@@ -562,6 +564,7 @@ class ViewPosts(Resource):
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_FOUND, 'Data Not Found')
     def get(self, user_id):
+        tools.log_access(VIEWPOSTS_EP, request)
         # GLOBAL FETCH FOR POSTS
         # if not user_id:
         if user_id == 'all':
@@ -582,6 +585,42 @@ class DeletePost(Resource):
     """
     @api.response(HTTPStatus.OK, 'Success')
     def delete(self, post_id):
+        tools.log_access(DeletePost, request)
         psts.del_post(post_id)
 
 # ===================== POSTS Endpoint END=====================
+# ===================== DEVELOPER Endpoint START=====================
+
+developer_data = api.model('DeveloperData', {
+    users.EMAIL: fields.String,
+    users.PASSWORD: fields.String,
+})
+
+
+@api.route(f'{ACCESSLOGS_EP}', methods=['POST'])
+@api.expect(developer_data)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, "Not Acceptable")
+@api.response(HTTPStatus.NO_CONTENT, "No Content")
+class Get_Access_Logs(Resource):
+    """
+    Get Access Logs of Endpoints
+    """
+    @api.response(HTTPStatus.OK, 'Success')
+    def post(self):
+        tools.log_access(LOGIN_EP, request, True)
+        data = request.get_json()
+        
+        try:
+            if tools.verify_identity(data):
+            # return users.login(data)
+            # dbc.connect_db()
+            # data = dbc.fetch_one(USERS_COLLECT, {EMAIL: email})
+            # if not data:
+            #     raise ValueError('Invalid email or password')
+            # if users.verify_password(password, data[users.PASSWORD]):
+                return tools.get_access_logs_in_str()
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
+
+# ===================== DEVELOPER Endpoint END=====================
