@@ -47,14 +47,15 @@ def log_access(endpoint, request, isAdmin=False):
     with open(log_file_name, 'a') as log_file:
         log_file.write(f"{log_entry}\n")
 
-def get_access_logs_in_str(isAdmin=False):
+
+def get_access_logs(isAdmin=False):
     log_file_name = LOG_FILE
     if isAdmin:
         log_file_name = ADMIN_LOG_FILE
 
     if not os.path.exists(LOG_FILE):
-        return { "message": "Access logs file not found" }
-    
+        return {"message": "Access logs file not found"}
+
     access_logs = []
     with open(log_file_name, 'r') as log_file:
         for line in log_file:

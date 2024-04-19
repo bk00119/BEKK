@@ -16,7 +16,6 @@ import werkzeug.exceptions as wz
 # import db.db as db
 from flask_cors import CORS
 # from apis import api
-import os
 import utils.tools as tools
 
 app = Flask(__name__)
@@ -568,6 +567,7 @@ class DeletePost(Resource):
 # ===================== POSTS Endpoint END=====================
 # ===================== DEVELOPER Endpoint START=====================
 
+
 developer_data = api.model('DeveloperData', {
     users.EMAIL: fields.String,
     users.PASSWORD: fields.String,
@@ -587,16 +587,10 @@ class Get_Access_Logs(Resource):
     def post(self):
         tools.log_access(LOGIN_EP, request, True)
         data = request.get_json()
-        
+
         try:
             if tools.verify_identity(data):
-            # return users.login(data)
-            # dbc.connect_db()
-            # data = dbc.fetch_one(USERS_COLLECT, {EMAIL: email})
-            # if not data:
-            #     raise ValueError('Invalid email or password')
-            # if users.verify_password(password, data[users.PASSWORD]):
-                return tools.get_access_logs_in_str()
+                return tools.get_access_logs()
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 
