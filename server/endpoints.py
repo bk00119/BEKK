@@ -438,23 +438,21 @@ class ViewUserComments(Resource):
         gets all the comments of a user based on user_id
         """
         user_id = request.json[cmts.USER_ID]
-        access_token = request.json[auth.ACCESS_TOKEN]
-        refresh_token = request.json[auth.REFRESH_TOKEN]
+        # access_token = request.json[auth.ACCESS_TOKEN]
+        # refresh_token = request.json[auth.REFRESH_TOKEN]
 
-        res = auth.verify(user_id, access_token, refresh_token)
-        if res:
-            return res
+        # res = auth.verify(user_id, access_token, refresh_token)
+        # if res:
+        #     return res
 
-        # REGENERATE AN ACCESS TOKEN IF THE TOKEN IS EXPIRED
-        # OTHERWISE RETURN THE ORIGINAL ACCESS TOKEN
-        access_token = auth.regenerate_access_token(access_token,
-                                                    refresh_token)
+        # # REGENERATE AN ACCESS TOKEN IF THE TOKEN IS EXPIRED
+        # # OTHERWISE RETURN THE ORIGINAL ACCESS TOKEN
+        # access_token = auth.regenerate_access_token(access_token,
+        #                                             refresh_token)
 
         try:
-            return {
-                COMMENTS: cmts.get_user_comments(user_id),
-                auth.ACCESS_TOKEN: access_token
-            }
+            return cmts.get_user_comments(user_id)
+                # auth.ACCESS_TOKEN: access_token
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 

@@ -17,6 +17,7 @@ COMMENTS_COLLECT = 'comments'
 ID = '_id'
 USER_ID = 'user_id'
 CONTENT = 'content'
+USERNAME = 'username'
 
 ID_LEN = 24
 BIG_NUM = 100_000_000_000_000_000_000
@@ -73,6 +74,7 @@ def delete_comment(comment_id: str):
 
 
 def get_comment(comment_id: str):
+    # gets a singular comment
     if id_exists(comment_id):
         return dbc.fetch_one(COMMENTS_COLLECT, {ID: ObjectId(comment_id)})
     else:
@@ -80,8 +82,22 @@ def get_comment(comment_id: str):
 
 
 def get_user_comments(user_id: str):
+    # gets all comments under an user
     if usrs.id_exists(user_id):
-        return dbc.fetch_all_as_dict(dbc.DB, COMMENTS_COLLECT,
+        comments = dbc.fetch_all_as_dict(dbc.DB, COMMENTS_COLLECT,
                                      {USER_ID: user_id})
+        
+    # dbc.comments.aggregate([
+    #     { $match: {user_id: user_id}}
+    # ])
+        username = usrs.get_user_public(user_id).get(USERNAME)
+        all_comments = []
+        for comment_id in comments:
+            all_comments.append(get_comment(comment_id).get(CONTENT))
+
+        return {
+            USERNAME: username,
+            COMMENTS_COLLECT: all_comments
+        }
     else:
         raise ValueError(f'Get User Comments Failed: {user_id} not in DB.')
