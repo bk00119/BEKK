@@ -23,14 +23,14 @@ api = Api(app)
 
 # COMMON KEYWORDS
 CREATE = 'create'
-USER = 'User'
+USER = 'user'
 VIEW = 'view'
 DELETE = 'delete'
-TASKS = 'Tasks'
-TASK = 'Task'
-GOALS = 'Goals'
-GOAL = 'Goal'
-PUBLIC = 'Public'
+TASKS = 'tasks'
+TASK = 'task'
+GOALS = 'goals'
+GOAL = 'goal'
+PUBLIC = 'public'
 LIKE = 'like'
 UNLIKE = 'unlike'
 COMMENTS = "comments"
@@ -54,6 +54,7 @@ DELETEGOAL_EP = f'/{DELETE}/{GOAL}'
 LIKETASK_EP = f'/{LIKE}/{TASK}'
 UNLIKETASK_EP = f'/{UNLIKE}/{TASK}'
 VIEWUSERCOMMENTS_EP = f'/{VIEW}/{USER}/{COMMENTS}'
+VIEWALLPOSTCOMMENTS_EP = f'/{VIEW}/{POST}/{COMMENTS}'
 CREATEPOST_EP = f'/{CREATE}/{POST}'
 VIEWPOSTS_EP = f'/{VIEW}/{POSTS}'
 CREATECOMMENT_EP = f'/{COMMENT}/{CREATE}'
@@ -418,10 +419,34 @@ class CreateUserGoal(Resource):
 # =====================Comment Endpoint START================
 
 
+all_post_comments_field = api.model('AllPostComments', {
+    psts.ID: fields.String,
+})
+
+
+@api.route(f'{VIEWALLPOSTCOMMENTS_EP}', methods=['POST'])
+@api.expect(all_post_comments_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class ViewAllPostComments(Resource):
+    """
+    This class shows all comments under a post including usernames
+    """
+    def post(self):
+        """
+        gets all the comments under a post
+        """
+        post = request.json[psts.ID]
+        try:
+            return cmts.get_post_comments(post)
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
+
+
 user_comments_field = api.model('UserComments', {
     cmts.USER_ID: fields.String,
-    auth.ACCESS_TOKEN: fields.String,
-    auth.REFRESH_TOKEN: fields.String
+    # auth.ACCESS_TOKEN: fields.String,
+    # auth.REFRESH_TOKEN: fields.String
 })
 
 

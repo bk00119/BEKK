@@ -7,6 +7,7 @@ import random
 from bson.objectid import ObjectId
 import db.db_connect as dbc
 import db.users as usrs
+import db.posts as psts
 
 # COMMENTS COLLECTION:
 # _id: ObjectID
@@ -14,6 +15,7 @@ import db.users as usrs
 # content: str
 
 COMMENTS_COLLECT = 'comments'
+POSTS_COLLECT = "posts"
 ID = '_id'
 USER_ID = 'user_id'
 CONTENT = 'content'
@@ -101,3 +103,10 @@ def get_user_comments(user_id: str):
         }
     else:
         raise ValueError(f'Get User Comments Failed: {user_id} not in DB.')
+
+
+def get_post_comments(post_id: str):
+    # gets all the comments under a post
+    post = dbc.fetch_one(dbc.DB, POSTS_COLLECT, {ID: ObjectId(post_id)})
+    
+    return post
