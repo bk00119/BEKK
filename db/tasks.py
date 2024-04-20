@@ -96,13 +96,43 @@ def add_task(user_id: str, goal: str, content: str, is_completed: bool):
     dbc.connect_db()
     _id = dbc.insert_one(TASKS_COLLECT, task)
 
-    # UPDATE GOAL
+    # UPDATE GOAL -> use goals.add_new_goal()
     dbc.update_one(
         goals.GOALS_COLLECT,
         {goals.ID: ObjectId(goal)},
         {"$addToSet": {goals.TASK_IDS: _id}}
     )
     return _id
+
+
+def update_task(task_id: str, content: str, is_completed: bool):
+    if id_exists(task_id):
+        if content is not None and is_completed is not None:
+            # UPDATE BOTH CONTENT AND IS_COMPLETED
+            dbc.update_one(
+                TASKS_COLLECT,
+                {ID: ObjectId(task_id)},
+                {"$set": {CONTENT: content, IS_COMPLETED: is_completed}},
+            )
+        elif content is not None:
+            dbc.update_one(
+                TASKS_COLLECT,
+                {ID: ObjectId(task_id)},
+                {"$set": {CONTENT: content}},
+            )
+        elif is_completed is not None:
+            dbc.update_one(
+                TASKS_COLLECT,
+                {ID: ObjectId(task_id)},
+                {"$set": {IS_COMPLETED: is_completed}},
+            )
+        else:
+            raise ValueError(f'Task update failure: task {task_id}'
+                             + ' needs one of content value'
+                             + ' or is_completed value')
+    else:
+        raise ValueError(f'Task update failure: task {task_id}'
+                         + 'not in database.')
 
 
 def del_task(task_id: str):
