@@ -109,6 +109,19 @@ def setup_tasks():
     task[tsks.ID] = str(ret)
     return task
 
+# UPDATE ONCE KEVIN IS DONE
+# @pytest.fixture(scope="function")
+# def update_tasks():
+#     task = {
+#         tsks.ID: "",
+#         tsks.USER_ID: "6575033f3b89d2b4f309d7af",
+#         tsks.GOAL_ID: "65d2dd8abe686c2ec340e298", 
+#         tsks.CONTENT: "test content",
+#         tsks.IS_COMPLETED: False
+#     }
+#     ret = tsks.add_task(task[tsks.USER_ID], task[tsks.GOAL_ID], task[tsks.CONTENT], task[tsks.IS_COMPLETED])
+#     task[tsks.ID] = str(ret)
+#     return task
 
 def test_viewUserTask(setup_tasks):
     # CREATE TASK 
@@ -181,6 +194,15 @@ def test_postTask(mock_add, setup_task_fields):
     # ping endpoint
     resp = TEST_CLIENT.post(ep.CREATETASK_EP, json= setup_task_fields)
     assert resp.status_code == OK
+
+# ADD IT ONCE KEVIN'S DONE
+# @patch('db.tasks.update_task', return_value=tsks.MOCK_ID, autospec=True)
+# def test_updateTask(mock_add, setup_task_fields):
+#     """
+#     Testing for updating task successfully: UpdateTask.post()
+#     """
+#     resp = TEST_CLIENT.post(ep.UPDATETASK_EP, json= setup_task_fields)
+#     assert resp.status_code == OK
     
 
 def test_delTask(setup_tasks):

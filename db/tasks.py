@@ -96,7 +96,7 @@ def add_task(user_id: str, goal: str, content: str, is_completed: bool):
     dbc.connect_db()
     _id = dbc.insert_one(TASKS_COLLECT, task)
 
-    # UPDATE GOAL
+    # UPDATE GOAL -> use goals.add_new_goal()
     dbc.update_one(
         goals.GOALS_COLLECT,
         {goals.ID: ObjectId(goal)},
