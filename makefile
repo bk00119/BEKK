@@ -3,6 +3,7 @@ include common.mk
 LINTER = flake8
 API_DIR = server
 DB_DIR = db
+UTILS_DIR = utils
 REQ_DIR = .
 
 # PKG = $(API_DIR)
@@ -21,6 +22,7 @@ github: FORCE
 all_tests: FORCE
 	cd $(API_DIR); make tests
 	cd $(DB_DIR); make tests
+	cd $(UTILS_DIR); make tests
 
 # unit: FORCE
 # 	cd $(API_DIR); pytest $(PYTESTFLAGS) --cov=$(PKG)
