@@ -47,7 +47,6 @@ LOGOUT_EP = '/logout'
 SIGNUP_EP = '/signup'
 VIEWUSERPUBLIC_EP = f'/{VIEW}/{USER}/{PUBLIC}'
 VIEWUSERTASKS_EP = f'/{VIEW}/{USER}/{TASKS}'
-VIEWTASKS_EP = f'/{VIEW}/{TASKS}'
 CREATETASK_EP = f'/{CREATE}/{TASK}'
 DELETETASK_EP = f'/{DELETE}/{TASK}'
 VIEWUSERGOALS_EP = f'/{VIEW}/{USER}/{GOALS}'
@@ -321,7 +320,7 @@ class PostTask(Resource):
             raise wz.NotAcceptable(f'{str(e)}')
 
 
-token_field = api.model('TargetTask', {
+target_task_field = api.model('TargetTask', {
     tasks.ID: fields.String,
     tasks.USER_ID: fields.String,
     auth.ACCESS_TOKEN: fields.String,
@@ -329,6 +328,7 @@ token_field = api.model('TargetTask', {
 })
 
 
+@api.expect(target_task_field)
 @api.route(f'{DELETETASK_EP}', methods=['POST'])
 class DeleteTask(Resource):
     """
@@ -382,9 +382,6 @@ class ViewUserGoals(Resource):
         res = auth.verify(user_id, access_token, refresh_token)
         if res:
             return res
-
-        access_token = auth.regenerate_access_token(access_token,
-                                                    refresh_token)
 
         try:
             data = {
@@ -461,11 +458,6 @@ class ViewUserComments(Resource):
         if res:
             return res
 
-        # REGENERATE AN ACCESS TOKEN IF THE TOKEN IS EXPIRED
-        # OTHERWISE RETURN THE ORIGINAL ACCESS TOKEN
-        access_token = auth.regenerate_access_token(access_token,
-                                                    refresh_token)
-
         try:
             return {
                 COMMENTS: cmts.get_user_comments(user_id),
@@ -516,6 +508,8 @@ new_post_fields = api.model('NewPost', {
         psts.CONTENT: fields.String,
         psts.TASK_IDS: fields.List(fields.String),
         psts.GOAL_IDS: fields.List(fields.String),
+        auth.ACCESS_TOKEN: fields.String,
+        auth.REFRESH_TOKEN: fields.String
     })
 
 
@@ -526,7 +520,10 @@ class CreatePost(Resource):
     """
     @api.expect(new_post_fields)
     def post(self):
+        # Logging
         tools.log_access(CREATEPOST_EP, request)
+
+        # Request Fields
         user_id = request.json[psts.USER_ID]
         content = request.json[psts.CONTENT]
         task_ids = request.json[psts.TASK_IDS]
@@ -559,7 +556,7 @@ class ViewPosts(Resource):
     def get(self, user_id):
         # GLOBAL FETCH FOR POSTS
         tools.log_access(VIEWPOSTS_EP, request)
-        
+
         # if not user_id:
         if user_id == 'all':
             return psts.fetch_all()
