@@ -103,3 +103,4 @@ def test_task_like_unlike(temp_task):
   assert tsks.is_task_liked(task[tsks.ID], user_id)
   tsks.unlike_task(task[tsks.ID], user_id)
   assert not tsks.is_task_liked(task[tsks.ID], user_id)
+  tsks.del_task(task[tsks.ID])

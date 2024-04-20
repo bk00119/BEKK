@@ -154,7 +154,6 @@ def setup_task_fields():
     new_task[auth.REFRESH_TOKEN] = test_access_token
     return new_task
 
-@pytest.mark.skip(reason="isolate")
 @patch('db.tasks.add_task', return_value=tsks.MOCK_ID, autospec=True)
 def test_postTask(mock_add, setup_task_fields):
     """
@@ -163,7 +162,6 @@ def test_postTask(mock_add, setup_task_fields):
     resp = TEST_CLIENT.post(ep.CREATETASK_EP, json= setup_task_fields)
     assert resp.status_code == OK
 
-@pytest.mark.skip(reason="isolate")
 @patch('db.tasks.add_task', side_effect=ValueError(), autospec=True)
 def test_bad_postTask(mock_add, setup_task_fields):
     """
@@ -173,7 +171,6 @@ def test_bad_postTask(mock_add, setup_task_fields):
     resp = TEST_CLIENT.post(ep.CREATETASK_EP, json= setup_task_fields)
     assert resp.status_code == NOT_ACCEPTABLE
     
-@pytest.mark.skip(reason="isolate")
 @patch('db.tasks.add_task', return_value=None)
 def test_postTask_failure(mock_add, setup_task_fields):
     """
@@ -184,7 +181,6 @@ def test_postTask_failure(mock_add, setup_task_fields):
     resp = TEST_CLIENT.post(ep.CREATETASK_EP, json=setup_task_fields)
     assert resp.status_code == SERVICE_UNAVAILABLE
 
-@pytest.mark.skip(reason="isolate")
 @patch('db.tasks.add_task', return_value=tsks.MOCK_ID, autospec=True)
 def test_postTask(mock_add, setup_task_fields):
     """
