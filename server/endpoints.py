@@ -47,7 +47,6 @@ LOGOUT_EP = '/logout'
 SIGNUP_EP = '/signup'
 VIEWUSERPUBLIC_EP = f'/{VIEW}/{USER}/{PUBLIC}'
 VIEWUSERTASKS_EP = f'/{VIEW}/{USER}/{TASKS}'
-VIEWTASKS_EP = f'/{VIEW}/{TASKS}'
 CREATETASK_EP = f'/{CREATE}/{TASK}'
 DELETETASK_EP = f'/{DELETE}/{TASK}'
 VIEWUSERGOALS_EP = f'/{VIEW}/{USER}/{GOALS}'
@@ -227,19 +226,6 @@ class Signup(Resource):
 
 # =====================Task Endpoint START=====================
 
-@api.route(f'{VIEWTASKS_EP}', methods=['GET', 'POST'])
-class ViewTasks(Resource):
-    """
-    Admin can view all tasks here
-    """
-    def get(self):
-        """
-        View all tasks globally
-        """
-        return {
-            TASKS: tasks.get_tasks()
-        }
-
 
 user_task_field = api.model('UserTasks', {
     tasks.USER_ID: fields.String,
@@ -261,20 +247,16 @@ class ViewUserTasks(Resource):
         User can view all tasks belonging to themselves/others
         """
         tools.log_access(VIEWUSERTASKS_EP, request)
+        # Auth
         user_id = request.json[tasks.USER_ID]
         access_token = request.json[auth.ACCESS_TOKEN]
         refresh_token = request.json[auth.REFRESH_TOKEN]
-
         res = auth.verify(user_id, access_token, refresh_token)
         if res:
             # VERIFICATION ERROR
             return res
 
-        # REGENERATE AN ACCESS TOKEN IF THE TOKEN IS EXPIRED
-        # OTHERWISE RETURN THE ORIGINAL ACCESS TOKEN
-        access_token = auth.regenerate_access_token(access_token,
-                                                    refresh_token)
-
+        # Get User Tasks
         try:
             return {
                 TASKS: tasks.get_user_tasks(user_id),
@@ -290,6 +272,8 @@ new_task_field = api.model('NewTask', {
     tasks.GOAL_ID: fields.String,
     tasks.IS_COMPLETED: fields.Boolean,
     tasks.CONTENT: fields.String,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String
 })
 
 
@@ -308,29 +292,62 @@ class PostTask(Resource):
         this ep from creating tasks for other users)
         """
         tools.log_access(CREATETASK_EP, request)
+        # Auth
         user_id = request.json[tasks.USER_ID]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            # VERIFICATION ERROR
+            return res
+
+        # Create Task
         goal = request.json[tasks.GOAL_ID]
         is_completed = request.json[tasks.IS_COMPLETED]
         content = request.json[tasks.CONTENT]
-
         try:
             # TASK: user_id, content, is_complete
             new_id = tasks.add_task(user_id, goal, content, is_completed)
             # GOAL: add task_id to tasks[]
             if new_id is None:
                 raise wz.ServiceUnavailable('Error')
-            return {TASK_ID: new_id}
+            return {
+                TASK_ID: new_id,
+                # INCLUDE THE REGENERATED TOKEN
+                auth.ACCESS_TOKEN: access_token
+            }
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 
-# @api.route(f'{DELETETASK_EP}/<task_id>', methods=['DELETE'])
-# class DeleteTask(Resource):
-#     """
-#     Delete Specific Post
-#     """
-#     @api.response(HTTPStatus.OK, 'Success')
-#     def delete(self, task_id):
-#         tasks.del_task(task_id)
+
+target_task_field = api.model('TargetTask', {
+    tasks.ID: fields.String,
+    tasks.USER_ID: fields.String,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String
+})
+
+
+@api.expect(target_task_field)
+@api.route(f'{DELETETASK_EP}', methods=['POST'])
+class DeleteTask(Resource):
+    """
+    Delete Specific Post
+    """
+    @api.response(HTTPStatus.OK, 'Success')
+    def post(self):
+        # Auth
+        user_id = request.json[tasks.ID]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            # VERIFICATION ERROR
+            return res
+
+        # Delete Task
+        task_id = request.json[tasks.ID]
+        tasks.del_task(task_id)
 
 
 # =====================Task Endpoint END=====================
@@ -365,9 +382,6 @@ class ViewUserGoals(Resource):
         res = auth.verify(user_id, access_token, refresh_token)
         if res:
             return res
-
-        access_token = auth.regenerate_access_token(access_token,
-                                                    refresh_token)
 
         try:
             data = {
@@ -444,11 +458,6 @@ class ViewUserComments(Resource):
         if res:
             return res
 
-        # REGENERATE AN ACCESS TOKEN IF THE TOKEN IS EXPIRED
-        # OTHERWISE RETURN THE ORIGINAL ACCESS TOKEN
-        access_token = auth.regenerate_access_token(access_token,
-                                                    refresh_token)
-
         try:
             return {
                 COMMENTS: cmts.get_user_comments(user_id),
@@ -499,6 +508,8 @@ new_post_fields = api.model('NewPost', {
         psts.CONTENT: fields.String,
         psts.TASK_IDS: fields.List(fields.String),
         psts.GOAL_IDS: fields.List(fields.String),
+        auth.ACCESS_TOKEN: fields.String,
+        auth.REFRESH_TOKEN: fields.String
     })
 
 
@@ -509,7 +520,10 @@ class CreatePost(Resource):
     """
     @api.expect(new_post_fields)
     def post(self):
+        # Logging
         tools.log_access(CREATEPOST_EP, request)
+
+        # Request Fields
         user_id = request.json[psts.USER_ID]
         content = request.json[psts.CONTENT]
         task_ids = request.json[psts.TASK_IDS]
@@ -540,8 +554,9 @@ class ViewPosts(Resource):
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_FOUND, 'Data Not Found')
     def get(self, user_id):
-        tools.log_access(VIEWPOSTS_EP, request)
         # GLOBAL FETCH FOR POSTS
+        tools.log_access(VIEWPOSTS_EP, request)
+
         # if not user_id:
         if user_id == 'all':
             return psts.fetch_all()
@@ -554,13 +569,32 @@ class ViewPosts(Resource):
             raise wz.NotFound(f'No posts found with {user_id=}')
 
 
-@api.route(f'{DELETEPOST_EP}/<post_id>', methods=['DELETE'])
+post_token_field = api.model('TargetPost', {
+    psts.ID: fields.String,
+    psts.USER_ID: fields.String,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String
+})
+
+
+@api.route(f'{DELETEPOST_EP}', methods=['POST'])
 class DeletePost(Resource):
     """
     Delete Specific Post
     """
     @api.response(HTTPStatus.OK, 'Success')
-    def delete(self, post_id):
+    def post(self):
+        # AUTH
+        user_id = request.json[psts.USER_ID]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            # VERIFICATION ERROR
+            return res
+
+        # Delete Post
+        post_id = request.json[psts.ID]
         tools.log_access(DeletePost, request)
         psts.del_post(post_id)
 

@@ -35,3 +35,33 @@
 {'endpoint': '/create/Task', 'timestamp': '2024-04-19T19:30:21.275418+00:00', 'ip_address': '127.0.0.1'}
 {'endpoint': '/create/Task', 'timestamp': '2024-04-19T19:30:21.276718+00:00', 'ip_address': '127.0.0.1'}
 {'endpoint': '/view/User/Tasks', 'timestamp': '2024-04-19T19:30:21.526063+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/signup', 'timestamp': '2024-04-20T19:13:46.440979+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/signup', 'timestamp': '2024-04-20T19:13:47.102033+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/login', 'timestamp': '2024-04-20T19:13:47.475131+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/view/User/Tasks', 'timestamp': '2024-04-20T19:13:47.856349+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/create/Task', 'timestamp': '2024-04-20T19:13:47.912230+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/create/Task', 'timestamp': '2024-04-20T19:13:47.922860+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/create/Task', 'timestamp': '2024-04-20T19:13:47.931625+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/view/User/Goals', 'timestamp': '2024-04-20T19:13:48.038517+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/view/User/comments', 'timestamp': '2024-04-20T19:13:48.115623+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/comment/create', 'timestamp': '2024-04-20T19:13:48.176779+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/comment/create', 'timestamp': '2024-04-20T19:13:48.186499+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/create/post', 'timestamp': '2024-04-20T19:13:48.195701+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/view/posts', 'timestamp': '2024-04-20T19:13:48.217549+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/view/posts', 'timestamp': '2024-04-20T19:13:48.231794+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': <class 'server.endpoints.DeletePost'>, 'timestamp': '2024-04-20T19:13:48.290524+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/signup', 'timestamp': '2024-04-20T19:15:28.184414+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/signup', 'timestamp': '2024-04-20T19:15:29.003773+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/login', 'timestamp': '2024-04-20T19:15:29.549273+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/view/User/Tasks', 'timestamp': '2024-04-20T19:15:30.074924+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/create/Task', 'timestamp': '2024-04-20T19:15:30.133556+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/create/Task', 'timestamp': '2024-04-20T19:15:30.145494+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/create/Task', 'timestamp': '2024-04-20T19:15:30.154438+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/view/User/Goals', 'timestamp': '2024-04-20T19:15:30.268711+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/view/User/comments', 'timestamp': '2024-04-20T19:15:30.382425+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/comment/create', 'timestamp': '2024-04-20T19:15:30.461246+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/comment/create', 'timestamp': '2024-04-20T19:15:30.484713+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/create/post', 'timestamp': '2024-04-20T19:15:30.504859+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/view/posts', 'timestamp': '2024-04-20T19:15:30.537878+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': '/view/posts', 'timestamp': '2024-04-20T19:15:30.555857+00:00', 'ip_address': '127.0.0.1'}
+{'endpoint': <class 'server.endpoints.DeletePost'>, 'timestamp': '2024-04-20T19:15:30.634017+00:00', 'ip_address': '127.0.0.1'}
