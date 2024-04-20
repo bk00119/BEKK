@@ -42,7 +42,7 @@ def add_post(user_id,
                             GOAL_IDS: goal_ids,
                             LIKE_IDS: like_ids,
                             COMMENT_IDS: comment_ids,
-                            TIMESTAMP = str(datetime.now())
+                            TIMESTAMP: str(datetime.now())
                         })
     return _id
 
