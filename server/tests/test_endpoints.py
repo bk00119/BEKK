@@ -101,11 +101,10 @@ def test_get_users(mock_get_users):
 def setup_tasks():
     task = { 
         tsks.USER_ID: "6575033f3b89d2b4f309d7af",
-        tsks.GOAL_ID: "65d2dd8abe686c2ec340e298", 
         tsks.CONTENT: "test content",
         tsks.IS_COMPLETED: False
     }
-    ret = tsks.add_task(task[tsks.USER_ID], task[tsks.GOAL_ID], task[tsks.CONTENT], task[tsks.IS_COMPLETED])
+    ret = tsks.add_task(task[tsks.USER_ID], task[tsks.CONTENT], task[tsks.IS_COMPLETED])
     task[tsks.ID] = str(ret)
     return task
 

@@ -5,6 +5,7 @@ This module interfaces to our goals data.
 # from pymongo import MongoClient
 import random
 from bson.objectid import ObjectId
+from datetime import datetime
 import db.db_connect as dbc
 import db.users as usrs
 import db.tasks as tasks
@@ -21,6 +22,7 @@ USER_ID = 'user_id'
 IS_COMPLETED = 'is_completed'
 CONTENT = 'content'
 TASK_IDS = 'task_ids'
+TIMESTAMP = 'timestamp'
 
 ID_LEN = 24
 BIG_NUM = 100_000_000_000_000_000_000
@@ -68,6 +70,7 @@ def set_goal(user_id: str, content: str, is_completed: bool):
     goal[CONTENT] = content
     goal[IS_COMPLETED] = is_completed  # DO WE NEED THIS??
     goal[TASK_IDS] = []  # SET TO AN EMPTY ARRAY
+    goal[TIMESTAMP] = str(datetime.now())
     dbc.connect_db()
     _id = dbc.insert_one(GOALS_COLLECT, goal)
     return _id

@@ -8,11 +8,11 @@ from unittest.mock import patch
 def temp_task():
   task = { 
     tsks.USER_ID: "6575033f3b89d2b4f309d7af",
-    tsks.GOAL_ID: "65d2dd8abe686c2ec340e298", 
+    # tsks.GOAL_ID: "65d2dd8abe686c2ec340e298", 
     tsks.CONTENT: "test content",
     tsks.IS_COMPLETED: False
   }
-  ret = tsks.add_task(task[tsks.USER_ID], task[tsks.GOAL_ID], task[tsks.CONTENT], task[tsks.IS_COMPLETED])
+  ret = tsks.add_task(task[tsks.USER_ID], task[tsks.CONTENT], task[tsks.IS_COMPLETED])
   task[tsks.ID] = str(ret)
   return task  
 
@@ -28,7 +28,7 @@ def test_get_all_tasks():
  
 def test_add_task():
   test_task = tsks.get_new_test_task()
-  ret = tsks.add_task(test_task[tsks.USER_ID], test_task[tsks.GOAL_ID], test_task[tsks.CONTENT], test_task[tsks.IS_COMPLETED])
+  ret = tsks.add_task(test_task[tsks.USER_ID], test_task[tsks.CONTENT], test_task[tsks.IS_COMPLETED])
   assert isinstance(ret, str) # return: str(_id)
   tsks.del_task(ret)
 
