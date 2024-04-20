@@ -68,7 +68,6 @@ def test_get_tasks(temp_task):
     tsks.del_task(key)
 
 
-
 def test_get_task_not_exist():
   id = dbc.gen_object_id()
   with pytest.raises(ValueError):

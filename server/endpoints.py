@@ -26,6 +26,7 @@ api = Api(app)
 CREATE = 'create'
 USER = 'User'
 VIEW = 'view'
+UPDATE = 'update'
 DELETE = 'delete'
 TASKS = 'Tasks'
 TASK = 'Task'
@@ -41,28 +42,37 @@ POSTS = "posts"
 DEVELOPER = "developer"
 
 # Endpoints
+# AUTH
 REGENERATE_ACCESS_TOKEN_EP = f'/{auth.ACCESS_TOKEN}/regenerate'
 LOGIN_EP = '/login'
 LOGOUT_EP = '/logout'
 SIGNUP_EP = '/signup'
+# USER PROFILE
 VIEWUSERPUBLIC_EP = f'/{VIEW}/{USER}/{PUBLIC}'
+# TASKS
 VIEWUSERTASKS_EP = f'/{VIEW}/{USER}/{TASKS}'
 VIEWTASKS_EP = f'/{VIEW}/{TASKS}'
 CREATETASK_EP = f'/{CREATE}/{TASK}'
+UPDATETASK_EP = f'/{UPDATE}/{TASK}'
 DELETETASK_EP = f'/{DELETE}/{TASK}'
+# GOALS
 VIEWUSERGOALS_EP = f'/{VIEW}/{USER}/{GOALS}'
 CREATEUSERGOAL_EP = f'/{CREATE}/{USER}/{GOAL}'
 DELETEGOAL_EP = f'/{DELETE}/{GOAL}'
-LIKETASK_EP = f'/{LIKE}/{TASK}'
-UNLIKETASK_EP = f'/{UNLIKE}/{TASK}'
+# COMMENTS
 VIEWUSERCOMMENTS_EP = f'/{VIEW}/{USER}/{COMMENTS}'
+CREATECOMMENT_EP = f'/{COMMENT}/{CREATE}'
+# POSTS
 CREATEPOST_EP = f'/{CREATE}/{POST}'
 VIEWPOSTS_EP = f'/{VIEW}/{POSTS}'
-CREATECOMMENT_EP = f'/{COMMENT}/{CREATE}'
 DELETEPOST_EP = f'/{DELETE}/{POST}'
 
 # DEVELOPER ENDPOINTS
 ACCESSLOGS_EP = f'/{DEVELOPER}/access_logs'
+
+# ARCHIVE?
+LIKETASK_EP = f'/{LIKE}/{TASK}'
+UNLIKETASK_EP = f'/{UNLIKE}/{TASK}'
 
 
 # Responses
@@ -322,6 +332,59 @@ class PostTask(Resource):
             return {TASK_ID: new_id}
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
+
+
+updated_task_field = api.model('UpdateTask', {
+    tasks.ID: fields.String,
+    tasks.USER_ID: fields.String,
+    tasks.CONTENT: fields.String,
+    tasks.IS_COMPLETED: fields.Boolean,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String,
+})
+
+
+@api.route(f'{UPDATETASK_EP}', methods=['POST'])
+@api.expect(updated_task_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class UpdateTask(Resource):
+    """
+    This class is for updating an existing task
+    """
+    def post(self):
+        """
+        Allows user to create a new task
+        (session management in needed to prevent
+        this ep from creating tasks for other users)
+        """
+        tools.log_access(UPDATETASK_EP, request)
+        data = request.json
+        task_id = data[tasks.ID]
+        user_id = data[tasks.USER_ID]
+        access_token = data[auth.ACCESS_TOKEN]
+        refresh_token = data[auth.REFRESH_TOKEN]
+
+        content = None
+        is_completed = None
+        # CASE 1: CONTENT IS UPDATED
+        if tasks.CONTENT in data:
+            content = data[tasks.CONTENT]
+        # CASE 2: IS_COMPLETED IS UPDATED
+        if tasks.IS_COMPLETED in data:
+            is_completed = data[tasks.IS_COMPLETED]
+
+        # VERIFY THE IDENTITY
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            return res
+
+        try:
+            tasks.update_task(task_id, content, is_completed)
+            return {'message': 'Update task successful'}
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
+
 
 # @api.route(f'{DELETETASK_EP}/<task_id>', methods=['DELETE'])
 # class DeleteTask(Resource):
