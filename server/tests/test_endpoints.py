@@ -97,15 +97,6 @@ def test_get_users(mock_get_users):
 
 # ===================== TASKS TESTS START=====================
 
-# @pytest.mark.skip(reason="this ep does not test server ep")
-# @patch('db.tasks.get_tasks')
-# def test_get_tasks(mock_get_tasks):
-#     mock_get_tasks.return_value = SAMPLE_TASKS
-#     tasks = tsks.get_tasks()
-#     assert isinstance(tasks, dict)
-#     assert len(tasks) > 0   
-
-# add task to database and return the task details passing its own id as a string
 @pytest.fixture(scope="function")
 def setup_tasks():
     task = { 
@@ -118,72 +109,103 @@ def setup_tasks():
     task[tsks.ID] = str(ret)
     return task
 
-# check if view tasks 
-def test_get_viewTasks():
-    resp = TEST_CLIENT.get(ep.VIEWTASKS_EP)
-    resp_json = resp.get_json()
-    assert isinstance(resp_json, dict)
-    assert ep.TASKS in resp_json
-    tasks = resp_json[ep.TASKS]
-    assert isinstance(tasks, dict)
-    for task_id in tasks:
-        assert isinstance(task_id, str)
-        assert isinstance(tasks[task_id], dict)
 
-
-@patch('db.tasks.add_task', return_value=tsks.MOCK_ID, autospec=True)
-def test_postTask(mock_add):
-    """
-    Testing for posting a new task successfully: PostTask.post()
-    """
-    resp = TEST_CLIENT.post(ep.CREATETASK_EP, json=tsks.get_new_test_task())
-    assert resp.status_code == OK
-    
-@patch('db.tasks.add_task', side_effect=ValueError(), autospec=True)
-def test_bad_postTask(mock_add):
-    """
-    Testing for posting a task with ValueError: PostTask.post()
-    """
-    resp = TEST_CLIENT.post(ep.CREATETASK_EP, json=tsks.get_new_test_task())
-    assert resp.status_code == NOT_ACCEPTABLE
-    
-@patch('db.tasks.add_task', return_value=None)
-def test_postTask_failure(mock_add):
-    """
-    Testing for posting a task with ValueError: PostTask.post()
-    """
-    resp = TEST_CLIENT.post(ep.CREATETASK_EP, json=tsks.get_new_test_task())
-    assert resp.status_code == SERVICE_UNAVAILABLE
-
-
-@patch('db.tasks.add_task', return_value=tsks.MOCK_ID, autospec=True)
-def test_postTask(mock_add):
-    """
-    Testing for posting a new task successfully: PostTask.post()
-    """
-    resp = TEST_CLIENT.post(ep.CREATETASK_EP, json=tsks.get_new_test_task())
-    assert resp.status_code == OK
-
-
-def test_viewUserTask():
+def test_viewUserTask(setup_tasks):
     # CREATE TASK 
-    new_task = tsks.get_new_test_task()
-    test_task_id = str(tsks.add_task(new_task[tsks.USER_ID], new_task[tsks.GOAL_ID], new_task[tsks.CONTENT], new_task[tsks.IS_COMPLETED]))
-    
-    # CALL EP
-    test_user_id = str(new_task[tsks.USER_ID])
-    test_access_token = usrs.generate_access_token(test_user_id)
-    resp = TEST_CLIENT.post(ep.VIEWUSERTASKS_EP, json={
+    setup = setup_tasks
+    test_task_id = setup[tsks.ID]
+
+    # CALL ENDPOINT
+    test_user_id = setup[tsks.USER_ID] # user id of the created task 
+    test_access_token = usrs.generate_access_token(test_user_id) 
+    resp = TEST_CLIENT.post(ep.VIEWUSERTASKS_EP, json={ 
         tsks.USER_ID: test_user_id,
         auth.ACCESS_TOKEN: test_access_token,
         auth.REFRESH_TOKEN: test_access_token
     })
+
+    # TEST RESP 
     resp_json = resp.get_json()
     assert isinstance(resp_json, dict)
     assert ep.TASKS in resp_json
 
     # CLEANUP 
     tsks.del_task(test_task_id)
+
+@pytest.fixture(scope="function")
+def setup_task_fields():
+    new_task = tsks.get_new_test_task()
+    new_task_user_id = new_task[tsks.USER_ID]
+    test_access_token = usrs.generate_access_token(new_task_user_id) 
+    new_task[auth.ACCESS_TOKEN] = test_access_token
+    new_task[auth.REFRESH_TOKEN] = test_access_token
+    return new_task
+
+
+@patch('db.tasks.add_task', return_value=tsks.MOCK_ID, autospec=True)
+def test_postTask(mock_add, setup_task_fields):
+    """
+    Testing for posting a new task successfully: PostTask.post()
+    """
+    resp = TEST_CLIENT.post(ep.CREATETASK_EP, json= setup_task_fields)
+    assert resp.status_code == OK
+
+
+@patch('db.tasks.add_task', side_effect=ValueError(), autospec=True)
+def test_bad_postTask(mock_add, setup_task_fields):
+    """
+    Testing for posting a task with ValueError: PostTask.post()
+    """
+    # setup new task fields with auth token 
+    setup_task_fields
+
+    resp = TEST_CLIENT.post(ep.CREATETASK_EP, json= setup_task_fields)
+    assert resp.status_code == NOT_ACCEPTABLE
+    
+@patch('db.tasks.add_task', return_value=None)
+def test_postTask_failure(mock_add, setup_task_fields):
+    """
+    Testing for posting a task with ValueError: PostTask.post()
+    """
+   
+    # ping endpoint
+    resp = TEST_CLIENT.post(ep.CREATETASK_EP, json=setup_task_fields)
+    assert resp.status_code == SERVICE_UNAVAILABLE
+
+
+@patch('db.tasks.add_task', return_value=tsks.MOCK_ID, autospec=True)
+def test_postTask(mock_add, setup_task_fields):
+    """
+    Testing for posting a new task successfully: PostTask.post()
+    """
+    # ping endpoint
+    resp = TEST_CLIENT.post(ep.CREATETASK_EP, json= setup_task_fields)
+    assert resp.status_code == OK
+    
+
+def test_delTask(setup_tasks):
+    # CREATE TASK
+    setup_task = setup_tasks
+    test_task_id = setup_task[tsks.ID]
+
+    # Setup Target Fields
+    target_fields = {}
+    target_fields[tsks.ID] = test_task_id
+    target_fields[tsks.USER_ID] = setup_task[tsks.USER_ID]
+
+    # Generate & Attach Access Tokens
+    test_access_token = usrs.generate_access_token(test_task_id)
+    target_fields[auth.ACCESS_TOKEN] = test_access_token
+    target_fields[auth.REFRESH_TOKEN] = test_access_token
+
+    # DEL TASK 
+    resp = TEST_CLIENT.post(f'{ep.DELETETASK_EP}', json= target_fields)
+    assert resp.status_code == OK
+
+    # TEST DELETION WAS SUCCESSFUL
+    assert tsks.id_exists(test_task_id) == None
+
+
 
 # ===================== TASKS TESTS END =====================
 
@@ -322,10 +344,22 @@ def test_viewPosts(generate_post_fields):
 
 def test_deletePost(generate_post_fields):
     # CREATE post
-    post_id = psts.add_post(**generate_post_fields)
+    post_fields = generate_post_fields
+    post_id = psts.add_post(**post_fields)
+
+    # Prep deletion required fields
+    target_post = {}
+    target_post[psts.ID] = post_id
+    user_id = post_fields[psts.USER_ID]
+    target_post[psts.USER_ID] = user_id
+
+    # generate & attach AUTH fields
+    test_access_token = usrs.generate_access_token(user_id) 
+    target_post[auth.ACCESS_TOKEN] = test_access_token
+    target_post[auth.REFRESH_TOKEN] = test_access_token
 
     # DELETE post
-    resp = TEST_CLIENT.delete(f'{ep.DELETEPOST_EP}/{post_id}')
+    resp = TEST_CLIENT.post(f'{ep.DELETEPOST_EP}', json= target_post)
     assert resp.status_code == OK
 
     # Check if the post is actually deleted
