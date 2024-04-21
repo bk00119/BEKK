@@ -87,11 +87,8 @@ def get_user_comments(user_id: str):
     # gets all comments under an user
     if usrs.id_exists(user_id):
         comments = dbc.fetch_all_as_dict(dbc.DB, COMMENTS_COLLECT,
-                                     {USER_ID: user_id})
-        
-    # dbc.comments.aggregate([
-    #     { $match: {user_id: user_id}}
-    # ])
+                                    {USER_ID: user_id})
+
         username = usrs.get_user_public(user_id).get(USERNAME)
         all_comments = []
         for comment_id in comments:
@@ -107,6 +104,21 @@ def get_user_comments(user_id: str):
 
 def get_post_comments(post_id: str):
     # gets all the comments under a post
-    post = dbc.fetch_one(dbc.DB, POSTS_COLLECT, {ID: ObjectId(post_id)})
-    
-    return post
+    try:
+        post = psts.fetch_by_post_id(post_id)
+        
+        if post:
+            users_comments = []
+            for comment_id in post['comment_ids']:
+                comment_data = get_comment(comment_id)
+                user_data = usrs.get_user_public(comment_data['user_id'])
+                user_comment = {
+                    'username': user_data.get(USERNAME),
+                    'comment': comment_data.get(CONTENT)
+                }
+                users_comments.append(user_comment)
+            return users_comments
+        else:
+            print(f"Post with ID {post_id} not found.")
+    except Exception as e:
+        print(f"Error getting post comments: {e}")

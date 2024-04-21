@@ -518,8 +518,6 @@ class ViewAllPostComments(Resource):
 
 user_comments_field = api.model('UserComments', {
     cmts.USER_ID: fields.String,
-    # auth.ACCESS_TOKEN: fields.String,
-    # auth.REFRESH_TOKEN: fields.String
 })
 
 
