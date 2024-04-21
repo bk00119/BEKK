@@ -42,6 +42,17 @@ def test_del_task_not_exist():
   with pytest.raises(ValueError):
     tsks.del_task(id)
 
+# WORK ON THIS AFTER KEVIN'S DONE
+# def test_update_task():
+#   test_task = tsks.get_new_test_task()
+#   og_content = test_task[tsks.CONTENT]
+#   og_is_completed = test_task[tsks.IS_COMPLETED]
+#   ret = tsks.add_task(test_task[tsks.USER_ID], test_task[tsks.GOAL_ID], test_task[tsks.CONTENT], test_task[tsks.IS_COMPLETED])
+#   tsks.update_task(ret, "Updated task", True)
+#   data = tsks.get_task(ret)
+#   assert data[tsks.CONTENT] != og_content
+#   assert data[tsks.IS_COMPLETED] != og_is_completed
+#   tsks.del_task(ret)
 
 # adds test task entry and checks if entry has been made via get_task db endpoint 
 # deletes test task from database - cleanup
@@ -66,7 +77,6 @@ def test_get_tasks(temp_task):
     assert task[tsks.CONTENT] == temp_task[tsks.CONTENT]
     assert task[tsks.IS_COMPLETED] == temp_task[tsks.IS_COMPLETED]
     tsks.del_task(key)
-
 
 
 def test_get_task_not_exist():

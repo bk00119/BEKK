@@ -16,7 +16,6 @@ import werkzeug.exceptions as wz
 # import db.db as db
 from flask_cors import CORS
 # from apis import api
-import os
 import utils.tools as tools
 
 app = Flask(__name__)
@@ -27,6 +26,7 @@ api = Api(app)
 CREATE = 'create'
 USER = 'user'
 VIEW = 'view'
+UPDATE = 'update'
 DELETE = 'delete'
 TASKS = 'tasks'
 TASK = 'task'
@@ -42,29 +42,37 @@ POSTS = "posts"
 DEVELOPER = "developer"
 
 # Endpoints
+# AUTH
 REGENERATE_ACCESS_TOKEN_EP = f'/{auth.ACCESS_TOKEN}/regenerate'
 LOGIN_EP = '/login'
 LOGOUT_EP = '/logout'
 SIGNUP_EP = '/signup'
+# USER PROFILE
 VIEWUSERPUBLIC_EP = f'/{VIEW}/{USER}/{PUBLIC}'
+# TASKS
 VIEWUSERTASKS_EP = f'/{VIEW}/{USER}/{TASKS}'
-VIEWTASKS_EP = f'/{VIEW}/{TASKS}'
 CREATETASK_EP = f'/{CREATE}/{TASK}'
+UPDATETASK_EP = f'/{UPDATE}/{TASK}'
 DELETETASK_EP = f'/{DELETE}/{TASK}'
+# GOALS
 VIEWUSERGOALS_EP = f'/{VIEW}/{USER}/{GOALS}'
 CREATEUSERGOAL_EP = f'/{CREATE}/{USER}/{GOAL}'
 DELETEGOAL_EP = f'/{DELETE}/{GOAL}'
-LIKETASK_EP = f'/{LIKE}/{TASK}'
-UNLIKETASK_EP = f'/{UNLIKE}/{TASK}'
+# COMMENTS
 VIEWUSERCOMMENTS_EP = f'/{VIEW}/{USER}/{COMMENTS}'
 VIEWALLPOSTCOMMENTS_EP = f'/{VIEW}/{POST}/{COMMENTS}'
+CREATECOMMENT_EP = f'/{COMMENT}/{CREATE}'
+# POSTS
 CREATEPOST_EP = f'/{CREATE}/{POST}'
 VIEWPOSTS_EP = f'/{VIEW}/{POSTS}'
-CREATECOMMENT_EP = f'/{COMMENT}/{CREATE}'
 DELETEPOST_EP = f'/{DELETE}/{POST}'
 
 # DEVELOPER ENDPOINTS
 ACCESSLOGS_EP = f'/{DEVELOPER}/access_logs'
+
+# ARCHIVE?
+LIKETASK_EP = f'/{LIKE}/{TASK}'
+UNLIKETASK_EP = f'/{UNLIKE}/{TASK}'
 
 
 # Responses
@@ -229,19 +237,6 @@ class Signup(Resource):
 
 # =====================Task Endpoint START=====================
 
-@api.route(f'{VIEWTASKS_EP}', methods=['GET', 'POST'])
-class ViewTasks(Resource):
-    """
-    Admin can view all tasks here
-    """
-    def get(self):
-        """
-        View all tasks globally
-        """
-        return {
-            TASKS: tasks.get_tasks()
-        }
-
 
 user_task_field = api.model('UserTasks', {
     tasks.USER_ID: fields.String,
@@ -263,20 +258,16 @@ class ViewUserTasks(Resource):
         User can view all tasks belonging to themselves/others
         """
         tools.log_access(VIEWUSERTASKS_EP, request)
+        # Auth
         user_id = request.json[tasks.USER_ID]
         access_token = request.json[auth.ACCESS_TOKEN]
         refresh_token = request.json[auth.REFRESH_TOKEN]
-
         res = auth.verify(user_id, access_token, refresh_token)
         if res:
             # VERIFICATION ERROR
             return res
 
-        # REGENERATE AN ACCESS TOKEN IF THE TOKEN IS EXPIRED
-        # OTHERWISE RETURN THE ORIGINAL ACCESS TOKEN
-        access_token = auth.regenerate_access_token(access_token,
-                                                    refresh_token)
-
+        # Get User Tasks
         try:
             return {
                 TASKS: tasks.get_user_tasks(user_id),
@@ -292,6 +283,8 @@ new_task_field = api.model('NewTask', {
     tasks.GOAL_ID: fields.String,
     tasks.IS_COMPLETED: fields.Boolean,
     tasks.CONTENT: fields.String,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String
 })
 
 
@@ -310,30 +303,114 @@ class PostTask(Resource):
         this ep from creating tasks for other users)
         """
         tools.log_access(CREATETASK_EP, request)
+        # Auth
         user_id = request.json[tasks.USER_ID]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            # VERIFICATION ERROR
+            return res
+
+        # Create Task
         goal = request.json[tasks.GOAL_ID]
         is_completed = request.json[tasks.IS_COMPLETED]
         content = request.json[tasks.CONTENT]
-
         try:
             # TASK: user_id, content, is_complete
             new_id = tasks.add_task(user_id, goal, content, is_completed)
             # GOAL: add task_id to tasks[]
             if new_id is None:
                 raise wz.ServiceUnavailable('Error')
-            return {TASK_ID: new_id}
+            return {
+                TASK_ID: new_id,
+                # INCLUDE THE REGENERATED TOKEN
+                auth.ACCESS_TOKEN: access_token
+            }
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 
-# @api.route(f'{DELETETASK_EP}/<task_id>', methods=['DELETE'])
-# class DeleteTask(Resource):
-#     """
-#     Delete Specific Post
-#     """
-#     @api.response(HTTPStatus.OK, 'Success')
-#     def delete(self, task_id):
-#         tasks.del_task(task_id)
 
+updated_task_field = api.model('UpdateTask', {
+    tasks.ID: fields.String,
+    tasks.USER_ID: fields.String,
+    tasks.CONTENT: fields.String,
+    tasks.IS_COMPLETED: fields.Boolean,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String,
+})
+
+
+@api.route(f'{UPDATETASK_EP}', methods=['POST'])
+@api.expect(updated_task_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class UpdateTask(Resource):
+    """
+    This class is for updating an existing task
+    """
+    def post(self):
+        """
+        Allows user to create a new task
+        (session management in needed to prevent
+        this ep from creating tasks for other users)
+        """
+        tools.log_access(UPDATETASK_EP, request)
+        data = request.json
+        task_id = data[tasks.ID]
+        user_id = data[tasks.USER_ID]
+        access_token = data[auth.ACCESS_TOKEN]
+        refresh_token = data[auth.REFRESH_TOKEN]
+
+        content = None
+        is_completed = None
+        # CASE 1: CONTENT IS UPDATED
+        if tasks.CONTENT in data:
+            content = data[tasks.CONTENT]
+        # CASE 2: IS_COMPLETED IS UPDATED
+        if tasks.IS_COMPLETED in data:
+            is_completed = data[tasks.IS_COMPLETED]
+
+        # VERIFY THE IDENTITY
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            return res
+
+        try:
+            tasks.update_task(task_id, content, is_completed)
+            return {'message': 'Update task successful'}
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
+
+
+target_task_field = api.model('TargetTask', {
+    tasks.ID: fields.String,
+    tasks.USER_ID: fields.String,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String
+})
+
+
+@api.expect(target_task_field)
+@api.route(f'{DELETETASK_EP}', methods=['POST'])
+class DeleteTask(Resource):
+    """
+    Delete Specific Post
+    """
+    @api.response(HTTPStatus.OK, 'Success')
+    def post(self):
+        # Auth
+        user_id = request.json[tasks.ID]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            # VERIFICATION ERROR
+            return res
+
+        # Delete Task
+        task_id = request.json[tasks.ID]
+        tasks.del_task(task_id)
 
 # =====================Task Endpoint END=====================
 
@@ -367,9 +444,6 @@ class ViewUserGoals(Resource):
         res = auth.verify(user_id, access_token, refresh_token)
         if res:
             return res
-
-        access_token = auth.regenerate_access_token(access_token,
-                                                    refresh_token)
 
         try:
             data = {
@@ -523,6 +597,8 @@ new_post_fields = api.model('NewPost', {
         psts.CONTENT: fields.String,
         psts.TASK_IDS: fields.List(fields.String),
         psts.GOAL_IDS: fields.List(fields.String),
+        auth.ACCESS_TOKEN: fields.String,
+        auth.REFRESH_TOKEN: fields.String
     })
 
 
@@ -533,7 +609,10 @@ class CreatePost(Resource):
     """
     @api.expect(new_post_fields)
     def post(self):
+        # Logging
         tools.log_access(CREATEPOST_EP, request)
+
+        # Request Fields
         user_id = request.json[psts.USER_ID]
         content = request.json[psts.CONTENT]
         task_ids = request.json[psts.TASK_IDS]
@@ -564,8 +643,9 @@ class ViewPosts(Resource):
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_FOUND, 'Data Not Found')
     def get(self, user_id):
-        tools.log_access(VIEWPOSTS_EP, request)
         # GLOBAL FETCH FOR POSTS
+        tools.log_access(VIEWPOSTS_EP, request)
+
         # if not user_id:
         if user_id == 'all':
             return psts.fetch_all()
@@ -578,18 +658,38 @@ class ViewPosts(Resource):
             raise wz.NotFound(f'No posts found with {user_id=}')
 
 
-@api.route(f'{DELETEPOST_EP}/<post_id>', methods=['DELETE'])
+post_token_field = api.model('TargetPost', {
+    psts.ID: fields.String,
+    psts.USER_ID: fields.String,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String
+})
+
+
+@api.route(f'{DELETEPOST_EP}', methods=['POST'])
 class DeletePost(Resource):
     """
     Delete Specific Post
     """
     @api.response(HTTPStatus.OK, 'Success')
-    def delete(self, post_id):
+    def post(self):
+        # AUTH
+        user_id = request.json[psts.USER_ID]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            # VERIFICATION ERROR
+            return res
+
+        # Delete Post
+        post_id = request.json[psts.ID]
         tools.log_access(DeletePost, request)
         psts.del_post(post_id)
 
 # ===================== POSTS Endpoint END=====================
 # ===================== DEVELOPER Endpoint START=====================
+
 
 developer_data = api.model('DeveloperData', {
     users.EMAIL: fields.String,
@@ -610,16 +710,10 @@ class Get_Access_Logs(Resource):
     def post(self):
         tools.log_access(LOGIN_EP, request, True)
         data = request.get_json()
-        
+
         try:
             if tools.verify_identity(data):
-            # return users.login(data)
-            # dbc.connect_db()
-            # data = dbc.fetch_one(USERS_COLLECT, {EMAIL: email})
-            # if not data:
-            #     raise ValueError('Invalid email or password')
-            # if users.verify_password(password, data[users.PASSWORD]):
-                return tools.get_access_logs_in_str()
+                return tools.get_access_logs()
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 
