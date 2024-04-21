@@ -221,7 +221,6 @@ def test_delTask(setup_tasks):
     assert tsks.id_exists(test_task_id) == None
 
 
-
 # ===================== TASKS TESTS END =====================
 
 # ===================== GOALS TESTS START =====================
