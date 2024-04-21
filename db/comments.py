@@ -86,7 +86,8 @@ def get_comment(comment_id: str):
 def get_user_comments(user_id: str):
     # gets all comments under an user
     if usrs.id_exists(user_id):
-        comments = dbc.fetch_all_as_dict(dbc.DB, COMMENTS_COLLECT, {USER_ID: user_id})
+        comments = dbc.fetch_all_as_dict(dbc.DB, COMMENTS_COLLECT,
+                                         {USER_ID: user_id})
 
         username = usrs.get_user_public(user_id).get(USERNAME)
         all_comments = []
