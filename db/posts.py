@@ -17,8 +17,8 @@ TIMESTAMP = 'timestamp'
 
 def get_test_post():
     return {
-        USER_ID: "65f27756a4817e4be8a2a5e9",
-        CONTENT: "test task",
+        USER_ID: "660e288ea90f1c7ff1ceb612",
+        CONTENT: "test post",
         TASK_IDS: [],
         GOAL_IDS: [],
         LIKE_IDS: [],

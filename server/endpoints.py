@@ -208,7 +208,8 @@ user_signup_field = api.model("User Signup", {
     users.PASSWORD: fields.String,
     users.USERNAME: fields.String,
     users.FIRST_NAME: fields.String,
-    users.LAST_NAME: fields.String
+    users.LAST_NAME: fields.String,
+    # users.IS_ADMIN: fields.Boolean
 })
 
 
@@ -572,24 +573,30 @@ new_post_fields = api.model('NewPost', {
     })
 
 
+@api.expect(new_post_fields)
 @api.route(f'{CREATEPOST_EP}', methods=["POST"])
 class CreatePost(Resource):
     """
     Creates a post
     """
-    @api.expect(new_post_fields)
     def post(self):
         # Logging
         tools.log_access(CREATEPOST_EP, request)
 
-        # Request Fields
+        # AUTH
         user_id = request.json[psts.USER_ID]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            return res
+
+        # Request Fields
         content = request.json[psts.CONTENT]
         task_ids = request.json[psts.TASK_IDS]
         goal_ids = request.json[psts.GOAL_IDS]
         like_ids = []
         comment_ids = []
-
         try:
             new_id = psts.add_post(
                         user_id,
