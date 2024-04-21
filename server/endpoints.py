@@ -418,6 +418,7 @@ class DeleteTask(Resource):
 
 user_goals_field = api.model('UserGoals', {
     gls.USER_ID: fields.String,
+    # gls.ID: fields.String,
     auth.ACCESS_TOKEN: fields.String,
     auth.REFRESH_TOKEN: fields.String
 })
@@ -437,6 +438,7 @@ class ViewUserGoals(Resource):
         """
         tools.log_access(VIEWUSERGOALS_EP, request)
         user_id = request.json[gls.USER_ID]
+        # goal_id = request.json[gls.ID]
         access_token = request.json[auth.ACCESS_TOKEN]
         refresh_token = request.json[auth.REFRESH_TOKEN]
 
@@ -445,6 +447,7 @@ class ViewUserGoals(Resource):
             return res
 
         try:
+            # gls.get_set_goal()
             data = {
                 GOALS: gls.get_user_goals(user_id),
                 auth.ACCESS_TOKEN: access_token
