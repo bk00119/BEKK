@@ -101,11 +101,10 @@ def test_get_users(mock_get_users):
 def setup_tasks():
     task = { 
         tsks.USER_ID: "6575033f3b89d2b4f309d7af",
-        tsks.GOAL_ID: "65d2dd8abe686c2ec340e298", 
         tsks.CONTENT: "test content",
         tsks.IS_COMPLETED: False
     }
-    ret = tsks.add_task(task[tsks.USER_ID], task[tsks.GOAL_ID], task[tsks.CONTENT], task[tsks.IS_COMPLETED])
+    ret = tsks.add_task(task[tsks.USER_ID], task[tsks.CONTENT], task[tsks.IS_COMPLETED])
     task[tsks.ID] = str(ret)
     return task
 
@@ -154,7 +153,6 @@ def setup_task_fields():
     new_task[auth.REFRESH_TOKEN] = test_access_token
     return new_task
 
-
 @patch('db.tasks.add_task', return_value=tsks.MOCK_ID, autospec=True)
 def test_postTask(mock_add, setup_task_fields):
     """
@@ -163,15 +161,12 @@ def test_postTask(mock_add, setup_task_fields):
     resp = TEST_CLIENT.post(ep.CREATETASK_EP, json= setup_task_fields)
     assert resp.status_code == OK
 
-
 @patch('db.tasks.add_task', side_effect=ValueError(), autospec=True)
 def test_bad_postTask(mock_add, setup_task_fields):
     """
     Testing for posting a task with ValueError: PostTask.post()
     """
     # setup new task fields with auth token 
-    setup_task_fields
-
     resp = TEST_CLIENT.post(ep.CREATETASK_EP, json= setup_task_fields)
     assert resp.status_code == NOT_ACCEPTABLE
     
@@ -184,7 +179,6 @@ def test_postTask_failure(mock_add, setup_task_fields):
     # ping endpoint
     resp = TEST_CLIENT.post(ep.CREATETASK_EP, json=setup_task_fields)
     assert resp.status_code == SERVICE_UNAVAILABLE
-
 
 @patch('db.tasks.add_task', return_value=tsks.MOCK_ID, autospec=True)
 def test_postTask(mock_add, setup_task_fields):
@@ -204,7 +198,6 @@ def test_postTask(mock_add, setup_task_fields):
 #     resp = TEST_CLIENT.post(ep.UPDATETASK_EP, json= setup_task_fields)
 #     assert resp.status_code == OK
     
-
 def test_delTask(setup_tasks):
     # CREATE TASK
     setup_task = setup_tasks
@@ -226,7 +219,6 @@ def test_delTask(setup_tasks):
 
     # TEST DELETION WAS SUCCESSFUL
     assert tsks.id_exists(test_task_id) == None
-
 
 
 # ===================== TASKS TESTS END =====================
@@ -316,57 +308,49 @@ def test_bad_createComment(mock_add):
 
 # ===================== COMMENTS TESTS END =====================
 
-@pytest.fixture()
+@pytest.fixture(scope="function")
 def generate_post_fields():
-    return {
-        psts.USER_ID: '6575033f3b89d2b4f309d7af', 
-        psts.CONTENT: "Test Entry", 
-        psts.TASK_IDS: [], 
-        psts.GOAL_IDS: [], 
-        psts.LIKE_IDS: [],
-        psts.COMMENT_IDS: [], 
-    }   
+    new_post_fields = psts.get_test_post()
+    new_post_id = new_post_fields[psts.USER_ID]
+    test_access_token = usrs.generate_access_token(new_post_id) 
+    new_post_fields[auth.ACCESS_TOKEN] = test_access_token
+    new_post_fields[auth.REFRESH_TOKEN] = test_access_token
+    return new_post_fields
 
 
 @patch('db.posts.add_post', return_value=psts.MOCK_ID, autospec=True)
-def test_createPost(mock_add):
+def test_createPost(mock_add, generate_post_fields):
     # CREATE POST 
-    test_post = psts.get_test_post()
-    resp = TEST_CLIENT.post(ep.CREATEPOST_EP, json=test_post)
+    resp = TEST_CLIENT.post(ep.CREATEPOST_EP, json=generate_post_fields)
     assert resp.status_code == OK    
 
-def test_viewPosts(generate_post_fields):
-    # create post with user_id 
-    post_id = psts.add_post(**generate_post_fields) 
+def test_viewPosts():
+    # create post with user_id
+    post_fields = psts.get_test_post()
+    post_id = psts.add_post(**post_fields)
 
-    # view all posts belonging to user 
-    user_id = generate_post_fields[psts.USER_ID]
-    # 1) WITHOUT USER_ID -> GET ALL
+     # view & validate all posts belonging to user
+    user_id = post_fields[psts.USER_ID]
+    posts = TEST_CLIENT.get(f'{ep.VIEWPOSTS_EP}/{user_id}')
+    posts = posts.get_json()
+    for post_id in posts:
+        assert posts[post_id][psts.USER_ID] == user_id
+
+    # view & validate all posts
     posts = TEST_CLIENT.get(f'{ep.VIEWPOSTS_EP}/all')
     posts = posts.get_json()
-
-    # validate those posts
     assert isinstance(posts, dict)
     for post_id in posts:
         assert isinstance(post_id, str)
         assert isinstance(posts[post_id], dict)
 
-
-    # 2) WITH USER_ID 
-    posts = TEST_CLIENT.get(f'{ep.VIEWPOSTS_EP}/{user_id}')
-    posts = posts.get_json()
-    
-    # validate those posts
-    for post_id in posts:
-        assert posts[post_id][psts.USER_ID] == user_id
-
     # delete created post 
     psts.del_post(post_id)
 
 
-def test_deletePost(generate_post_fields):
+def test_deletePost():
     # CREATE post
-    post_fields = generate_post_fields
+    post_fields = psts.get_test_post()
     post_id = psts.add_post(**post_fields)
 
     # Prep deletion required fields

@@ -1,6 +1,7 @@
 import db.db_connect as dbc
 import db.users as usrs
 from bson import ObjectId
+from datetime import datetime
 
 MOCK_ID = 0
 POSTS_COLLECT = "posts"
@@ -11,12 +12,13 @@ GOAL_IDS = "goal_ids"
 LIKE_IDS = "like_ids"
 COMMENT_IDS = "comment_ids"
 ID = "_id"
+TIMESTAMP = 'timestamp'
 
 
 def get_test_post():
     return {
-        USER_ID: "65f27756a4817e4be8a2a5e9",
-        CONTENT: "test task",
+        USER_ID: "660e288ea90f1c7ff1ceb612",
+        CONTENT: "test post",
         TASK_IDS: [],
         GOAL_IDS: [],
         LIKE_IDS: [],
@@ -39,7 +41,8 @@ def add_post(user_id,
                             TASK_IDS: task_ids,
                             GOAL_IDS: goal_ids,
                             LIKE_IDS: like_ids,
-                            COMMENT_IDS: comment_ids
+                            COMMENT_IDS: comment_ids,
+                            TIMESTAMP: str(datetime.now())
                         })
     return _id
 

@@ -208,7 +208,8 @@ user_signup_field = api.model("User Signup", {
     users.PASSWORD: fields.String,
     users.USERNAME: fields.String,
     users.FIRST_NAME: fields.String,
-    users.LAST_NAME: fields.String
+    users.LAST_NAME: fields.String,
+    # users.IS_ADMIN: fields.Boolean
 })
 
 
@@ -279,7 +280,6 @@ class ViewUserTasks(Resource):
 
 new_task_field = api.model('NewTask', {
     tasks.USER_ID: fields.String,
-    tasks.GOAL_ID: fields.String,
     tasks.IS_COMPLETED: fields.Boolean,
     tasks.CONTENT: fields.String,
     auth.ACCESS_TOKEN: fields.String,
@@ -304,6 +304,7 @@ class PostTask(Resource):
         tools.log_access(CREATETASK_EP, request)
         # Auth
         user_id = request.json[tasks.USER_ID]
+
         access_token = request.json[auth.ACCESS_TOKEN]
         refresh_token = request.json[auth.REFRESH_TOKEN]
         res = auth.verify(user_id, access_token, refresh_token)
@@ -312,12 +313,11 @@ class PostTask(Resource):
             return res
 
         # Create Task
-        goal = request.json[tasks.GOAL_ID]
         is_completed = request.json[tasks.IS_COMPLETED]
         content = request.json[tasks.CONTENT]
         try:
             # TASK: user_id, content, is_complete
-            new_id = tasks.add_task(user_id, goal, content, is_completed)
+            new_id = tasks.add_task(user_id, content, is_completed)
             # GOAL: add task_id to tasks[]
             if new_id is None:
                 raise wz.ServiceUnavailable('Error')
@@ -418,6 +418,7 @@ class DeleteTask(Resource):
 
 user_goals_field = api.model('UserGoals', {
     gls.USER_ID: fields.String,
+    # gls.ID: fields.String,
     auth.ACCESS_TOKEN: fields.String,
     auth.REFRESH_TOKEN: fields.String
 })
@@ -437,6 +438,7 @@ class ViewUserGoals(Resource):
         """
         tools.log_access(VIEWUSERGOALS_EP, request)
         user_id = request.json[gls.USER_ID]
+        # goal_id = request.json[gls.ID]
         access_token = request.json[auth.ACCESS_TOKEN]
         refresh_token = request.json[auth.REFRESH_TOKEN]
 
@@ -445,6 +447,7 @@ class ViewUserGoals(Resource):
             return res
 
         try:
+            # gls.get_set_goal()
             data = {
                 GOALS: gls.get_user_goals(user_id),
                 auth.ACCESS_TOKEN: access_token
@@ -574,23 +577,41 @@ new_post_fields = api.model('NewPost', {
     })
 
 
+@api.expect(new_post_fields)
 @api.route(f'{CREATEPOST_EP}', methods=["POST"])
 class CreatePost(Resource):
     """
     Creates a post
     """
-    @api.expect(new_post_fields)
     def post(self):
         # Logging
         tools.log_access(CREATEPOST_EP, request)
 
-        # Request Fields
+        # AUTH
         user_id = request.json[psts.USER_ID]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            return res
+
+        # Request Fields
         content = request.json[psts.CONTENT]
         task_ids = request.json[psts.TASK_IDS]
         goal_ids = request.json[psts.GOAL_IDS]
         like_ids = []
         comment_ids = []
+
+        for goal_id in goal_ids:
+            if (gls.id_exists(goal_ids)):
+                raise ValueError(
+                    f'Goal ID: {goal_id} does not exist in database'
+                )
+        for task_id in task_ids:
+            if (tasks.id_exists(task_id)):
+                raise ValueError(
+                    f'Task ID: {task_id} does not exist in database'
+                )
 
         try:
             new_id = psts.add_post(
