@@ -8,6 +8,7 @@ from bson.objectid import ObjectId
 import db.db_connect as dbc
 import db.users as usrs
 import db.posts as psts
+from datetime import datetime
 
 # COMMENTS COLLECTION:
 # _id: ObjectID
@@ -20,6 +21,7 @@ ID = '_id'
 USER_ID = 'user_id'
 CONTENT = 'content'
 USERNAME = 'username'
+TIMESTAMP = 'timestamp'
 
 ID_LEN = 24
 BIG_NUM = 100_000_000_000_000_000_000
@@ -63,6 +65,7 @@ def add_comment(user_id: str, content: str):
     comment = {}
     comment[USER_ID] = user_id
     comment[CONTENT] = content
+    comment[TIMESTAMP] = str(datetime.now())
     dbc.connect_db()
     _id = dbc.insert_one(COMMENTS_COLLECT, comment)
     return _id
