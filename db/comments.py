@@ -7,6 +7,7 @@ import random
 from bson.objectid import ObjectId
 import db.db_connect as dbc
 import db.users as usrs
+import db.posts as psts
 from datetime import datetime
 
 # COMMENTS COLLECTION:
@@ -15,9 +16,11 @@ from datetime import datetime
 # content: str
 
 COMMENTS_COLLECT = 'comments'
+POSTS_COLLECT = "posts"
 ID = '_id'
 USER_ID = 'user_id'
 CONTENT = 'content'
+USERNAME = 'username'
 TIMESTAMP = 'timestamp'
 
 ID_LEN = 24
@@ -76,6 +79,7 @@ def delete_comment(comment_id: str):
 
 
 def get_comment(comment_id: str):
+    # gets a singular comment
     if id_exists(comment_id):
         return dbc.fetch_one(COMMENTS_COLLECT, {ID: ObjectId(comment_id)})
     else:
@@ -83,8 +87,41 @@ def get_comment(comment_id: str):
 
 
 def get_user_comments(user_id: str):
+    # gets all comments under an user
     if usrs.id_exists(user_id):
-        return dbc.fetch_all_as_dict(dbc.DB, COMMENTS_COLLECT,
-                                     {USER_ID: user_id})
+        comments = dbc.fetch_all_as_dict(dbc.DB, COMMENTS_COLLECT,
+                                         {USER_ID: user_id})
+
+        username = usrs.get_user_public(user_id).get(USERNAME)
+        all_comments = []
+        for comment_id in comments:
+            all_comments.append(get_comment(comment_id).get(CONTENT))
+
+        return {
+            USERNAME: username,
+            COMMENTS_COLLECT: all_comments
+        }
     else:
         raise ValueError(f'Get User Comments Failed: {user_id} not in DB.')
+
+
+def get_post_comments(post_id: str):
+    # gets all the comments under a post
+    try:
+        post = psts.fetch_by_post_id(post_id)
+
+        if post:
+            users_comments = []
+            for comment_id in post['comment_ids']:
+                comment_data = get_comment(comment_id)
+                user_data = usrs.get_user_public(comment_data['user_id'])
+                user_comment = {
+                    'username': user_data.get(USERNAME),
+                    'comment': comment_data.get(CONTENT)
+                }
+                users_comments.append(user_comment)
+            return users_comments
+        else:
+            print(f"Post with ID {post_id} not found.")
+    except Exception as e:
+        print(f"Error getting post comments: {e}")

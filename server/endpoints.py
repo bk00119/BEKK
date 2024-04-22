@@ -24,15 +24,15 @@ api = Api(app)
 
 # COMMON KEYWORDS
 CREATE = 'create'
-USER = 'User'
+USER = 'user'
 VIEW = 'view'
 UPDATE = 'update'
 DELETE = 'delete'
-TASKS = 'Tasks'
-TASK = 'Task'
-GOALS = 'Goals'
-GOAL = 'Goal'
-PUBLIC = 'Public'
+TASKS = 'tasks'
+TASK = 'task'
+GOALS = 'goals'
+GOAL = 'goal'
+PUBLIC = 'public'
 LIKE = 'like'
 UNLIKE = 'unlike'
 COMMENTS = "comments"
@@ -60,6 +60,7 @@ CREATEUSERGOAL_EP = f'/{CREATE}/{USER}/{GOAL}'
 DELETEGOAL_EP = f'/{DELETE}/{GOAL}'
 # COMMENTS
 VIEWUSERCOMMENTS_EP = f'/{VIEW}/{USER}/{COMMENTS}'
+VIEWALLPOSTCOMMENTS_EP = f'/{VIEW}/{POST}/{COMMENTS}'
 CREATECOMMENT_EP = f'/{COMMENT}/{CREATE}'
 # POSTS
 CREATEPOST_EP = f'/{CREATE}/{POST}'
@@ -494,10 +495,32 @@ class CreateUserGoal(Resource):
 # =====================Comment Endpoint START================
 
 
+all_post_comments_field = api.model('AllPostComments', {
+    psts.ID: fields.String,
+})
+
+
+@api.route(f'{VIEWALLPOSTCOMMENTS_EP}', methods=['POST'])
+@api.expect(all_post_comments_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class ViewAllPostComments(Resource):
+    """
+    This class shows all comments under a post including usernames
+    """
+    def post(self):
+        """
+        gets all the comments under a post
+        """
+        post = request.json[psts.ID]
+        try:
+            return cmts.get_post_comments(post)
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
+
+
 user_comments_field = api.model('UserComments', {
     cmts.USER_ID: fields.String,
-    auth.ACCESS_TOKEN: fields.String,
-    auth.REFRESH_TOKEN: fields.String
 })
 
 
@@ -515,18 +538,9 @@ class ViewUserComments(Resource):
         """
         tools.log_access(VIEWUSERCOMMENTS_EP, request)
         user_id = request.json[cmts.USER_ID]
-        access_token = request.json[auth.ACCESS_TOKEN]
-        refresh_token = request.json[auth.REFRESH_TOKEN]
-
-        res = auth.verify(user_id, access_token, refresh_token)
-        if res:
-            return res
 
         try:
-            return {
-                COMMENTS: cmts.get_user_comments(user_id),
-                auth.ACCESS_TOKEN: access_token
-            }
+            return cmts.get_user_comments(user_id)
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 
