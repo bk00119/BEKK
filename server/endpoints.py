@@ -281,6 +281,7 @@ class ViewUserTasks(Resource):
 
 new_task_field = api.model('NewTask', {
     tasks.USER_ID: fields.String,
+    tasks.GOAL_ID: fields.String,
     tasks.IS_COMPLETED: fields.Boolean,
     tasks.CONTENT: fields.String,
     auth.ACCESS_TOKEN: fields.String,
@@ -305,6 +306,7 @@ class PostTask(Resource):
         tools.log_access(CREATETASK_EP, request)
         # Auth
         user_id = request.json[tasks.USER_ID]
+        goal = request.json[tasks.GOAL_ID]
 
         access_token = request.json[auth.ACCESS_TOKEN]
         refresh_token = request.json[auth.REFRESH_TOKEN]
@@ -318,7 +320,7 @@ class PostTask(Resource):
         content = request.json[tasks.CONTENT]
         try:
             # TASK: user_id, content, is_complete
-            new_id = tasks.add_task(user_id, content, is_completed)
+            new_id = tasks.add_task(user_id, goal, content, is_completed)
             # GOAL: add task_id to tasks[]
             if new_id is None:
                 raise wz.ServiceUnavailable('Error')

@@ -46,3 +46,10 @@ def test_get_goal_not_exist():
 @pytest.mark.skip(reason="not implemented yet") 
 def test_get_user_goals(temp_goal):
     goal = temp_goal
+
+def test_add_task_to_goal(temp_goal):
+    goal = temp_goal
+    gls.add_task_to_goal(ObjectId(goal[gls.ID]), "6575033f3b89d2b4f309d7af")  # test task id
+    ret = gls.get_set_goal(ObjectId(goal[gls.ID]))
+    assert len(ret[gls.TASK_IDS]) == 1
+    gls.delete_set_goal(ObjectId(goal[gls.ID]))

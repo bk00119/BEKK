@@ -101,3 +101,14 @@ def get_user_goals(user_id: str):
         return goals
     else:
         raise ValueError(f'Get User Goals Failed: {user_id} not in database.')
+
+
+def add_task_to_goal(goal_id: str, task_id: str):
+    if not id_exists(goal_id):
+        raise ValueError(f'Add task to goal: {goal_id} not in database.')
+    dbc.connect_db()
+    dbc.update_one(
+        GOALS_COLLECT,
+        {ID: ObjectId(goal_id)},
+        {"$addToSet": {TASK_IDS: task_id}}
+    )

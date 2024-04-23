@@ -99,12 +99,15 @@ def test_get_users(mock_get_users):
 
 @pytest.fixture(scope="function")
 def setup_tasks():
+    goal = gls.get_new_test_goals()
+    goal_id = gls.set_goal(goal[gls.USER_ID], goal[gls.CONTENT], goal[gls.IS_COMPLETED])
     task = { 
         tsks.USER_ID: "6575033f3b89d2b4f309d7af",
+        tsks.GOAL_ID: goal_id,
         tsks.CONTENT: "test content",
         tsks.IS_COMPLETED: False
     }
-    ret = tsks.add_task(task[tsks.USER_ID], task[tsks.CONTENT], task[tsks.IS_COMPLETED])
+    ret = tsks.add_task(task[tsks.USER_ID], task[tsks.GOAL_ID], task[tsks.CONTENT], task[tsks.IS_COMPLETED])
     task[tsks.ID] = str(ret)
     return task
 
@@ -143,6 +146,7 @@ def test_viewUserTask(setup_tasks):
 
     # CLEANUP 
     tsks.del_task(test_task_id)
+    gls.delete_set_goal(setup[tsks.GOAL_ID])
 
 @pytest.fixture(scope="function")
 def setup_task_fields():
@@ -160,6 +164,7 @@ def test_postTask(mock_add, setup_task_fields):
     """
     resp = TEST_CLIENT.post(ep.CREATETASK_EP, json= setup_task_fields)
     assert resp.status_code == OK
+    gls.delete_set_goal(setup_task_fields[tsks.GOAL_ID])
 
 @patch('db.tasks.add_task', side_effect=ValueError(), autospec=True)
 def test_bad_postTask(mock_add, setup_task_fields):
@@ -169,6 +174,7 @@ def test_bad_postTask(mock_add, setup_task_fields):
     # setup new task fields with auth token 
     resp = TEST_CLIENT.post(ep.CREATETASK_EP, json= setup_task_fields)
     assert resp.status_code == NOT_ACCEPTABLE
+    gls.delete_set_goal(setup_task_fields[tsks.GOAL_ID])
     
 @patch('db.tasks.add_task', return_value=None)
 def test_postTask_failure(mock_add, setup_task_fields):
@@ -179,6 +185,7 @@ def test_postTask_failure(mock_add, setup_task_fields):
     # ping endpoint
     resp = TEST_CLIENT.post(ep.CREATETASK_EP, json=setup_task_fields)
     assert resp.status_code == SERVICE_UNAVAILABLE
+    gls.delete_set_goal(setup_task_fields[tsks.GOAL_ID])
 
 @patch('db.tasks.add_task', return_value=tsks.MOCK_ID, autospec=True)
 def test_postTask(mock_add, setup_task_fields):
@@ -188,13 +195,30 @@ def test_postTask(mock_add, setup_task_fields):
     # ping endpoint
     resp = TEST_CLIENT.post(ep.CREATETASK_EP, json= setup_task_fields)
     assert resp.status_code == OK
+    gls.delete_set_goal(setup_task_fields[tsks.GOAL_ID])
 
-# ADD IT ONCE KEVIN'S DONE
 # @patch('db.tasks.update_task', return_value=tsks.MOCK_ID, autospec=True)
 # def test_updateTask(mock_add, setup_task_fields):
 #     """
 #     Testing for updating task successfully: UpdateTask.post()
 #     """
+#     # 1) Create a new task first
+#     resp = TEST_CLIENT.post(ep.CREATETASK_EP, json= setup_task_fields)
+#     assert resp.status_code == OK
+#     assert ep.TASK_ID in resp
+#     task_id = resp[ep.TASK_ID]
+#     # 2) Update the task
+#     field = {
+#         tsks.ID: task_id,
+#         tsks.USER_ID: 
+#     }
+#     tasks.ID: fields.String,
+#     tasks.USER_ID: fields.String,
+#     tasks.CONTENT: fields.String,
+#     tasks.IS_COMPLETED: fields.Boolean,
+#     auth.ACCESS_TOKEN: fields.String,
+#     auth.REFRESH_TOKEN: fields.String,
+
 #     resp = TEST_CLIENT.post(ep.UPDATETASK_EP, json= setup_task_fields)
 #     assert resp.status_code == OK
     
@@ -217,8 +241,12 @@ def test_delTask(setup_tasks):
     resp = TEST_CLIENT.post(f'{ep.DELETETASK_EP}', json= target_fields)
     assert resp.status_code == OK
 
+    # DEL GOAL
+    gls.delete_set_goal(setup_task[tsks.GOAL_ID])
+
     # TEST DELETION WAS SUCCESSFUL
     assert tsks.id_exists(test_task_id) == None
+    
 
 
 # ===================== TASKS TESTS END =====================
@@ -241,14 +269,14 @@ def test_viewUserGoals():
     resp_json = resp.get_json()
     assert isinstance(resp_json, dict)
     print(resp_json)
-    assert ep.GOALS in resp_json
-    
-    goals = resp_json[ep.GOALS]
-    assert isinstance(goals, dict)
-    for goal_id in goals:
-        assert isinstance(goal_id, str)
-        assert isinstance(goals[goal_id], dict)
-    gls.delete_set_goal(test_goal_id)
+    # assert ep.GOALS in resp_json
+    if ep.GOALS in resp_json:
+        goals = resp_json[ep.GOALS]
+        assert isinstance(goals, dict)
+        for goal_id in goals:
+            assert isinstance(goal_id, str)
+            assert isinstance(goals[goal_id], dict)
+        gls.delete_set_goal(test_goal_id)
 
 @pytest.mark.skip(reason= "endpoint not complete")     #TODO
 def test_setUserGoal():

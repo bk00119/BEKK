@@ -8,7 +8,7 @@ from datetime import datetime
 from bson.objectid import ObjectId
 import db.db_connect as dbc
 import db.users as usrs
-# import db.goals as goals
+import db.goals as goals
 
 test_tasks = {
     "task1": "SWE",
@@ -32,7 +32,7 @@ TITLE = 'title'
 CONTENT = 'content'
 STATUS = 'status'
 LIKES = 'likes'
-# GOAL_ID = 'goal_id'
+GOAL_ID = 'goal_id'
 IS_COMPLETED = 'is_completed'
 TIMESTAMP = 'timestamp'
 
@@ -73,14 +73,16 @@ def get_new_test_task():
     _id = str(_id)
     _id = _id.rjust(ID_LEN, '0')
     test_task[USER_ID] = '6575033f3b89d2b4f309d7af'
-    # test_task[GOAL_ID] = '65d2dd8abe686c2ec340e298'
+    # test_task[GOAL_ID] = '65d2dd8abe686c2ec340e298'  # NEEDS TO CHANGE
+    test_task[GOAL_ID] = goals.set_goal(test_task[USER_ID],
+                                        "test goal content", False)
     test_task[CONTENT] = 'attend CS101 Office Hours'
     test_task[IS_COMPLETED] = False
 
     return test_task
 
 
-def add_task(user_id: str, content: str, is_completed: bool):
+def add_task(user_id: str, goal: str, content: str, is_completed: bool):
     # if not user_id:
     #     raise ValueError('user_id may not be blank')
     # if not title:
@@ -96,12 +98,8 @@ def add_task(user_id: str, content: str, is_completed: bool):
     dbc.connect_db()
     _id = dbc.insert_one(TASKS_COLLECT, task)
 
-    # UPDATE GOAL -> use goals.add_new_goal()
-    # dbc.update_one(
-    #     goals.GOALS_COLLECT,
-    #     {goals.ID: ObjectId(goal)},
-    #     {"$addToSet": {goals.TASK_IDS: _id}}
-    # )
+    goals.add_task_to_goal(goal, _id)
+
     return _id
 
 
