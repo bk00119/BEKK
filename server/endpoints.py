@@ -463,7 +463,9 @@ class ViewUserGoals(Resource):
 new_goal_field = api.model('NewGoal', {
     gls.USER_ID: fields.String,
     gls.CONTENT: fields.String,
-    gls.IS_COMPLETED: fields.Boolean
+    gls.IS_COMPLETED: fields.Boolean,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String
 })
 
 
@@ -482,6 +484,12 @@ class CreateUserGoal(Resource):
         tools.log_access(CREATEUSERGOAL_EP, request)
         user_id = request.json[gls.USER_ID]
         content = request.json[gls.CONTENT]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            # VERIFICATION ERROR
+            return res
         is_completed = request.json[gls.IS_COMPLETED]
         try:
             setGoal = gls.set_goal(user_id, content, is_completed)
