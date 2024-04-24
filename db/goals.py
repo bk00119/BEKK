@@ -135,6 +135,8 @@ def check_task_completion(goal_id: str):
     if TASK_IDS not in data:
         raise ValueError('check_task_completion task_ids'
                          + f' not in goal: {goal_id}.')
+    if len(data[TASK_IDS]) == 0:
+        return False
     for task in data[TASK_IDS]:
         task_data = tasks.get_task(task)
         if tasks.IS_COMPLETED not in task_data:

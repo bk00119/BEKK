@@ -165,6 +165,8 @@ def del_task(task_id: str, goal_id: str):
         # UPDATE GOAL'S IS_COMPLETED
         if goals.check_task_completion(goal_id):
             goals.set_goal_completion(goal_id, True)
+        else:
+            goals.set_goal_completion(goal_id, False)
 
         data = dbc.del_one(TASKS_COLLECT, {ID: ObjectId(task_id)})
         return data
