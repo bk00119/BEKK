@@ -34,19 +34,19 @@ def test_add_task():
   ret = tsks.add_task(test_task[tsks.USER_ID], test_task[tsks.GOAL_ID], test_task[tsks.CONTENT], test_task[tsks.IS_COMPLETED])
   # ret = tsks.add_task(test_task[tsks.USER_ID], test_task[tsks.CONTENT], test_task[tsks.IS_COMPLETED])
   assert isinstance(ret, str) # return: str(_id) 
-  tsks.del_task(ret)
+  tsks.del_task(ret, test_task[tsks.GOAL_ID])
   goals.delete_set_goal(test_task[tsks.GOAL_ID])
 
 def test_del_task(temp_task):
   task = temp_task
-  tsks.del_task(ObjectId(task[tsks.ID]))
+  tsks.del_task(ObjectId(task[tsks.ID]), task[tsks.GOAL_ID])
   assert not tsks.id_exists(ObjectId(task[tsks.ID]))
   goals.delete_set_goal(task[tsks.GOAL_ID])
   
 def test_del_task_not_exist():
   id = dbc.gen_object_id()
   with pytest.raises(ValueError):
-    tsks.del_task(id)
+    tsks.del_task(id, "dummy value")
 
 # WORK ON THIS AFTER KEVIN'S DONE
 def test_update_task():
@@ -62,7 +62,7 @@ def test_update_task():
   assert data[tsks.CONTENT] != og_content
   assert data[tsks.IS_COMPLETED] != og_is_completed
   # 4) DELETE THE TASK & GOAL
-  tsks.del_task(ret)
+  tsks.del_task(ret, test_task[tsks.GOAL_ID])
   goals.delete_set_goal(test_task[tsks.GOAL_ID])
 
 # adds test task entry and checks if entry has been made via get_task db endpoint 
@@ -75,7 +75,7 @@ def test_get_task(temp_task):
   # assert str(ret[tsks.GOAL_ID]) == temp_task[tsks.GOAL_ID]
   assert ret[tsks.CONTENT] == temp_task[tsks.CONTENT]
   assert ret[tsks.IS_COMPLETED] == temp_task[tsks.IS_COMPLETED]
-  tsks.del_task(temp_task[tsks.ID])
+  tsks.del_task(temp_task[tsks.ID], task[tsks.GOAL_ID])
   goals.delete_set_goal(task[tsks.GOAL_ID])
 
 
@@ -91,7 +91,7 @@ def test_get_tasks(temp_task):
     # assert str(task[tsks.GOAL_ID]) == temp_task[tsks.GOAL_ID]
     assert task[tsks.CONTENT] == temp_task[tsks.CONTENT]
     assert task[tsks.IS_COMPLETED] == temp_task[tsks.IS_COMPLETED]
-    tsks.del_task(key)
+    tsks.del_task(key, task[tsks.GOAL_ID])
   goals.delete_set_goal(task[tsks.GOAL_ID])
 
 
@@ -110,7 +110,7 @@ def test_get_user_tasks(temp_task):
   # assert ret[task[tsks.ID]][tsks.GOAL_ID] == task[tsks.GOAL_ID]
   assert ret[task[tsks.ID]][tsks.CONTENT] == task[tsks.CONTENT]
   assert ret[task[tsks.ID]][tsks.IS_COMPLETED] == task[tsks.IS_COMPLETED]
-  tsks.del_task(ObjectId(task[tsks.ID]))
+  tsks.del_task(ObjectId(task[tsks.ID]), task[tsks.GOAL_ID])
   goals.delete_set_goal(task[tsks.GOAL_ID])
 
 def test_task_like_unlike(temp_task):
@@ -120,5 +120,5 @@ def test_task_like_unlike(temp_task):
   assert tsks.is_task_liked(task[tsks.ID], user_id)
   tsks.unlike_task(task[tsks.ID], user_id)
   assert not tsks.is_task_liked(task[tsks.ID], user_id)
-  tsks.del_task(task[tsks.ID])
+  tsks.del_task(task[tsks.ID], task[tsks.GOAL_ID])
   goals.delete_set_goal(task[tsks.GOAL_ID])

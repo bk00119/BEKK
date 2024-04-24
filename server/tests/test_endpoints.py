@@ -145,7 +145,7 @@ def test_viewUserTask(setup_tasks):
     assert ep.TASKS in resp_json
 
     # CLEANUP 
-    tsks.del_task(test_task_id)
+    tsks.del_task(test_task_id, setup[tsks.GOAL_ID])
     gls.delete_set_goal(setup[tsks.GOAL_ID])
 
 @pytest.fixture(scope="function")
@@ -230,13 +230,16 @@ def test_delTask(setup_tasks):
     # Setup Target Fields
     target_fields = {}
     target_fields[tsks.ID] = test_task_id
+    target_fields[tsks.GOAL_ID] = setup_task[tsks.GOAL_ID]
     target_fields[tsks.USER_ID] = setup_task[tsks.USER_ID]
 
     # Generate & Attach Access Tokens
-    test_access_token = usrs.generate_access_token(test_task_id)
+    test_access_token = usrs.generate_access_token(setup_task[tsks.USER_ID])
     target_fields[auth.ACCESS_TOKEN] = test_access_token
     target_fields[auth.REFRESH_TOKEN] = test_access_token
 
+    # ADD TASK TO GOAL FIRST
+    gls.add_task_to_goal(target_fields[tsks.GOAL_ID], target_fields[tsks.ID])
     # DEL TASK 
     resp = TEST_CLIENT.post(f'{ep.DELETETASK_EP}', json= target_fields)
     assert resp.status_code == OK
@@ -268,7 +271,6 @@ def test_viewUserGoals():
         })
     resp_json = resp.get_json()
     assert isinstance(resp_json, dict)
-    print(resp_json)
     # assert ep.GOALS in resp_json
     if ep.GOALS in resp_json:
         goals = resp_json[ep.GOALS]

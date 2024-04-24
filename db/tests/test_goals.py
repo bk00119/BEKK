@@ -54,6 +54,14 @@ def test_add_task_to_goal(temp_goal):
     assert len(ret[gls.TASK_IDS]) == 1
     gls.delete_set_goal(ObjectId(goal[gls.ID]))
 
+def test_del_task_from_goal(temp_goal):
+    goal = temp_goal
+    gls.add_task_to_goal(ObjectId(goal[gls.ID]), "6575033f3b89d2b4f309d7af")
+    gls.del_task_from_goal(ObjectId(goal[gls.ID]), "6575033f3b89d2b4f309d7af")
+    ret = gls.get_set_goal(ObjectId(goal[gls.ID]))
+    assert len(ret[gls.TASK_IDS]) == 0
+    gls.delete_set_goal(ObjectId(goal[gls.ID]))
+
 def test_set_goal_completion(temp_goal):
     goal = temp_goal
     # ret = gls.set_goal(ObjectId(goal[gls.ID]))

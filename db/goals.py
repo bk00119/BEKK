@@ -114,6 +114,19 @@ def add_task_to_goal(goal_id: str, task_id: str):
     )
 
 
+def del_task_from_goal(goal_id: str, task_id: str):
+    if not id_exists(goal_id):
+        raise ValueError('del_task_from_goal goal: '
+                         + f'{goal_id} not in database.')
+    # pull the deleted task_id from task_ids
+    dbc.connect_db()
+    dbc.update_one(
+        GOALS_COLLECT,
+        {ID: ObjectId(goal_id)},
+        {"$pull": {TASK_IDS: task_id}}
+    )
+
+
 def check_task_completion(goal_id: str):
     if not id_exists(goal_id):
         raise ValueError('check_task_completion goal: '

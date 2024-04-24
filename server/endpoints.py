@@ -389,6 +389,7 @@ class UpdateTask(Resource):
 
 target_task_field = api.model('TargetTask', {
     tasks.ID: fields.String,
+    tasks.GOAL_ID: fields.String,
     tasks.USER_ID: fields.String,
     auth.ACCESS_TOKEN: fields.String,
     auth.REFRESH_TOKEN: fields.String
@@ -404,7 +405,7 @@ class DeleteTask(Resource):
     @api.response(HTTPStatus.OK, 'Success')
     def post(self):
         # Auth
-        user_id = request.json[tasks.ID]
+        user_id = request.json[tasks.USER_ID]
         access_token = request.json[auth.ACCESS_TOKEN]
         refresh_token = request.json[auth.REFRESH_TOKEN]
         res = auth.verify(user_id, access_token, refresh_token)
@@ -414,7 +415,8 @@ class DeleteTask(Resource):
 
         # Delete Task
         task_id = request.json[tasks.ID]
-        tasks.del_task(task_id)
+        goal_id = request.json[tasks.GOAL_ID]
+        tasks.del_task(task_id, goal_id)
 
 # =====================Task Endpoint END=====================
 
