@@ -335,6 +335,7 @@ class PostTask(Resource):
 
 updated_task_field = api.model('UpdateTask', {
     tasks.ID: fields.String,
+    tasks.GOAL_ID: fields.String,
     tasks.USER_ID: fields.String,
     tasks.CONTENT: fields.String,
     tasks.IS_COMPLETED: fields.Boolean,
@@ -360,6 +361,7 @@ class UpdateTask(Resource):
         tools.log_access(UPDATETASK_EP, request)
         data = request.json
         task_id = data[tasks.ID]
+        goal_id = data[tasks.GOAL_ID]
         user_id = data[tasks.USER_ID]
         access_token = data[auth.ACCESS_TOKEN]
         refresh_token = data[auth.REFRESH_TOKEN]
@@ -379,7 +381,7 @@ class UpdateTask(Resource):
             return res
 
         try:
-            tasks.update_task(task_id, content, is_completed)
+            tasks.update_task(task_id, goal_id, content, is_completed)
             return {'message': 'Update task successful'}
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')

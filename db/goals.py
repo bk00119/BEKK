@@ -112,3 +112,33 @@ def add_task_to_goal(goal_id: str, task_id: str):
         {ID: ObjectId(goal_id)},
         {"$addToSet": {TASK_IDS: task_id}}
     )
+
+
+def check_task_completion(goal_id: str):
+    if not id_exists(goal_id):
+        raise ValueError('check_task_completion goal: '
+                         + f'{goal_id} not in database.')
+    data = get_set_goal(ObjectId(goal_id))
+    if TASK_IDS not in data:
+        raise ValueError('check_task_completion task_ids'
+                         + f' not in goal: {goal_id}.')
+    for task in data[TASK_IDS]:
+        task_data = tasks.get_task(task)
+        if tasks.IS_COMPLETED not in task_data:
+            raise ValueError('check_task_completion is_completed'
+                             + f' not in task_id: {task}.')
+        if not task_data[tasks.IS_COMPLETED]:
+            return False
+    return True
+
+
+def set_goal_completion(goal_id: str, is_completed: bool):
+    if not id_exists(goal_id):
+        raise ValueError('check_task_completion goal:'
+                         + f' {goal_id} not in database.')
+    dbc.connect_db()
+    dbc.update_one(
+        GOALS_COLLECT,
+        {ID: ObjectId(goal_id)},
+        {"$set": {IS_COMPLETED: is_completed}}
+    )

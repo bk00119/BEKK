@@ -56,7 +56,7 @@ def test_update_task():
   og_is_completed = test_task[tsks.IS_COMPLETED]
   ret = tsks.add_task(test_task[tsks.USER_ID], test_task[tsks.GOAL_ID], test_task[tsks.CONTENT], test_task[tsks.IS_COMPLETED])
   # 2) UPDATE THE TASK
-  tsks.update_task(ret, "Updated task", True)
+  tsks.update_task(ret, test_task[tsks.GOAL_ID], "Updated task", True)
   data = tsks.get_task(ret)
   # 3) CHECK THE CHANGE
   assert data[tsks.CONTENT] != og_content
