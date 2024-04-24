@@ -98,7 +98,10 @@ def add_task(user_id: str, goal: str, content: str, is_completed: bool):
     dbc.connect_db()
     _id = dbc.insert_one(TASKS_COLLECT, task)
 
+    goal_is_completed = goals.check_task_completion(goal)
     goals.add_task_to_goal(goal, _id)
+    if goal_is_completed and not is_completed:
+        goals.set_goal_completion(goal, is_completed)
 
     return _id
 
