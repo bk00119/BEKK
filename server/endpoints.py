@@ -411,6 +411,7 @@ class DeleteTask(Resource):
         task_id = request.json[tasks.ID]
         tasks.del_task(task_id)
 
+
 # =====================Task Endpoint END=====================
 
 # =====================Goal Endpoint START=====================
@@ -639,12 +640,32 @@ class ViewPosts(Resource):
         # GLOBAL FETCH FOR POSTS
         tools.log_access(VIEWPOSTS_EP, request)
 
-        # if not user_id:
-        if user_id == 'all':
-            return psts.fetch_all()
+        # Initialize return object
+        posts = None
 
+        # Fetch all posts
+        if user_id == 'all':
+            posts = psts.fetch_all()
         # USER-BASED FETCH FOR POSTS
-        posts = psts.fetch_by_user_id(user_id)
+        else:
+            posts = psts.fetch_by_user_id(user_id)
+
+        # Append contents (goals, tasks)
+        for post_id in posts:
+            # convert goal_ids to goal_obj
+            goals_obj = []
+            for goal_id in posts[post_id][psts.GOAL_IDS]:
+                goal = gls.get_set_goal(goal_id)
+                goals_obj.append(goal)
+            posts[post_id][GOALS] = goals_obj
+
+            # Convert task_ids to task_obj
+            tasks_obj = []
+            for task_id in posts[post_id][psts.TASK_IDS]:
+                task = tasks.get_task(task_id)
+                tasks_obj.append(task)
+            posts[post_id][TASKS] = tasks_obj
+
         if posts:
             return posts
         else:
