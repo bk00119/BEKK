@@ -650,7 +650,7 @@ class ViewPosts(Resource):
         else:
             posts = psts.fetch_by_user_id(user_id)
 
-        # Append contents (goals, tasks)
+        # Append contents (goals, tasks, comments)
         for post_id in posts:
             # convert goal_ids to goal_obj
             goals_obj = []
@@ -665,6 +665,12 @@ class ViewPosts(Resource):
                 task = tasks.get_task(task_id)
                 tasks_obj.append(task)
             posts[post_id][TASKS] = tasks_obj
+
+            # Convert comment ids to comment_obj
+            if posts[post_id][psts.COMMENT_IDS]:
+                latest_comment_id = posts[post_id][psts.COMMENT_IDS][0]
+                comment = cmts.get_comment(latest_comment_id)
+                posts[post_id][COMMENTS] = comment
 
         if posts:
             return posts
