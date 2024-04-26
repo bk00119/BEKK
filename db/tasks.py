@@ -8,7 +8,7 @@ from datetime import datetime
 from bson.objectid import ObjectId
 import db.db_connect as dbc
 import db.users as usrs
-# import db.goals as goals
+import db.goals as goals
 
 test_tasks = {
     "task1": "SWE",
@@ -32,7 +32,7 @@ TITLE = 'title'
 CONTENT = 'content'
 STATUS = 'status'
 LIKES = 'likes'
-# GOAL_ID = 'goal_id'
+GOAL_ID = 'goal_id'
 IS_COMPLETED = 'is_completed'
 TIMESTAMP = 'timestamp'
 
@@ -73,14 +73,16 @@ def get_new_test_task():
     _id = str(_id)
     _id = _id.rjust(ID_LEN, '0')
     test_task[USER_ID] = '6575033f3b89d2b4f309d7af'
-    # test_task[GOAL_ID] = '65d2dd8abe686c2ec340e298'
+    # test_task[GOAL_ID] = '65d2dd8abe686c2ec340e298'  # NEEDS TO CHANGE
+    test_task[GOAL_ID] = goals.set_goal(test_task[USER_ID],
+                                        "test goal content", False)
     test_task[CONTENT] = 'attend CS101 Office Hours'
     test_task[IS_COMPLETED] = False
 
     return test_task
 
 
-def add_task(user_id: str, content: str, is_completed: bool):
+def add_task(user_id: str, goal: str, content: str, is_completed: bool):
     # if not user_id:
     #     raise ValueError('user_id may not be blank')
     # if not title:
@@ -96,16 +98,17 @@ def add_task(user_id: str, content: str, is_completed: bool):
     dbc.connect_db()
     _id = dbc.insert_one(TASKS_COLLECT, task)
 
-    # UPDATE GOAL -> use goals.add_new_goal()
-    # dbc.update_one(
-    #     goals.GOALS_COLLECT,
-    #     {goals.ID: ObjectId(goal)},
-    #     {"$addToSet": {goals.TASK_IDS: _id}}
-    # )
+    goal_is_completed = goals.check_task_completion(goal)
+    goals.add_task_to_goal(goal, _id)
+    if goal_is_completed and not is_completed:
+        goals.set_goal_completion(goal, is_completed)
+
     return _id
 
 
-def update_task(task_id: str, content: str, is_completed: bool):
+def update_task(task_id: str, goal_id: str, content: str, is_completed: bool):
+    # goal_is_completed = False
+
     if id_exists(task_id):
         if content is not None and is_completed is not None:
             # UPDATE BOTH CONTENT AND IS_COMPLETED
@@ -114,18 +117,37 @@ def update_task(task_id: str, content: str, is_completed: bool):
                 {ID: ObjectId(task_id)},
                 {"$set": {CONTENT: content, IS_COMPLETED: is_completed}},
             )
+
+            # CHECK IF ALL THE TASKS IN THE GOAL ARE COMPLETED
+            goal_is_completed = goals.check_task_completion(goal_id)
+            # UPDATE GOAL IS_COMPLETED
+            # OR CHANGE BACK TO INCOMPLETE IF TASK'S IS_COMPLETED IS FALSE
+            if is_completed == goal_is_completed:
+                goals.set_goal_completion(goal_id, is_completed)
+
         elif content is not None:
+            # UPDATE ONLY CONTENT
             dbc.update_one(
                 TASKS_COLLECT,
                 {ID: ObjectId(task_id)},
                 {"$set": {CONTENT: content}},
             )
+
         elif is_completed is not None:
+            # UPDATE ONLY IS_COMPLETED
             dbc.update_one(
                 TASKS_COLLECT,
                 {ID: ObjectId(task_id)},
                 {"$set": {IS_COMPLETED: is_completed}},
             )
+
+            # CHECK IF ALL THE TASKS IN THE GOAL ARE COMPLETED
+            goal_is_completed = goals.check_task_completion(goal_id)
+            # UPDATE GOAL IS_COMPLETED
+            # OR CHANGE BACK TO INCOMPLETE IF TASK'S IS_COMPLETED IS FALSE
+            if is_completed == goal_is_completed:
+                goals.set_goal_completion(goal_id, is_completed)
+
         else:
             raise ValueError(f'Task update failure: task {task_id}'
                              + ' needs one of content value'
@@ -135,9 +157,19 @@ def update_task(task_id: str, content: str, is_completed: bool):
                          + 'not in database.')
 
 
-def del_task(task_id: str):
+def del_task(task_id: str, goal_id: str):
     if id_exists(task_id):
-        return dbc.del_one(TASKS_COLLECT, {ID: ObjectId(task_id)})
+        # UPDATE GOAL'S TASK_IDS
+        goals.del_task_from_goal(goal_id, task_id)
+
+        # UPDATE GOAL'S IS_COMPLETED
+        if goals.check_task_completion(goal_id):
+            goals.set_goal_completion(goal_id, True)
+        else:
+            goals.set_goal_completion(goal_id, False)
+
+        data = dbc.del_one(TASKS_COLLECT, {ID: ObjectId(task_id)})
+        return data
     else:
         raise ValueError(f'Delete failure: {task_id} not in database.')
 

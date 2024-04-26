@@ -17,7 +17,7 @@ TIMESTAMP = 'timestamp'
 
 def get_test_post():
     return {
-        USER_ID: "660e288ea90f1c7ff1ceb612",
+        USER_ID: "6575033f3b89d2b4f309d7af",
         CONTENT: "test post",
         TASK_IDS: [],
         GOAL_IDS: [],
@@ -89,7 +89,8 @@ def fetch_all():
                 'task_ids': 1,
                 'goal_ids': 1,
                 'like_ids': 1,
-                'comment_ids': 1
+                'comment_ids': 1,
+                'timestamp': 1,
             }
         },
         # {

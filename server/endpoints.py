@@ -17,6 +17,7 @@ import werkzeug.exceptions as wz
 from flask_cors import CORS
 # from apis import api
 import utils.tools as tools
+from collections import OrderedDict
 
 app = Flask(__name__)
 CORS(app)
@@ -24,15 +25,15 @@ api = Api(app)
 
 # COMMON KEYWORDS
 CREATE = 'create'
-USER = 'User'
+USER = 'user'
 VIEW = 'view'
 UPDATE = 'update'
 DELETE = 'delete'
-TASKS = 'Tasks'
-TASK = 'Task'
-GOALS = 'Goals'
-GOAL = 'Goal'
-PUBLIC = 'Public'
+TASKS = 'tasks'
+TASK = 'task'
+GOALS = 'goals'
+GOAL = 'goal'
+PUBLIC = 'public'
 LIKE = 'like'
 UNLIKE = 'unlike'
 COMMENTS = "comments"
@@ -60,6 +61,7 @@ CREATEUSERGOAL_EP = f'/{CREATE}/{USER}/{GOAL}'
 DELETEGOAL_EP = f'/{DELETE}/{GOAL}'
 # COMMENTS
 VIEWUSERCOMMENTS_EP = f'/{VIEW}/{USER}/{COMMENTS}'
+VIEWALLPOSTCOMMENTS_EP = f'/{VIEW}/{POST}/{COMMENTS}'
 CREATECOMMENT_EP = f'/{COMMENT}/{CREATE}'
 # POSTS
 CREATEPOST_EP = f'/{CREATE}/{POST}'
@@ -280,6 +282,7 @@ class ViewUserTasks(Resource):
 
 new_task_field = api.model('NewTask', {
     tasks.USER_ID: fields.String,
+    tasks.GOAL_ID: fields.String,
     tasks.IS_COMPLETED: fields.Boolean,
     tasks.CONTENT: fields.String,
     auth.ACCESS_TOKEN: fields.String,
@@ -304,6 +307,7 @@ class PostTask(Resource):
         tools.log_access(CREATETASK_EP, request)
         # Auth
         user_id = request.json[tasks.USER_ID]
+        goal = request.json[tasks.GOAL_ID]
 
         access_token = request.json[auth.ACCESS_TOKEN]
         refresh_token = request.json[auth.REFRESH_TOKEN]
@@ -317,7 +321,7 @@ class PostTask(Resource):
         content = request.json[tasks.CONTENT]
         try:
             # TASK: user_id, content, is_complete
-            new_id = tasks.add_task(user_id, content, is_completed)
+            new_id = tasks.add_task(user_id, goal, content, is_completed)
             # GOAL: add task_id to tasks[]
             if new_id is None:
                 raise wz.ServiceUnavailable('Error')
@@ -332,6 +336,7 @@ class PostTask(Resource):
 
 updated_task_field = api.model('UpdateTask', {
     tasks.ID: fields.String,
+    tasks.GOAL_ID: fields.String,
     tasks.USER_ID: fields.String,
     tasks.CONTENT: fields.String,
     tasks.IS_COMPLETED: fields.Boolean,
@@ -357,6 +362,7 @@ class UpdateTask(Resource):
         tools.log_access(UPDATETASK_EP, request)
         data = request.json
         task_id = data[tasks.ID]
+        goal_id = data[tasks.GOAL_ID]
         user_id = data[tasks.USER_ID]
         access_token = data[auth.ACCESS_TOKEN]
         refresh_token = data[auth.REFRESH_TOKEN]
@@ -376,7 +382,7 @@ class UpdateTask(Resource):
             return res
 
         try:
-            tasks.update_task(task_id, content, is_completed)
+            tasks.update_task(task_id, goal_id, content, is_completed)
             return {'message': 'Update task successful'}
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
@@ -384,6 +390,7 @@ class UpdateTask(Resource):
 
 target_task_field = api.model('TargetTask', {
     tasks.ID: fields.String,
+    tasks.GOAL_ID: fields.String,
     tasks.USER_ID: fields.String,
     auth.ACCESS_TOKEN: fields.String,
     auth.REFRESH_TOKEN: fields.String
@@ -399,7 +406,7 @@ class DeleteTask(Resource):
     @api.response(HTTPStatus.OK, 'Success')
     def post(self):
         # Auth
-        user_id = request.json[tasks.ID]
+        user_id = request.json[tasks.USER_ID]
         access_token = request.json[auth.ACCESS_TOKEN]
         refresh_token = request.json[auth.REFRESH_TOKEN]
         res = auth.verify(user_id, access_token, refresh_token)
@@ -409,7 +416,8 @@ class DeleteTask(Resource):
 
         # Delete Task
         task_id = request.json[tasks.ID]
-        tasks.del_task(task_id)
+        goal_id = request.json[tasks.GOAL_ID]
+        tasks.del_task(task_id, goal_id)
 
 
 # =====================Task Endpoint END=====================
@@ -461,7 +469,9 @@ class ViewUserGoals(Resource):
 new_goal_field = api.model('NewGoal', {
     gls.USER_ID: fields.String,
     gls.CONTENT: fields.String,
-    gls.IS_COMPLETED: fields.Boolean
+    gls.IS_COMPLETED: fields.Boolean,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String
 })
 
 
@@ -480,6 +490,12 @@ class CreateUserGoal(Resource):
         tools.log_access(CREATEUSERGOAL_EP, request)
         user_id = request.json[gls.USER_ID]
         content = request.json[gls.CONTENT]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            # VERIFICATION ERROR
+            return res
         is_completed = request.json[gls.IS_COMPLETED]
         try:
             setGoal = gls.set_goal(user_id, content, is_completed)
@@ -495,10 +511,32 @@ class CreateUserGoal(Resource):
 # =====================Comment Endpoint START================
 
 
+all_post_comments_field = api.model('AllPostComments', {
+    psts.ID: fields.String,
+})
+
+
+@api.route(f'{VIEWALLPOSTCOMMENTS_EP}', methods=['POST'])
+@api.expect(all_post_comments_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class ViewAllPostComments(Resource):
+    """
+    This class shows all comments under a post including usernames
+    """
+    def post(self):
+        """
+        gets all the comments under a post
+        """
+        post = request.json[psts.ID]
+        try:
+            return cmts.get_post_comments(post)
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
+
+
 user_comments_field = api.model('UserComments', {
     cmts.USER_ID: fields.String,
-    auth.ACCESS_TOKEN: fields.String,
-    auth.REFRESH_TOKEN: fields.String
 })
 
 
@@ -516,18 +554,9 @@ class ViewUserComments(Resource):
         """
         tools.log_access(VIEWUSERCOMMENTS_EP, request)
         user_id = request.json[cmts.USER_ID]
-        access_token = request.json[auth.ACCESS_TOKEN]
-        refresh_token = request.json[auth.REFRESH_TOKEN]
-
-        res = auth.verify(user_id, access_token, refresh_token)
-        if res:
-            return res
 
         try:
-            return {
-                COMMENTS: cmts.get_user_comments(user_id),
-                auth.ACCESS_TOKEN: access_token
-            }
+            return cmts.get_user_comments(user_id)
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 
@@ -604,16 +633,15 @@ class CreatePost(Resource):
         comment_ids = []
 
         for goal_id in goal_ids:
-            if (gls.id_exists(goal_ids)):
+            if not gls.id_exists(goal_id):
                 raise ValueError(
                     f'Goal ID: {goal_id} does not exist in database'
                 )
         for task_id in task_ids:
-            if (tasks.id_exists(task_id)):
+            if not tasks.id_exists(task_id):
                 raise ValueError(
                     f'Task ID: {task_id} does not exist in database'
                 )
-
         try:
             new_id = psts.add_post(
                         user_id,
@@ -673,7 +701,10 @@ class ViewPosts(Resource):
                 posts[post_id][COMMENTS] = comment
 
         if posts:
-            return posts
+            sorted_posts = OrderedDict(sorted(posts.items(),
+                                              key=lambda x: x[1]['timestamp'],
+                                              reverse=True))
+            return sorted_posts
         else:
             raise wz.NotFound(f'No posts found with {user_id=}')
 
