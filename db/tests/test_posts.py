@@ -45,8 +45,15 @@ def test_del_post(generate_post_fields):
     post_id = psts.add_post(**generate_post_fields)
     psts.del_post(post_id) 
     assert psts.fetch_by_post_id(post_id) is None
-    
 
-
-
-    
+def test_like_post(generate_post_fields):
+    """
+    test user liking a post
+    """
+    post_id = psts.add_post(**generate_post_fields)
+    psts.like_post(post_id, user_id='6575033f3b89d2b4f309d7af')
+    assert post_id is not None
+    assert psts.is_post_liked(post_id, user_id='6575033f3b89d2b4f309d7af') is True
+    psts.unlike_post(post_id, user_id='6575033f3b89d2b4f309d7af')
+    assert psts.is_post_liked(post_id, user_id='6575033f3b89d2b4f309d7af') is False
+    psts.del_post(post_id)
