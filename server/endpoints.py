@@ -67,6 +67,8 @@ CREATECOMMENT_EP = f'/{COMMENT}/{CREATE}'
 CREATEPOST_EP = f'/{CREATE}/{POST}'
 VIEWPOSTS_EP = f'/{VIEW}/{POSTS}'
 DELETEPOST_EP = f'/{DELETE}/{POST}'
+LIKEPOST_EP = f'/{LIKE}/{POST}'
+UNLIKEPOST_EP = f'/{UNLIKE}/{POST}'
 
 # DEVELOPER ENDPOINTS
 ACCESSLOGS_EP = f'/{DEVELOPER}/access_logs'
@@ -711,6 +713,58 @@ class DeletePost(Resource):
         post_id = request.json[psts.ID]
         tools.log_access(DeletePost, request)
         psts.del_post(post_id)
+
+
+like_post_field = api.model('LikePost', {
+    psts.ID: fields.String,
+    psts.USER_ID: fields.String,
+})
+
+
+@api.route(f'{LIKEPOST_EP}', methods=['POST'])
+@api.expect(like_post_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class LikePost(Resource):
+    """
+    This class likes the taks under user's task lists
+    """
+    def post(self):
+        """
+        post a user's id and task id to like a task
+        """
+        post_id = request.json[psts.ID]
+        user_id = request.json[psts.USER_ID]
+        try:
+            psts.like_post(post_id, user_id)
+            return {
+                MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY LIKED THE TASK'
+            }
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
+
+
+@api.route(f'{UNLIKEPOST_EP}', methods=['POST'])
+@api.expect(like_post_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class UnlikePost(Resource):
+    """
+    This class likes the taks under user's task lists
+    """
+    def post(self):
+        """
+        post a user's id and task id to unlike a task
+        """
+        post_id = request.json[psts.ID]
+        user_id = request.json[psts.USER_ID]
+        try:
+            psts.unlike_post(post_id, user_id)
+            return {
+                MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY UNLIKED THE TASK'
+            }
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
 
 # ===================== POSTS Endpoint END=====================
 # ===================== DEVELOPER Endpoint START=====================
