@@ -406,5 +406,21 @@ def test_deletePost():
     deleted_post = psts.fetch_by_post_id(post_id)  # Assuming you have a function to get a post by its id
     assert deleted_post is None  # Assert that the post doesn't exist anymore
 
-    
-    
+def test_likePost():
+    new_post = psts.get_test_post()
+    test_post_id = str(psts.add_post(new_post[psts.USER_ID], new_post[psts.GOAL_IDS], new_post[psts.CONTENT],
+                                     new_post[psts.TASK_IDS], new_post[psts.LIKE_IDS], new_post[psts.COMMENT_IDS]))
+    test_user_id = str(dbc.gen_object_id())
+    resp = TEST_CLIENT.post(ep.LIKEPOST_EP, json={psts.ID: test_post_id, psts.USER_ID: test_user_id})
+    assert resp.status_code == OK
+    psts.del_post(test_post_id)
+
+def test_unlikePost():
+    new_post = psts.get_test_post()
+    test_post_id = str(psts.add_post(new_post[psts.USER_ID], new_post[psts.GOAL_IDS], new_post[psts.CONTENT],
+                                     new_post[psts.TASK_IDS], new_post[psts.LIKE_IDS], new_post[psts.COMMENT_IDS]))
+    test_user_id = str(dbc.gen_object_id())
+    psts.like_post(test_post_id, test_user_id)
+    resp = TEST_CLIENT.post(ep.UNLIKEPOST_EP, json={psts.ID: test_post_id, psts.USER_ID: test_user_id})
+    assert resp.status_code == OK
+    psts.del_post(test_post_id)

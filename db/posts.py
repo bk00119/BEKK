@@ -131,3 +131,58 @@ def del_post(post_id: str):
     """
     dbc.connect_db()
     dbc.del_one(POSTS_COLLECT, {ID: ObjectId(post_id)})
+
+
+def id_exists(id: str) -> bool:
+    dbc.connect_db()
+    return dbc.fetch_one(POSTS_COLLECT, {ID: ObjectId(id)})
+
+
+def is_post_liked(post_id: str, user_id: str):
+    if id_exists(post_id):
+        post = dbc.fetch_one(POSTS_COLLECT, {ID: ObjectId(post_id),
+                                             LIKE_IDS: {"$in": [user_id]}})
+        if post:
+            return True
+        return False
+    else:
+        raise ValueError(f'Post {post_id} has no likes.')
+
+
+def like_post(post_id: str, user_id: str):
+    if id_exists(post_id):
+        if is_post_liked(post_id, user_id):
+            raise ValueError(f'Failed: user {user_id} already liked task.')
+
+        dbc.update_one(POSTS_COLLECT, {ID: ObjectId(post_id)},
+                       {"$addToSet": {LIKE_IDS: user_id}})
+    else:
+        raise ValueError(f'Like Failed: {post_id} not in DB.')
+
+
+def unlike_post(post_id: str, user_id: str):
+    if id_exists(post_id):
+        if not is_post_liked(post_id, user_id):
+            raise ValueError(f'Failed: Already unliked task {post_id}.')
+
+        dbc.update_one(POSTS_COLLECT, {ID: ObjectId(post_id)},
+                       {"$pull": {LIKE_IDS: user_id}})
+    else:
+        raise ValueError(f'Unlike Failed: post {post_id} not in DB.')
+
+
+def get_post_likes(post_id: str):
+    try:
+        post = fetch_by_post_id(post_id)
+
+        if post:
+            usernames = post.get(LIKE_IDS)
+            like_count = len(usernames)
+            return {
+                "like_count": like_count,
+                "usernames": usernames
+            }
+        else:
+            raise ValueError(f'Post: {post_id} not found.')
+    except Exception as e:
+        raise ValueError(f'Error getting post likes: {e}')
