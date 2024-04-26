@@ -631,16 +631,15 @@ class CreatePost(Resource):
         comment_ids = []
 
         for goal_id in goal_ids:
-            if (gls.id_exists(goal_ids)):
+            if not gls.id_exists(goal_id):
                 raise ValueError(
                     f'Goal ID: {goal_id} does not exist in database'
                 )
         for task_id in task_ids:
-            if (tasks.id_exists(task_id)):
+            if not tasks.id_exists(task_id):
                 raise ValueError(
                     f'Task ID: {task_id} does not exist in database'
                 )
-
         try:
             new_id = psts.add_post(
                         user_id,
