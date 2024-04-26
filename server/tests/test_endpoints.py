@@ -356,7 +356,7 @@ def test_createPost(mock_add, generate_post_fields):
     resp = TEST_CLIENT.post(ep.CREATEPOST_EP, json=generate_post_fields)
     assert resp.status_code == OK    
 
-@pytest.mark.skip(reason= "ACTION REQUIRED: THIS ENDPOINT REPLACES THE ACTUAL DATA TO THE TEST DATA") 
+# @pytest.mark.skip(reason= "ACTION REQUIRED: THIS ENDPOINT REPLACES THE ACTUAL DATA TO THE TEST DATA") 
 def test_viewPosts():
     # create post with user_id
     post_fields = psts.get_test_post()
@@ -367,19 +367,19 @@ def test_viewPosts():
     user_id = post_fields[psts.USER_ID]
     posts = TEST_CLIENT.get(f'{ep.VIEWPOSTS_EP}/{user_id}')
     posts = posts.get_json()
-    for post_id in posts:
-        assert posts[post_id][psts.USER_ID] == user_id
+    for each_post_id in posts:
+        assert posts[each_post_id][psts.USER_ID] == user_id
 
     # view & validate all posts
     posts = TEST_CLIENT.get(f'{ep.VIEWPOSTS_EP}/all')
     posts = posts.get_json()
     assert isinstance(posts, dict)
-    for post_id in posts:
-        assert isinstance(post_id, str)
-        assert isinstance(posts[post_id], dict)
+    for each_post_id in posts:
+        assert isinstance(each_post_id, str)
+        assert isinstance(posts[each_post_id], dict)
 
     # delete created post -> ERROR CAUSED FROM THIS LINE
-    # psts.del_post(post_id)
+    psts.del_post(post_id)
 
 
 def test_deletePost():
