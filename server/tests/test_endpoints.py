@@ -424,5 +424,3 @@ def test_unlikePost():
     resp = TEST_CLIENT.post(ep.UNLIKEPOST_EP, json={psts.ID: test_post_id, psts.USER_ID: test_user_id})
     assert resp.status_code == OK
     psts.del_post(test_post_id)
-    
-    

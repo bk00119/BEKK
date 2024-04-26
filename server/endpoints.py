@@ -69,7 +69,7 @@ VIEWPOSTS_EP = f'/{VIEW}/{POSTS}'
 DELETEPOST_EP = f'/{DELETE}/{POST}'
 LIKEPOST_EP = f'/{LIKE}/{POST}'
 UNLIKEPOST_EP = f'/{UNLIKE}/{POST}'
-
+VIEWALLPOSTLIKES_EP = f'/{VIEW}/{POST}/{LIKE}'
 # DEVELOPER ENDPOINTS
 ACCESSLOGS_EP = f'/{DEVELOPER}/access_logs'
 
@@ -763,6 +763,30 @@ class UnlikePost(Resource):
             return {
                 MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY UNLIKED THE TASK'
             }
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
+
+
+all_post_likes_field = api.model('AllPostLikes', {
+    psts.ID: fields.String,
+})
+
+
+@api.route(f'{VIEWALLPOSTLIKES_EP}', methods=['POST'])
+@api.expect(all_post_likes_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class ViewAllPostLikes(Resource):
+    """
+    This class shows all likes under a post including usernames
+    """
+    def post(self):
+        """
+        gets all the liked usernames under a post
+        """
+        post = request.json[psts.ID]
+        try:
+            return psts.get_post_likes(post)
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 

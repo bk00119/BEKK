@@ -169,3 +169,20 @@ def unlike_post(post_id: str, user_id: str):
                        {"$pull": {LIKE_IDS: user_id}})
     else:
         raise ValueError(f'Unlike Failed: post {post_id} not in DB.')
+
+
+def get_post_likes(post_id: str):
+    try:
+        post = fetch_by_post_id(post_id)
+
+        if post:
+            usernames = post.get(LIKE_IDS)
+            like_count = len(usernames)
+            return {
+                "like_count": like_count,
+                "usernames": usernames
+            }
+        else:
+            raise ValueError(f'Post: {post_id} not found.')
+    except Exception as e:
+        raise ValueError(f'Error getting post likes: {e}')
