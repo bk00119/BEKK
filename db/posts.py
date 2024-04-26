@@ -89,7 +89,8 @@ def fetch_all():
                 'task_ids': 1,
                 'goal_ids': 1,
                 'like_ids': 1,
-                'comment_ids': 1
+                'comment_ids': 1,
+                'timestamp': 1,
             }
         },
         # {

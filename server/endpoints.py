@@ -17,6 +17,7 @@ import werkzeug.exceptions as wz
 from flask_cors import CORS
 # from apis import api
 import utils.tools as tools
+from collections import OrderedDict
 
 app = Flask(__name__)
 CORS(app)
@@ -666,14 +667,18 @@ class ViewPosts(Resource):
         # GLOBAL FETCH FOR POSTS
         tools.log_access(VIEWPOSTS_EP, request)
 
+        posts = {}
         # if not user_id:
         if user_id == 'all':
-            return psts.fetch_all()
-
-        # USER-BASED FETCH FOR POSTS
-        posts = psts.fetch_by_user_id(user_id)
+            posts = psts.fetch_all()
+        else:
+            # USER-BASED FETCH FOR POSTS
+            posts = psts.fetch_by_user_id(user_id)
         if posts:
-            return posts
+            sorted_posts = OrderedDict(sorted(posts.items(),
+                                              key=lambda x: x[1]['timestamp'],
+                                              reverse=True))
+            return sorted_posts
         else:
             raise wz.NotFound(f'No posts found with {user_id=}')
 
