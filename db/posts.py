@@ -140,7 +140,7 @@ def id_exists(id: str) -> bool:
 
 def is_post_liked(post_id: str, user_id: str):
     if id_exists(post_id):
-        post = dbc.fetch_one(POSTS_COLLECT, {ID: ObjectId(post_id), 
+        post = dbc.fetch_one(POSTS_COLLECT, {ID: ObjectId(post_id),
                                              LIKE_IDS: {"$in": [user_id]}})
         if post:
             return True
@@ -154,7 +154,7 @@ def like_post(post_id: str, user_id: str):
         if is_post_liked(post_id, user_id):
             raise ValueError(f'Failed: user {user_id} already liked task.')
 
-        dbc.update_one(POSTS_COLLECT, {ID: ObjectId(post_id)}, 
+        dbc.update_one(POSTS_COLLECT, {ID: ObjectId(post_id)},
                        {"$addToSet": {LIKE_IDS: user_id}})
     else:
         raise ValueError(f'Like Failed: {post_id} not in DB.')
@@ -165,7 +165,7 @@ def unlike_post(post_id: str, user_id: str):
         if not is_post_liked(post_id, user_id):
             raise ValueError(f'Failed: Already unliked task {post_id}.')
 
-        dbc.update_one(POSTS_COLLECT, {ID: ObjectId(post_id)}, 
+        dbc.update_one(POSTS_COLLECT, {ID: ObjectId(post_id)},
                        {"$pull": {LIKE_IDS: user_id}})
     else:
         raise ValueError(f'Unlike Failed: post {post_id} not in DB.')
