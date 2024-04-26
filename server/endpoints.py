@@ -419,6 +419,7 @@ class DeleteTask(Resource):
         goal_id = request.json[tasks.GOAL_ID]
         tasks.del_task(task_id, goal_id)
 
+
 # =====================Task Endpoint END=====================
 
 # =====================Goal Endpoint START=====================
@@ -667,13 +668,38 @@ class ViewPosts(Resource):
         # GLOBAL FETCH FOR POSTS
         tools.log_access(VIEWPOSTS_EP, request)
 
-        posts = {}
-        # if not user_id:
+        # Initialize return object
+        posts = None
+
+        # Fetch all posts
         if user_id == 'all':
             posts = psts.fetch_all()
+        # USER-BASED FETCH FOR POSTS
         else:
-            # USER-BASED FETCH FOR POSTS
             posts = psts.fetch_by_user_id(user_id)
+
+        # Append contents (goals, tasks, comments)
+        for post_id in posts:
+            # convert goal_ids to goal_obj
+            goals_obj = []
+            for goal_id in posts[post_id][psts.GOAL_IDS]:
+                goal = gls.get_set_goal(goal_id)
+                goals_obj.append(goal)
+            posts[post_id][GOALS] = goals_obj
+
+            # Convert task_ids to task_obj
+            tasks_obj = []
+            for task_id in posts[post_id][psts.TASK_IDS]:
+                task = tasks.get_task(task_id)
+                tasks_obj.append(task)
+            posts[post_id][TASKS] = tasks_obj
+
+            # Convert comment ids to comment_obj
+            if posts[post_id][psts.COMMENT_IDS]:
+                latest_comment_id = posts[post_id][psts.COMMENT_IDS][0]
+                comment = cmts.get_comment(latest_comment_id)
+                posts[post_id][COMMENTS] = comment
+
         if posts:
             sorted_posts = OrderedDict(sorted(posts.items(),
                                               key=lambda x: x[1]['timestamp'],
