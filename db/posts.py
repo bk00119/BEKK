@@ -178,19 +178,19 @@ def get_post_likes(post_id: str):
         if post:
             user_ids = post.get(LIKE_IDS)
             like_count = len(user_ids)
-            usernames = []
+            users = []
             for user_id in user_ids:
                 if usrs.id_exists(user_id):
                     user_data = usrs.get_user_public(user_id)
                     if usrs.USERNAME in user_data:
-                        usernames.append({
+                        users.append({
                             usrs.USERNAME: user_data[usrs.USERNAME],
                             usrs.USER_ID: user_id
                         })
 
             return {
                 "like_count": like_count,
-                "users": usernames
+                "users": users
             }
         else:
             raise ValueError(f'Post: {post_id} not found.')
