@@ -711,7 +711,8 @@ class ViewPosts(Resource):
                 if users.USERNAME in comment_user:
                     comment_user_username = comment_user[users.USERNAME]
                 posts[post_id][COMMENTS] = comment
-                posts[post_id][COMMENTS][users.USERNAME] = comment_user_username
+                posts[post_id][COMMENTS][users.USERNAME] \
+                    = comment_user_username
 
         if posts:
             sorted_posts = OrderedDict(sorted(posts.items(),
