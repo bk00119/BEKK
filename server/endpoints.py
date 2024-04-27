@@ -589,6 +589,9 @@ class CreateComment(Resource):
             new_id = cmts.add_comment(user_id, content)
             if new_id is None:
                 raise wz.ServiceUnavailable('Failed to add comment')
+
+            # NEED TO ADD COMMENT ID INTO THE POST'S COMMENT_IDS
+            # ADD POST_ID TO THE FIELD
             return {COMMENT_ID: new_id}
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
@@ -685,22 +688,30 @@ class ViewPosts(Resource):
             # convert goal_ids to goal_obj
             goals_obj = []
             for goal_id in posts[post_id][psts.GOAL_IDS]:
-                goal = gls.get_set_goal(goal_id)
-                goals_obj.append(goal)
+                if gls.id_exists(goal_id):
+                    goal = gls.get_set_goal(goal_id)
+                    goals_obj.append(goal)
             posts[post_id][GOALS] = goals_obj
 
             # Convert task_ids to task_obj
             tasks_obj = []
             for task_id in posts[post_id][psts.TASK_IDS]:
-                task = tasks.get_task(task_id)
-                tasks_obj.append(task)
+                if tasks.id_exists(task_id):
+                    task = tasks.get_task(task_id)
+                    tasks_obj.append(task)
             posts[post_id][TASKS] = tasks_obj
 
             # Convert comment ids to comment_obj
             if posts[post_id][psts.COMMENT_IDS]:
                 latest_comment_id = posts[post_id][psts.COMMENT_IDS][0]
                 comment = cmts.get_comment(latest_comment_id)
+                comment_user_id = comment[cmts.USER_ID]
+                comment_user = users.get_user_public(comment_user_id)
+                comment_user_username = None
+                if users.USERNAME in comment_user:
+                    comment_user_username = comment_user[users.USERNAME]
                 posts[post_id][COMMENTS] = comment
+                posts[post_id][COMMENTS][users.USERNAME] = comment_user_username
 
         if posts:
             sorted_posts = OrderedDict(sorted(posts.items(),
