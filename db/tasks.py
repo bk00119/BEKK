@@ -157,16 +157,17 @@ def update_task(task_id: str, goal_id: str, content: str, is_completed: bool):
                          + 'not in database.')
 
 
-def del_task(task_id: str, goal_id: str):
+def del_task(task_id: str, goal_id: str = None):
     if id_exists(task_id):
-        # UPDATE GOAL'S TASK_IDS
-        goals.del_task_from_goal(goal_id, task_id)
+        if goal_id:
+            # UPDATE GOAL'S TASK_IDS
+            goals.del_task_from_goal(goal_id, task_id)
 
-        # UPDATE GOAL'S IS_COMPLETED
-        if goals.check_task_completion(goal_id):
-            goals.set_goal_completion(goal_id, True)
-        else:
-            goals.set_goal_completion(goal_id, False)
+            # UPDATE GOAL'S IS_COMPLETED
+            if goals.check_task_completion(goal_id):
+                goals.set_goal_completion(goal_id, True)
+            else:
+                goals.set_goal_completion(goal_id, False)
 
         data = dbc.del_one(TASKS_COLLECT, {ID: ObjectId(task_id)})
         return data

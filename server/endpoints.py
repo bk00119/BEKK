@@ -508,6 +508,51 @@ class CreateUserGoal(Resource):
             raise wz.NotAcceptable(f'{str(e)}')
 
 
+delete_goal_field = api.model('DeleteGoal', {
+    gls.USER_ID: fields.String,
+    gls.ID: fields.String,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String
+})
+
+
+@api.route(f'{DELETEGOAL_EP}', methods=['POST'])
+@api.expect(delete_goal_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class DeleteUserGoal(Resource):
+    """
+    This class deletes a goal.
+    """
+    def post(self):
+        """
+        posts a goal data to delete the  goal
+        """
+        tools.log_access(CREATEUSERGOAL_EP, request)
+        user_id = request.json[gls.USER_ID]
+        goal_id = request.json[gls.ID]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            # VERIFICATION ERROR
+            return res
+        try:
+            # 1) FIND TASK_IDS FROM THE GOAL
+            goal = gls.get_set_goal(goal_id)
+            task_ids = []
+            if gls.TASK_IDS in goal and len(goal[gls.TASK_IDS]) > 0:
+                task_ids = goal[gls.TASK_IDS]
+
+            # 2) DELETE THE GOAL
+            gls.delete_set_goal(goal_id)
+
+            # 3) DELETE THE TASKS
+            for task_id in task_ids:
+                tasks.del_task(task_id)
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
+
 # =====================Goal Endpoint END=====================
 
 # =====================Comment Endpoint START================

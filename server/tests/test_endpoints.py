@@ -286,14 +286,26 @@ def test_setUserGoal():
     assert resp.status_code == OK
 
 
-@pytest.mark.skip(reason= "not using this endpoint") 
+# @pytest.mark.skip(reason= "not using this endpoint") 
 def test_deleteGoal():
-    resp = TEST_CLIENT.post(ep.DELETEGOAL_EP, json=SAMPLE_USER)
-    print(f'{resp=}')
-    resp_json = resp.get_json()
-    print(f'{resp_json=}')
-    assert ep.GOAL_RESP in resp_json
-    assert ep.USERNAME_RESP in resp_json
+    new_goal = gls.get_new_test_goals()
+    test_goal_id = str(gls.set_goal(new_goal[gls.USER_ID],new_goal[gls.CONTENT], new_goal[gls.IS_COMPLETED]))
+    test_user_id = str(new_goal[gls.USER_ID])
+    test_access_token = usrs.generate_access_token(test_user_id)
+    test_task_id = str(tsks.add_task(test_user_id, test_goal_id, "test task", False))
+    # CHECK IF THE TASK IS ATTACHED TO THE GOAL
+    goal_data = gls.get_set_goal(test_goal_id)
+    assert gls.TASK_IDS in goal_data
+    assert test_task_id in goal_data[gls.TASK_IDS]
+    resp = TEST_CLIENT.post(ep.DELETEGOAL_EP, json={
+        gls.USER_ID: test_user_id,
+        gls.ID: test_goal_id,
+        auth.ACCESS_TOKEN: test_access_token,
+        auth.REFRESH_TOKEN: test_access_token
+        })
+    # CHECK IF THE GOAL/TASK IS DELETED
+    assert not gls.id_exists(test_goal_id)
+    assert not tsks.id_exists(test_task_id)
 
 # ===================== GOALS TESTS END =====================
 
