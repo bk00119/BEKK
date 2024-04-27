@@ -190,7 +190,7 @@ def get_post_likes(post_id: str):
 
             return {
                 "like_count": like_count,
-                "usernames": usernames
+                "users": usernames
             }
         else:
             raise ValueError(f'Post: {post_id} not found.')
