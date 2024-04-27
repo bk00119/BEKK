@@ -176,8 +176,18 @@ def get_post_likes(post_id: str):
         post = fetch_by_post_id(post_id)
 
         if post:
-            usernames = post.get(LIKE_IDS)
-            like_count = len(usernames)
+            user_ids = post.get(LIKE_IDS)
+            like_count = len(user_ids)
+            usernames = []
+            for user_id in user_ids:
+                if usrs.id_exists(user_id):
+                    user_data = usrs.get_user_public(user_id)
+                    if usrs.USERNAME in user_data:
+                        usernames.append({
+                            usrs.USERNAME: user_data[usrs.USERNAME],
+                            usrs.USER_ID: user_id
+                        })
+
             return {
                 "like_count": like_count,
                 "usernames": usernames
