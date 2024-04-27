@@ -2,6 +2,7 @@ import pytest
 from bson.objectid import ObjectId
 import db.db_connect as dbc
 import db.comments as cmt
+import db.posts as psts
 
 @pytest.fixture(scope='function')
 def temp_comment():
@@ -18,6 +19,7 @@ def test_add_comment():
     assert isinstance(ret, str)
     if ret:
         cmt.delete_comment(ret)
+    psts.del_post(test_comment[cmt.POST_ID])
 
 def test_delete_comment(temp_comment):
     comment = temp_comment

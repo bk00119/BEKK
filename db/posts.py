@@ -138,6 +138,14 @@ def id_exists(id: str) -> bool:
     return dbc.fetch_one(POSTS_COLLECT, {ID: ObjectId(id)})
 
 
+def add_comment(post_id: str, comment_id: str):
+    if id_exists(post_id):
+        dbc.update_one(POSTS_COLLECT, {ID: ObjectId(post_id)},
+                       {"$addToSet": {COMMENT_IDS: comment_id}})
+    else:
+        raise ValueError(f'Adding comment Failed: {post_id} not in DB.')
+
+
 def is_post_liked(post_id: str, user_id: str):
     if id_exists(post_id):
         post = dbc.fetch_one(POSTS_COLLECT, {ID: ObjectId(post_id),

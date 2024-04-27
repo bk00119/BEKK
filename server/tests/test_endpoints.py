@@ -321,22 +321,27 @@ def test_viewUserComments():
     #     assert isinstance(comment_id, str)
     #     assert isinstance(comments[comment_id], dict)
     cmts.delete_comment(test_comment_id)
+    psts.del_post(new_comment[cmts.POST_ID])
 
 @patch('db.comments.add_comment', return_value=cmts.MOCK_ID, autospec=True)
 def test_createComment(mock_add):
     """
     Testing fo adding a new comment successfully: AddComment.post()
     """
-    resp = TEST_CLIENT.post(ep.CREATECOMMENT_EP, json=cmts.get_new_test_comments())
+    comment_data = cmts.get_new_test_comments()
+    resp = TEST_CLIENT.post(ep.CREATECOMMENT_EP, json=comment_data)
     assert resp.status_code == OK
+    psts.del_post(comment_data[cmts.POST_ID])
 
 @patch('db.comments.add_comment', side_effect=ValueError(), autospec=True)
 def test_bad_createComment(mock_add):
     """
     Testing for adding a new comment failed: AddComment.post()
     """
-    resp = TEST_CLIENT.post(ep.CREATECOMMENT_EP, json=cmts.get_new_test_comments())
+    comment_data = cmts.get_new_test_comments()
+    resp = TEST_CLIENT.post(ep.CREATECOMMENT_EP, json=comment_data)
     assert resp.status_code == NOT_ACCEPTABLE
+    psts.del_post(comment_data[cmts.POST_ID])
 
 # ===================== COMMENTS TESTS END =====================
 

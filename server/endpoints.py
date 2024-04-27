@@ -565,6 +565,7 @@ class ViewUserComments(Resource):
 
 added_comment_field = api.model('AddedComment', {
     cmts.USER_ID: fields.String,
+    cmts.POST_ID: fields.String,
     cmts.CONTENT: fields.String,
 })
 
@@ -584,15 +585,17 @@ class CreateComment(Resource):
         """
         tools.log_access(CREATECOMMENT_EP, request)
         user_id = request.json[cmts.USER_ID]
+        post_id = request.json[cmts.POST_ID]
         content = request.json[cmts.CONTENT]
         try:
-            new_id = cmts.add_comment(user_id, content)
-            if new_id is None:
+            comment_id = cmts.add_comment(user_id, content)
+            if comment_id is None:
                 raise wz.ServiceUnavailable('Failed to add comment')
 
             # NEED TO ADD COMMENT ID INTO THE POST'S COMMENT_IDS
             # ADD POST_ID TO THE FIELD
-            return {COMMENT_ID: new_id}
+            psts.add_comment(post_id, comment_id)
+            return {COMMENT_ID: comment_id}
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 

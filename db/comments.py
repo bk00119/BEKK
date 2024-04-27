@@ -22,6 +22,7 @@ USER_ID = 'user_id'
 CONTENT = 'content'
 USERNAME = 'username'
 TIMESTAMP = 'timestamp'
+POST_ID = 'post_id'
 
 ID_LEN = 24
 BIG_NUM = 100_000_000_000_000_000_000
@@ -49,6 +50,9 @@ def get_new_test_comments():
     _id = str(_id)
     _id = _id.rjust(ID_LEN, '0')
     add_comment[USER_ID] = '6575033f3b89d2b4f309d7af'
+    # add_comment[POST_ID] = ''  # NEED TO WORK ON THIS
+    add_comment[POST_ID] = psts.add_post('6575033f3b89d2b4f309d7af',
+                                         "test post", [], [], [], [])
     add_comment[CONTENT] = 'great work!'
     return add_comment
 
