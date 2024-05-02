@@ -848,6 +848,50 @@ class DeletePostTask(Resource):
             raise wz.NotAcceptable(f'{str(e)}')
 
 
+delete_post_goal_field = api.model('DeletePostGoal', {
+    psts.ID: fields.String,
+    psts.USER_ID: fields.String,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String,
+    GOAL_ID: fields.String
+})
+
+
+@api.route(f'{DELETEPOSTGOAL_EP}', methods=['POST'])
+@api.expect(delete_post_goal_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class DeletePostGoal(Resource):
+    """
+    This class removes a goal from post
+    """
+    def post(self):
+        # AUTH
+        user_id = request.json[psts.USER_ID]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            # VERIFICATION ERROR
+            return res
+
+        # Get parameters
+        post_id = request.json[psts.ID]
+        goal_id = request.json[GOAL_ID]
+
+        # Log
+        tools.log_access(DeletePostGoal, request)
+
+        try:
+            if gls.id_exists(goal_id):
+                psts.remove_goal(post_id, goal_id)
+            return {
+                MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY DELETED A POST\'S GOAL'
+            }
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
+
+
 like_post_field = api.model('LikePost', {
     psts.ID: fields.String,
     psts.USER_ID: fields.String,

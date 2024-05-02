@@ -218,3 +218,17 @@ def remove_task(post_id: str, task_id: str):
                        {"$pull": {TASK_IDS: task_id}})
     else:
         raise ValueError(f'Adding comment Failed: {post_id} not in DB.')
+
+
+def remove_goal(post_id: str, goal_id: str):
+    if id_exists(post_id):
+        # check if goal_id is in the field
+        goals = fetch_by_post_id(post_id)[GOAL_IDS]
+        if (goal_id not in goals):
+            raise ValueError(f'Goal ID: {goal_id} DNE in post {post_id}')
+
+        # remove it from the field
+        dbc.update_one(POSTS_COLLECT, {ID: ObjectId(post_id)},
+                       {"$pull": {GOAL_IDS: goal_id}})
+    else:
+        raise ValueError(f'Removing goal failed: {post_id} not found in DB.')

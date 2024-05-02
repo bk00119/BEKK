@@ -474,4 +474,34 @@ def test_delete_post_task():
     tsks.del_task(test_task_id, test_goal_id)
     gls.delete_set_goal(test_goal_id)
     psts.del_post(post_id)
+
+def test_delete_post_task():
+    # create task, goal, and post 
+    post_fields = psts.get_test_post()
+    user_id = post_fields[psts.USER_ID]
+    test_goal_id = gls.set_goal(user_id, "Test Goal", False)
+    post_fields[psts.GOAL_IDS].append(test_goal_id)
+    post_id = psts.add_post(**post_fields)
+
+    # check that attachment was made 
+    with_goal_post = psts.fetch_by_post_id(post_id)
+    assert test_goal_id in with_goal_post[psts.GOAL_IDS]
+
+    # remove that task_id from the field 
+    fields = {}
+    fields[psts.ID] = post_id
+    fields[psts.USER_ID] = user_id
+    test_access_token = usrs.generate_access_token(user_id) 
+    fields[auth.ACCESS_TOKEN] = test_access_token
+    fields[auth.REFRESH_TOKEN] = test_access_token
+    fields[ep.GOAL_ID] = test_goal_id
+    resp = TEST_CLIENT.post(ep.DELETEPOSTGOAL_EP, json=fields)
+
+    # retrieve and check task_id is not there 
+    without_goal_post = psts.fetch_by_post_id(post_id)
+    assert test_goal_id not in without_goal_post[psts.GOAL_IDS]
+
+    # cleanup 
+    gls.delete_set_goal(test_goal_id)
+    psts.del_post(post_id)
     
