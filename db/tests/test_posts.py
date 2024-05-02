@@ -69,3 +69,4 @@ def test_get_post_likes(generate_post_fields):
     ret = psts.get_post_likes(post_id)
     assert isinstance(ret, dict)
     psts.del_post(post_id)
+

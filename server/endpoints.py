@@ -70,6 +70,8 @@ DELETEPOST_EP = f'/{DELETE}/{POST}'
 LIKEPOST_EP = f'/{LIKE}/{POST}'
 UNLIKEPOST_EP = f'/{UNLIKE}/{POST}'
 VIEWALLPOSTLIKES_EP = f'/{VIEW}/{POST}/{LIKE}'
+DELETEPOSTTASK_EP = f'/{DELETE}/{POST}/{TASK}'
+DELETEPOSTGOAL_EP = f'/{DELETE}/{POST}/{GOAL}'
 # DEVELOPER ENDPOINTS
 ACCESSLOGS_EP = f'/{DEVELOPER}/access_logs'
 
@@ -104,6 +106,7 @@ PRIVATE = "Private"
 COMMENTS = 'comments'
 
 TASKS = 'Tasks'
+GOAL_ID = 'Goal ID'
 TASK_ID = 'Task ID'
 USER_ID = 'User ID'
 COMMENT_ID = 'Comment ID'
@@ -799,6 +802,50 @@ class DeletePost(Resource):
         post_id = request.json[psts.ID]
         tools.log_access(DeletePost, request)
         psts.del_post(post_id)
+
+
+delete_post_task_field = api.model('DeletePostTask', {
+    psts.ID: fields.String,
+    psts.USER_ID: fields.String,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String,
+    TASK_ID: fields.String
+})
+
+
+@api.route(f'{DELETEPOSTTASK_EP}', methods=['POST'])
+@api.expect(delete_post_task_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class DeletePostTask(Resource):
+    """
+    This class removes a task from post
+    """
+    def post(self):
+        # AUTH
+        user_id = request.json[psts.USER_ID]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            # VERIFICATION ERROR
+            return res
+
+        # Get parameters
+        post_id = request.json[psts.ID]
+        task_id = request.json[TASK_ID]
+
+        # Log
+        tools.log_access(DeletePostTask, request)
+
+        try:
+            if tasks.id_exists(task_id):
+                psts.remove_task(post_id, task_id)
+            return {
+                MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY DELETED A POST\'S TASK'
+            }
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
 
 
 like_post_field = api.model('LikePost', {

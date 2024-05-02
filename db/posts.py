@@ -204,3 +204,17 @@ def get_post_likes(post_id: str):
             raise ValueError(f'Post: {post_id} not found.')
     except Exception as e:
         raise ValueError(f'Error getting post likes: {e}')
+
+
+def remove_task(post_id: str, task_id: str):
+    if id_exists(post_id):
+        # check if task_id in in the field
+        tasks = fetch_by_post_id(post_id)[TASK_IDS]
+        if (task_id not in tasks):
+            raise ValueError(f'Task ID: {task_id} DNE in post {post_id}')
+
+        # pop it off the field
+        dbc.update_one(POSTS_COLLECT, {ID: ObjectId(post_id)},
+                       {"$pull": {TASK_IDS: task_id}})
+    else:
+        raise ValueError(f'Adding comment Failed: {post_id} not in DB.')
