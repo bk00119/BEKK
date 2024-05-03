@@ -228,4 +228,3 @@ def add_goal(post_id: str, goal_id: str):
                        {"$addToSet": {GOAL_IDS: goal_id}})
     else:
         raise ValueError(f'Add goal failed: {post_id} not found in DB.')
-    
