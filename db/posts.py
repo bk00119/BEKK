@@ -204,3 +204,27 @@ def get_post_likes(post_id: str):
             raise ValueError(f'Post: {post_id} not found.')
     except Exception as e:
         raise ValueError(f'Error getting post likes: {e}')
+
+
+def add_task(post_id: str, task_id: str):
+    if id_exists(post_id):
+        tasks = fetch_by_post_id(post_id)[TASK_IDS]
+        if (task_id not in tasks):
+            raise ValueError(f'Task ID: {task_id} DNE in post {post_id}')
+
+        dbc.update_one(POSTS_COLLECT, {ID: ObjectId(post_id)},
+                       {"$addToSet": {TASK_IDS: task_id}})
+    else:
+        raise ValueError(f'Adding task Failed: {post_id} not in DB.')
+
+
+def add_goal(post_id: str, goal_id: str):
+    if id_exists(post_id):
+        goals = fetch_by_post_id(post_id)[GOAL_IDS]
+        if (goal_id not in goals):
+            raise ValueError(f'Goal ID: {goal_id} DNE in post {post_id}')
+
+        dbc.update_one(POSTS_COLLECT, {ID: ObjectId(post_id)},
+                       {"$addToSet": {GOAL_IDS: goal_id}})
+    else:
+        raise ValueError(f'Add goal failed: {post_id} not found in DB.')
