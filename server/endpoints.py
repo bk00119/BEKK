@@ -41,6 +41,7 @@ COMMENT = "comment"
 POST = "post"
 POSTS = "posts"
 DEVELOPER = "developer"
+ADD = "add"
 
 # Endpoints
 # AUTH
@@ -70,6 +71,8 @@ DELETEPOST_EP = f'/{DELETE}/{POST}'
 LIKEPOST_EP = f'/{LIKE}/{POST}'
 UNLIKEPOST_EP = f'/{UNLIKE}/{POST}'
 VIEWALLPOSTLIKES_EP = f'/{VIEW}/{POST}/{LIKE}'
+ADDPOSTTASK_EP = f'/{DELETE}/{POST}/{TASK}'
+ADDPOSTGOAL_EP = f'/{DELETE}/{POST}/{GOAL}'
 # DEVELOPER ENDPOINTS
 ACCESSLOGS_EP = f'/{DEVELOPER}/access_logs'
 
@@ -107,6 +110,7 @@ TASKS = 'Tasks'
 TASK_ID = 'Task ID'
 USER_ID = 'User ID'
 COMMENT_ID = 'Comment ID'
+GOAL_ID = "Goal ID"
 TASK_NAME = 'task name'
 TASK_DESCRIPTION = 'task description'
 LIKE = False
@@ -873,6 +877,48 @@ class ViewAllPostLikes(Resource):
         post = request.json[psts.ID]
         try:
             return psts.get_post_likes(post)
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
+
+
+add_post_task_field = api.model('AddPostTask', {
+    psts.ID: fields.String,
+    psts.USER_ID: fields.String,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String,
+    TASK_ID: fields.String
+})
+
+
+@api.route(f'{ADDPOSTTASK_EP}', methods=['POST'])
+@api.expect(add_post_task_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class AddPostTask(Resource):
+    """
+    This class removes a task from post
+    """
+    def post(self):
+        # AUTH
+        user_id = request.json[psts.USER_ID]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            # VERIFICATION ERROR
+            return res
+
+        post_id = request.json[psts.ID]
+        task_id = request.json[TASK_ID]
+
+        tools.log_access(AddPostTask, request)
+
+        try:
+            if tasks.id_exists(task_id):
+                psts.add_task(post_id, task_id)
+            return {
+                MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY ADDED A POST\'S TASK'
+            }
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
 
