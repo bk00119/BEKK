@@ -896,7 +896,7 @@ add_post_task_field = api.model('AddPostTask', {
 @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
 class AddPostTask(Resource):
     """
-    This class removes a task from post
+    This class adds a task to post
     """
     def post(self):
         # AUTH
@@ -918,6 +918,47 @@ class AddPostTask(Resource):
                 psts.add_task(post_id, task_id)
             return {
                 MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY ADDED A POST\'S TASK'
+            }
+        except ValueError as e:
+            raise wz.NotAcceptable(f'{str(e)}')
+
+
+add_post_goal_field = api.model('AddPostGoal', {
+    psts.ID: fields.String,
+    psts.USER_ID: fields.String,
+    auth.ACCESS_TOKEN: fields.String,
+    auth.REFRESH_TOKEN: fields.String,
+    GOAL_ID: fields.String
+})
+
+
+@api.route(f'{ADDPOSTGOAL_EP}', methods=['POST'])
+@api.expect(add_post_goal_field)
+@api.response(HTTPStatus.OK, 'Success')
+@api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not Acceptable')
+class AddPostGoal(Resource):
+    """
+    This class adds a goal to a post
+    """
+    def post(self):
+        # AUTH
+        user_id = request.json[psts.USER_ID]
+        access_token = request.json[auth.ACCESS_TOKEN]
+        refresh_token = request.json[auth.REFRESH_TOKEN]
+        res = auth.verify(user_id, access_token, refresh_token)
+        if res:
+            return res
+
+        post_id = request.json[psts.ID]
+        goal_id = request.json[GOAL_ID]
+
+        tools.log_access(AddPostGoal, request)
+
+        try:
+            if gls.id_exists(goal_id):
+                psts.add_goal(post_id, goal_id)
+            return {
+                MESSAGE_RESP: 'YOU HAVE SUCCESSFULLY ADDED A POST\'S GOAL'
             }
         except ValueError as e:
             raise wz.NotAcceptable(f'{str(e)}')
